@@ -32,7 +32,7 @@ module BCDice
         ■각종 표
 
         ・조우 반응표 Reaction (ERT)
-        ・붕괴표 Broken (BRO)
+        ・파손(빈사표) Broken (BRO)
 
       INFO_MESSAGETEXT
 

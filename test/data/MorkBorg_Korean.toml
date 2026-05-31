@@ -223,7 +223,7 @@ rands = [
 [[ test ]]
 game_system = "MorkBorg:Korean"
 input = "MOR7"
-output = "(MOR7) ＞ 7+0 ＞ 7 ＞ 모럴 유지"
+output = "(MOR7) ＞ 7+0 ＞ 7 ＞ 유지되었다"
 failure = true
 rands = [
   { sides = 6, value = 6 },
@@ -254,8 +254,8 @@ rands = [
 
 [[ test ]]
 game_system = "MorkBorg:Korean"
-input = "ERT 조우 반응표"
-output = "조우 반응표(2) ＞ Kill!"
+input = "ERT 예상치 못한 반응표"
+output = "예상치 못한 반응표(2) ＞ 죽인다!"
 rands = [
   { sides = 6, value = 1 },
   { sides = 6, value = 1 },
@@ -263,8 +263,8 @@ rands = [
 
 [[ test ]]
 game_system = "MorkBorg:Korean"
-input = "ERT 조우 반응표"
-output = "조우 반응표(3) ＞ Kill!"
+input = "ERT 예상치 못한 반응표"
+output = "예상치 못한 반응표(3) ＞ 죽인다!"
 rands = [
   { sides = 6, value = 1 },
   { sides = 6, value = 2 },
@@ -272,8 +272,8 @@ rands = [
 
 [[ test ]]
 game_system = "MorkBorg:Korean"
-input = "ERT 조우 반응표"
-output = "조우 반응표(4) ＞ Angered"
+input = "ERT 예상치 못한 반응표"
+output = "예상치 못한 반응표(4) ＞ 격앙"
 rands = [
   { sides = 6, value = 1 },
   { sides = 6, value = 3 },
@@ -281,8 +281,8 @@ rands = [
 
 [[ test ]]
 game_system = "MorkBorg:Korean"
-input = "ERT 조우 반응표"
-output = "조우 반응표(5) ＞ Angered"
+input = "ERT 예상치 못한 반응표"
+output = "예상치 못한 반응표(5) ＞ 격앙"
 rands = [
   { sides = 6, value = 1 },
   { sides = 6, value = 4 },
@@ -290,8 +290,8 @@ rands = [
 
 [[ test ]]
 game_system = "MorkBorg:Korean"
-input = "ERT 조우 반응표"
-output = "조우 반응표(6) ＞ Angered"
+input = "ERT 예상치 못한 반응표"
+output = "예상치 못한 반응표(6) ＞ 격앙"
 rands = [
   { sides = 6, value = 1 },
   { sides = 6, value = 5 },
@@ -299,8 +299,8 @@ rands = [
 
 [[ test ]]
 game_system = "MorkBorg:Korean"
-input = "ERT 조우 반응표"
-output = "조우 반응표(7) ＞ Indifferent"
+input = "ERT 예상치 못한 반응표"
+output = "예상치 못한 반응표(7) ＞ 무관심"
 rands = [
   { sides = 6, value = 1 },
   { sides = 6, value = 6 },
@@ -308,8 +308,8 @@ rands = [
 
 [[ test ]]
 game_system = "MorkBorg:Korean"
-input = "ERT 조우 반응표"
-output = "조우 반응표(8) ＞ Indifferent"
+input = "ERT 예상치 못한 반응표"
+output = "예상치 못한 반응표(8) ＞ 무관심"
 rands = [
   { sides = 6, value = 2 },
   { sides = 6, value = 6 },
@@ -317,8 +317,8 @@ rands = [
 
 [[ test ]]
 game_system = "MorkBorg:Korean"
-input = "ERT 조우 반응표"
-output = "조우 반응표(9) ＞ Almost friendly"
+input = "ERT 예상치 못한 반응표"
+output = "예상치 못한 반응표(9) ＞ 대체로 우호적"
 rands = [
   { sides = 6, value = 3 },
   { sides = 6, value = 6 },
@@ -326,8 +326,8 @@ rands = [
 
 [[ test ]]
 game_system = "MorkBorg:Korean"
-input = "ERT 조우 반응표"
-output = "조우 반응표(10) ＞ Almost friendly"
+input = "ERT 예상치 못한 반응표"
+output = "예상치 못한 반응표(10) ＞ 대체로 우호적"
 rands = [
   { sides = 6, value = 4 },
   { sides = 6, value = 6 },
@@ -335,8 +335,8 @@ rands = [
 
 [[ test ]]
 game_system = "MorkBorg:Korean"
-input = "ERT 조우 반응표"
-output = "조우 반응표(11) ＞ Helpful"
+input = "ERT 예상치 못한 반응표"
+output = "예상치 못한 반응표(11) ＞ 협조적"
 rands = [
   { sides = 6, value = 5 },
   { sides = 6, value = 6 },
@@ -344,8 +344,8 @@ rands = [
 
 [[ test ]]
 game_system = "MorkBorg:Korean"
-input = "ERT 조우 반응표"
-output = "조우 반응표(12) ＞ Helpful"
+input = "ERT 예상치 못한 반응표"
+output = "예상치 못한 반응표(12) ＞ 협조적"
 rands = [
   { sides = 6, value = 6 },
   { sides = 6, value = 6 },
@@ -353,16 +353,16 @@ rands = [
 
 [[ test ]]
 game_system = "MorkBorg:Korean"
-input = "BRO 붕괴표"
-output = "붕괴표(1) ＞ Fall unconscious for d4 rounds, awaken with d4 HP."
+input = "BRO 빈사표"
+output = "빈사표(1) ＞ d4 라운드 동안 기절하며, d4 HP를 회복하고 깨어난다."
 rands = [
   { sides = 4, value = 1 },
 ]
 
 [[ test ]]
 game_system = "MorkBorg:Korean"
-input = "BRO 붕괴표"
-output = "붕괴표(4) ＞ Dead."
+input = "BRO 빈사표"
+output = "빈사표(4) ＞ 죽는다."
 rands = [
   { sides = 4, value = 4 },
 ]
