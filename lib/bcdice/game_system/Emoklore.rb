@@ -115,7 +115,7 @@ module BCDice
 
         # ダイス数が0以下の場合は確定失敗
         if num_dice <= 0
-          return Result.fumble("(#{command}) ＞ ダイス数が0以下 ＞ 確定失敗")
+          return Result.fumble("(#{command}) ＞ #{translate('Emoklore.dice_count_zero')}")
         end
 
         # ダイスロール本体
@@ -146,7 +146,7 @@ module BCDice
         success_threshold = m[1].to_i + m[2].to_i
 
         if num_dice <= 0
-          return Result.fumble("(#{command}) ＞ ダイス数が0以下 ＞ 確定失敗")
+          return Result.fumble("(#{command}) ＞ #{translate('Emoklore.dice_count_zero')}")
         end
 
         result = dice_roll(num_dice, success_threshold)

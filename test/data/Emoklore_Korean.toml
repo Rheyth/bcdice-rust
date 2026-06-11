@@ -308,3 +308,113 @@ rands = [
   { sides = 10, value = 10 },
   { sides = 10, value = 10 },
 ]
+
+# 산술식 테스트: 주사위 개수에 더하기
+[[ test ]]
+game_system = "Emoklore:Korean"
+input = "2+2DM<=5"
+output = "(2+2DM<=5) ＞ (4DM<=5) ＞ [3, 4, 6, 7] ＞ 2 ＞ 성공 수 2, 더블"
+success = true
+critical = true
+rands = [
+  { sides = 10, value = 3 },
+  { sides = 10, value = 4 },
+  { sides = 10, value = 6 },
+  { sides = 10, value = 7 },
+]
+
+# 산술식 테스트: 주사위 개수에 곱하기
+[[ test ]]
+game_system = "Emoklore:Korean"
+input = "2*3DM<=5"
+output = "(2*3DM<=5) ＞ (6DM<=5) ＞ [1, 2, 3, 6, 7, 8] ＞ 4 ＞ 성공 수 4, 미라클"
+success = true
+critical = true
+rands = [
+  { sides = 10, value = 1 },
+  { sides = 10, value = 2 },
+  { sides = 10, value = 3 },
+  { sides = 10, value = 6 },
+  { sides = 10, value = 7 },
+  { sides = 10, value = 8 },
+]
+
+# 산술식 테스트: 판정값에 산술식
+[[ test ]]
+game_system = "Emoklore:Korean"
+input = "2DM<=3+2"
+output = "(2DM<=3+2) ＞ (2DM<=5) ＞ [3, 6] ＞ 1 ＞ 성공 수 1, 성공"
+success = true
+rands = [
+  { sides = 10, value = 3 },
+  { sides = 10, value = 6 },
+]
+
+# 산술식 테스트: 주사위 수와 판정값 모두에 산술식
+[[ test ]]
+game_system = "Emoklore:Korean"
+input = "1+2DM<=3+2"
+output = "(1+2DM<=3+2) ＞ (3DM<=5) ＞ [3, 6, 7] ＞ 1 ＞ 성공 수 1, 성공"
+success = true
+rands = [
+  { sides = 10, value = 3 },
+  { sides = 10, value = 6 },
+  { sides = 10, value = 7 },
+]
+
+# 산술식 테스트: 주사위 수가 0 이하일 경우 실패로 확정
+[[ test ]]
+game_system = "Emoklore:Korean"
+input = "3-5DM<=5"
+output = "(3-5DM<=5) ＞ 주사위 개수가 0 이하 ＞ 확정 실패"
+failure = true
+fumble = true
+rands = []
+
+# 주사위 보너스: Ez로 합산
+[[ test ]]
+game_system = "Emoklore:Korean"
+input = "2DM<=5E2"
+output = "(2DM<=5E2) ＞ (4DM<=5) ＞ [3, 4, 6, 7] ＞ 2 ＞ 성공 수 2, 더블"
+success = true
+critical = true
+rands = [
+  { sides = 10, value = 3 },
+  { sides = 10, value = 4 },
+  { sides = 10, value = 6 },
+  { sides = 10, value = 7 },
+]
+
+# 주사위 패널티: E-z에서 차감
+[[ test ]]
+game_system = "Emoklore:Korean"
+input = "3DM<=5E-1"
+output = "(3DM<=5E-1) ＞ (2DM<=5) ＞ [3, 6] ＞ 1 ＞ 성공 수 1, 성공"
+success = true
+rands = [
+  { sides = 10, value = 3 },
+  { sides = 10, value = 6 },
+]
+
+# 주사위 패널티: E-z에서 주사위 개수가 0개 이하일 경우 실패로 확정
+[[ test ]]
+game_system = "Emoklore:Korean"
+input = "1DM<=5E-2"
+output = "(1DM<=5E-2) ＞ 주사위 개수가 0 이하 ＞ 확정 실패"
+failure = true
+fumble = true
+rands = []
+
+# 산술식과 주사위 보너스/패널티의 병행 사용
+[[ test ]]
+game_system = "Emoklore:Korean"
+input = "1+1DM<=5E2"
+output = "(1+1DM<=5E2) ＞ (4DM<=5) ＞ [3, 4, 6, 7] ＞ 2 ＞ 성공 수 2 더블"
+success = true
+critical = true
+rands = [
+  { sides = 10, value = 3 },
+  { sides = 10, value = 4 },
+  { sides = 10, value = 6 },
+  { sides = 10, value = 7 },
+]
