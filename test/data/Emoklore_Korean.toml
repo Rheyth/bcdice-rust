@@ -409,7 +409,7 @@ rands = []
 [[ test ]]
 game_system = "Emoklore:Korean"
 input = "1+1DM<=5E2"
-output = "(1+1DM<=5E2) ＞ (4DM<=5) ＞ [3, 4, 6, 7] ＞ 2 ＞ 성공 수 2 더블"
+output = "(1+1DM<=5E2) ＞ (4DM<=5) ＞ [3, 4, 6, 7] ＞ 2 ＞ 성공 수 2, 더블"
 success = true
 critical = true
 rands = [
