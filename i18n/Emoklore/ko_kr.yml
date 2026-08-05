@@ -5,3 +5,4 @@ ko_kr:
     triple: 트리플
     miracle: 미라클
     catastrophe: 카타스트로프
+    dice_count_zero: "주사위 개수가 0 이하 ＞ 확정 실패"
