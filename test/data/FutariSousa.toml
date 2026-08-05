@@ -1200,6 +1200,22 @@ rands = [
 
 [[ test ]]
 game_system = "FutariSousa"
+input = "EV8A"
+output = "変な助手／イベント表(6) ＞ ワールドエンド（探偵の友達P.59）\n　探偵もハチャメチャ。\n　助手もハチャメチャ。\n　それなら……この事態の収拾は誰がつけるのだ？\n　誰にもできないのではないか？"
+rands = [
+  { sides = 6, value = 6 },
+]
+
+[[ test ]]
+game_system = "FutariSousa"
+input = "EV8N"
+output = "代表的NPC捜査／イベント表(6) ＞ 犬だ……（探偵の友達P.62）\n　捜査中。犬がやって来た。\n　色あせた首輪には、「カロテノイド号」と書かれている。\n　カロテノイドは、PCたちの顔を一瞥すると、どこかに歩き始めた。\n　しばらくしてから、また一瞥。付いてこいとでも言いたいのだろうか。"
+rands = [
+  { sides = 6, value = 6 },
+]
+
+[[ test ]]
+game_system = "FutariSousa"
 input = "OBT"
 output = "調査の障害表(66) ＞ 偶然が積み重なってうまくいかない"
 rands = [
