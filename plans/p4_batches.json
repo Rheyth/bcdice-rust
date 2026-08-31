@@ -1,0 +1,3197 @@
+{
+ "eval_batches": [
+  [
+   {
+    "id": "MeikyuKingdom",
+    "cases": 622,
+    "rb": [
+     "MeikyuKingdom"
+    ],
+    "eval": true,
+    "rb_lines": 466
+   },
+   {
+    "id": "MeikyuKingdomBasic",
+    "cases": 373,
+    "rb": [
+     "MeikyuKingdomBasic"
+    ],
+    "eval": true,
+    "rb_lines": 389
+   },
+   {
+    "id": "Satasupe",
+    "cases": 346,
+    "rb": [
+     "Satasupe"
+    ],
+    "eval": true,
+    "rb_lines": 397
+   },
+   {
+    "id": "LogHorizon",
+    "cases": 268,
+    "rb": [
+     "LogHorizon",
+     "LogHorizon_Korean"
+    ],
+    "eval": true,
+    "rb_lines": 646
+   },
+   {
+    "id": "GundogZero",
+    "cases": 259,
+    "rb": [
+     "GundogZero"
+    ],
+    "eval": true,
+    "rb_lines": 261
+   },
+   {
+    "id": "Warhammer4",
+    "cases": 246,
+    "rb": [
+     "Warhammer4"
+    ],
+    "eval": true,
+    "rb_lines": 651
+   },
+   {
+    "id": "Warhammer",
+    "cases": 241,
+    "rb": [
+     "Warhammer"
+    ],
+    "eval": true,
+    "rb_lines": 345
+   },
+   {
+    "id": "SwordWorld",
+    "cases": 230,
+    "rb": [
+     "SwordWorld",
+     "SwordWorld_SimplifiedChinese"
+    ],
+    "eval": true,
+    "rb_lines": 442
+   },
+   {
+    "id": "SwordWorld:SimplifiedChinese",
+    "cases": 230,
+    "rb": [
+     "SwordWorld",
+     "SwordWorld_SimplifiedChinese"
+    ],
+    "eval": true,
+    "rb_lines": 442
+   },
+   {
+    "id": "MeikyuDays",
+    "cases": 229,
+    "rb": [
+     "MeikyuDays"
+    ],
+    "eval": true,
+    "rb_lines": 416
+   },
+   {
+    "id": "Chill",
+    "cases": 203,
+    "rb": [
+     "Chill"
+    ],
+    "eval": true,
+    "rb_lines": 163
+   },
+   {
+    "id": "BeginningIdol",
+    "cases": 201,
+    "rb": [
+     "BeginningIdol",
+     "BeginningIdol_Korean"
+    ],
+    "eval": true,
+    "rb_lines": 329
+   },
+   {
+    "id": "WerewolfTheApocalypse5th",
+    "cases": 200,
+    "rb": [
+     "WerewolfTheApocalypse5th"
+    ],
+    "eval": true,
+    "rb_lines": 184
+   },
+   {
+    "id": "BeginningIdol:Korean",
+    "cases": 196,
+    "rb": [
+     "BeginningIdol",
+     "BeginningIdol_Korean"
+    ],
+    "eval": true,
+    "rb_lines": 329
+   },
+   {
+    "id": "VampireTheMasquerade5th",
+    "cases": 183,
+    "rb": [
+     "VampireTheMasquerade5th"
+    ],
+    "eval": true,
+    "rb_lines": 192
+   },
+   {
+    "id": "HuntersMoon",
+    "cases": 175,
+    "rb": [
+     "HuntersMoon"
+    ],
+    "eval": true,
+    "rb_lines": 404
+   },
+   {
+    "id": "Yggdrasill",
+    "cases": 173,
+    "rb": [
+     "Yggdrasill"
+    ],
+    "eval": true,
+    "rb_lines": 605
+   },
+   {
+    "id": "FutariSousa",
+    "cases": 172,
+    "rb": [
+     "FutariSousa",
+     "FutariSousa_Korean"
+    ],
+    "eval": true,
+    "rb_lines": 443
+   },
+   {
+    "id": "KillDeathBusiness",
+    "cases": 169,
+    "rb": [
+     "KillDeathBusiness",
+     "KillDeathBusiness_Korean"
+    ],
+    "eval": true,
+    "rb_lines": 631
+   },
+   {
+    "id": "ShinobiGami",
+    "cases": 164,
+    "rb": [
+     "ShinobiGami",
+     "ShinobiGami_Korean"
+    ],
+    "eval": true,
+    "rb_lines": 432
+   }
+  ],
+  [
+   {
+    "id": "PastFutureParadox",
+    "cases": 163,
+    "rb": [
+     "PastFutureParadox"
+    ],
+    "eval": true,
+    "rb_lines": 3428
+   },
+   {
+    "id": "ShinobiGami:Korean",
+    "cases": 162,
+    "rb": [
+     "ShinobiGami",
+     "ShinobiGami_Korean"
+    ],
+    "eval": true,
+    "rb_lines": 432
+   },
+   {
+    "id": "RuneQuestRoleplayingInGlorantha",
+    "cases": 159,
+    "rb": [
+     "RuneQuestRoleplayingInGlorantha"
+    ],
+    "eval": true,
+    "rb_lines": 173
+   },
+   {
+    "id": "MagicaLogia",
+    "cases": 155,
+    "rb": [
+     "MagicaLogia",
+     "MagicaLogia_Korean",
+     "MagicaLogia_SimplifiedChinese"
+    ],
+    "eval": true,
+    "rb_lines": 394
+   },
+   {
+    "id": "MagicaLogia:Korean",
+    "cases": 155,
+    "rb": [
+     "MagicaLogia",
+     "MagicaLogia_Korean",
+     "MagicaLogia_SimplifiedChinese"
+    ],
+    "eval": true,
+    "rb_lines": 394
+   },
+   {
+    "id": "MagicaLogia:SimplifiedChinese",
+    "cases": 155,
+    "rb": [
+     "MagicaLogia",
+     "MagicaLogia_Korean",
+     "MagicaLogia_SimplifiedChinese"
+    ],
+    "eval": true,
+    "rb_lines": 394
+   },
+   {
+    "id": "Cthulhu7th",
+    "cases": 151,
+    "rb": [
+     "Cthulhu7th",
+     "Cthulhu7th_ChineseTraditional",
+     "Cthulhu7th_Korean"
+    ],
+    "eval": true,
+    "rb_lines": 1656
+   },
+   {
+    "id": "Cthulhu7th:ChineseTraditional",
+    "cases": 151,
+    "rb": [
+     "Cthulhu7th",
+     "Cthulhu7th_ChineseTraditional",
+     "Cthulhu7th_Korean"
+    ],
+    "eval": true,
+    "rb_lines": 1656
+   },
+   {
+    "id": "Cthulhu7th:Korean",
+    "cases": 150,
+    "rb": [
+     "Cthulhu7th",
+     "Cthulhu7th_ChineseTraditional",
+     "Cthulhu7th_Korean"
+    ],
+    "eval": true,
+    "rb_lines": 1656
+   },
+   {
+    "id": "Dracurouge",
+    "cases": 147,
+    "rb": [
+     "Dracurouge",
+     "Dracurouge_Korean"
+    ],
+    "eval": true,
+    "rb_lines": 616
+   },
+   {
+    "id": "Dracurouge:Korean",
+    "cases": 147,
+    "rb": [
+     "Dracurouge",
+     "Dracurouge_Korean"
+    ],
+    "eval": true,
+    "rb_lines": 616
+   },
+   {
+    "id": "FutariSousa:Korean",
+    "cases": 144,
+    "rb": [
+     "FutariSousa",
+     "FutariSousa_Korean"
+    ],
+    "eval": true,
+    "rb_lines": 443
+   },
+   {
+    "id": "SwordWorld2.5",
+    "cases": 144,
+    "rb": [
+     "SwordWorld2_5",
+     "SwordWorld2_5_SimplifiedChinese"
+    ],
+    "eval": true,
+    "rb_lines": 319
+   },
+   {
+    "id": "LogHorizon:Korean",
+    "cases": 143,
+    "rb": [
+     "LogHorizon",
+     "LogHorizon_Korean"
+    ],
+    "eval": true,
+    "rb_lines": 646
+   },
+   {
+    "id": "TunnelsAndTrolls",
+    "cases": 141,
+    "rb": [
+     "TunnelsAndTrolls"
+    ],
+    "eval": true,
+    "rb_lines": 287
+   },
+   {
+    "id": "EmbryoMachine",
+    "cases": 133,
+    "rb": [
+     "EmbryoMachine"
+    ],
+    "eval": true,
+    "rb_lines": 228
+   },
+   {
+    "id": "KillDeathBusiness:Korean",
+    "cases": 133,
+    "rb": [
+     "KillDeathBusiness",
+     "KillDeathBusiness_Korean"
+    ],
+    "eval": true,
+    "rb_lines": 631
+   },
+   {
+    "id": "TheOneRing2nd",
+    "cases": 130,
+    "rb": [
+     "TheOneRing2nd"
+    ],
+    "eval": true,
+    "rb_lines": 406
+   },
+   {
+    "id": "BarnaKronika",
+    "cases": 120,
+    "rb": [
+     "BarnaKronika"
+    ],
+    "eval": true,
+    "rb_lines": 188
+   },
+   {
+    "id": "NeverCloud",
+    "cases": 119,
+    "rb": [
+     "NeverCloud"
+    ],
+    "eval": true,
+    "rb_lines": 620
+   }
+  ],
+  [
+   {
+    "id": "StarryDolls",
+    "cases": 119,
+    "rb": [
+     "StarryDolls",
+     "StarryDolls_Korean"
+    ],
+    "eval": true,
+    "rb_lines": 278
+   },
+   {
+    "id": "StarryDolls:Korean",
+    "cases": 119,
+    "rb": [
+     "StarryDolls",
+     "StarryDolls_Korean"
+    ],
+    "eval": true,
+    "rb_lines": 278
+   },
+   {
+    "id": "Torg",
+    "cases": 117,
+    "rb": [
+     "Torg"
+    ],
+    "eval": true,
+    "rb_lines": 364
+   },
+   {
+    "id": "OracleEngine",
+    "cases": 116,
+    "rb": [
+     "OracleEngine"
+    ],
+    "eval": true,
+    "rb_lines": 261
+   },
+   {
+    "id": "DeadlineHeroes",
+    "cases": 113,
+    "rb": [
+     "DeadlineHeroes",
+     "DeadlineHeroes_Korean"
+    ],
+    "eval": true,
+    "rb_lines": 857
+   },
+   {
+    "id": "KamitsubakiCityUnderConstructionNarrative",
+    "cases": 113,
+    "rb": [
+     "KamitsubakiCityUnderConstructionNarrative"
+    ],
+    "eval": true,
+    "rb_lines": 251
+   },
+   {
+    "id": "StellarKnights",
+    "cases": 109,
+    "rb": [
+     "StellarKnights",
+     "StellarKnights_Korean"
+    ],
+    "eval": true,
+    "rb_lines": 311
+   },
+   {
+    "id": "MetalHeadExtream",
+    "cases": 106,
+    "rb": [
+     "MetalHeadExtream"
+    ],
+    "eval": true,
+    "rb_lines": 917
+   },
+   {
+    "id": "Cthulhu",
+    "cases": 105,
+    "rb": [
+     "Cthulhu",
+     "Cthulhu_ChineseTraditional",
+     "Cthulhu_English",
+     "Cthulhu_Korean",
+     "Cthulhu_SimplifiedChinese"
+    ],
+    "eval": true,
+    "rb_lines": 491
+   },
+   {
+    "id": "Cthulhu:English",
+    "cases": 105,
+    "rb": [
+     "Cthulhu",
+     "Cthulhu_ChineseTraditional",
+     "Cthulhu_English",
+     "Cthulhu_Korean",
+     "Cthulhu_SimplifiedChinese"
+    ],
+    "eval": true,
+    "rb_lines": 491
+   },
+   {
+    "id": "TorgEternity",
+    "cases": 105,
+    "rb": [
+     "TorgEternity"
+    ],
+    "eval": true,
+    "rb_lines": 476
+   },
+   {
+    "id": "StellarKnights:Korean",
+    "cases": 104,
+    "rb": [
+     "StellarKnights",
+     "StellarKnights_Korean"
+    ],
+    "eval": true,
+    "rb_lines": 311
+   },
+   {
+    "id": "Cthulhu:SimplifiedChinese",
+    "cases": 103,
+    "rb": [
+     "Cthulhu",
+     "Cthulhu_ChineseTraditional",
+     "Cthulhu_English",
+     "Cthulhu_Korean",
+     "Cthulhu_SimplifiedChinese"
+    ],
+    "eval": true,
+    "rb_lines": 491
+   },
+   {
+    "id": "NightWizard",
+    "cases": 102,
+    "rb": [
+     "NightWizard"
+    ],
+    "eval": true,
+    "rb_lines": 231
+   },
+   {
+    "id": "DarkBlaze",
+    "cases": 101,
+    "rb": [
+     "DarkBlaze"
+    ],
+    "eval": true,
+    "rb_lines": 200
+   },
+   {
+    "id": "DoubleCross",
+    "cases": 101,
+    "rb": [
+     "DoubleCross",
+     "DoubleCross_Korean"
+    ],
+    "eval": true,
+    "rb_lines": 443
+   },
+   {
+    "id": "Cthulhu:ChineseTraditional",
+    "cases": 100,
+    "rb": [
+     "Cthulhu",
+     "Cthulhu_ChineseTraditional",
+     "Cthulhu_English",
+     "Cthulhu_Korean",
+     "Cthulhu_SimplifiedChinese"
+    ],
+    "eval": true,
+    "rb_lines": 491
+   },
+   {
+    "id": "Cthulhu:Korean",
+    "cases": 100,
+    "rb": [
+     "Cthulhu",
+     "Cthulhu_ChineseTraditional",
+     "Cthulhu_English",
+     "Cthulhu_Korean",
+     "Cthulhu_SimplifiedChinese"
+    ],
+    "eval": true,
+    "rb_lines": 491
+   },
+   {
+    "id": "DemonParasite",
+    "cases": 98,
+    "rb": [
+     "DemonParasite"
+    ],
+    "eval": true,
+    "rb_lines": 515
+   },
+   {
+    "id": "StellarLife",
+    "cases": 97,
+    "rb": [
+     "StellarLife"
+    ],
+    "eval": true,
+    "rb_lines": 387
+   }
+  ],
+  [
+   {
+    "id": "ArknightsFan",
+    "cases": 95,
+    "rb": [
+     "ArknightsFan"
+    ],
+    "eval": true,
+    "rb_lines": 340
+   },
+   {
+    "id": "DoubleCross:Korean",
+    "cases": 95,
+    "rb": [
+     "DoubleCross",
+     "DoubleCross_Korean"
+    ],
+    "eval": true,
+    "rb_lines": 443
+   },
+   {
+    "id": "HeroScale",
+    "cases": 92,
+    "rb": [
+     "HeroScale"
+    ],
+    "eval": true,
+    "rb_lines": 837
+   },
+   {
+    "id": "YearZeroEngine",
+    "cases": 90,
+    "rb": [
+     "YearZeroEngine",
+     "YearZeroEngine_Korean"
+    ],
+    "eval": true,
+    "rb_lines": 398
+   },
+   {
+    "id": "YearZeroEngine:Korean",
+    "cases": 90,
+    "rb": [
+     "YearZeroEngine",
+     "YearZeroEngine_Korean"
+    ],
+    "eval": true,
+    "rb_lines": 398
+   },
+   {
+    "id": "Aionia",
+    "cases": 89,
+    "rb": [
+     "Aionia"
+    ],
+    "eval": true,
+    "rb_lines": 180
+   },
+   {
+    "id": "BlackJacket",
+    "cases": 89,
+    "rb": [
+     "BlackJacket",
+     "BlackJacket_Korean"
+    ],
+    "eval": true,
+    "rb_lines": 234
+   },
+   {
+    "id": "BlackJacket:Korean",
+    "cases": 89,
+    "rb": [
+     "BlackJacket",
+     "BlackJacket_Korean"
+    ],
+    "eval": true,
+    "rb_lines": 234
+   },
+   {
+    "id": "KemonoNoMori",
+    "cases": 89,
+    "rb": [
+     "KemonoNoMori",
+     "KemonoNoMori_Korean"
+    ],
+    "eval": true,
+    "rb_lines": 230
+   },
+   {
+    "id": "KemonoNoMori:Korean",
+    "cases": 89,
+    "rb": [
+     "KemonoNoMori",
+     "KemonoNoMori_Korean"
+    ],
+    "eval": true,
+    "rb_lines": 230
+   },
+   {
+    "id": "Amadeus",
+    "cases": 87,
+    "rb": [
+     "Amadeus",
+     "Amadeus_Korean"
+    ],
+    "eval": true,
+    "rb_lines": 235
+   },
+   {
+    "id": "Amadeus:Korean",
+    "cases": 87,
+    "rb": [
+     "Amadeus",
+     "Amadeus_Korean"
+    ],
+    "eval": true,
+    "rb_lines": 235
+   },
+   {
+    "id": "Elysion",
+    "cases": 86,
+    "rb": [
+     "Elysion"
+    ],
+    "eval": true,
+    "rb_lines": 1228
+   },
+   {
+    "id": "TensaiGunshiNiNaro",
+    "cases": 84,
+    "rb": [
+     "TensaiGunshiNiNaro"
+    ],
+    "eval": true,
+    "rb_lines": 262
+   },
+   {
+    "id": "Peekaboo",
+    "cases": 80,
+    "rb": [
+     "Peekaboo"
+    ],
+    "eval": true,
+    "rb_lines": 219
+   },
+   {
+    "id": "BadLife",
+    "cases": 78,
+    "rb": [
+     "BadLife"
+    ],
+    "eval": true,
+    "rb_lines": 410
+   },
+   {
+    "id": "KanColle",
+    "cases": 77,
+    "rb": [
+     "KanColle"
+    ],
+    "eval": true,
+    "rb_lines": 784
+   },
+   {
+    "id": "OneWayHeroics",
+    "cases": 76,
+    "rb": [
+     "OneWayHeroics"
+    ],
+    "eval": true,
+    "rb_lines": 133
+   },
+   {
+    "id": "SwordWorld2.0",
+    "cases": 75,
+    "rb": [
+     "SwordWorld2_0",
+     "SwordWorld2_0_SimplifiedChinese"
+    ],
+    "eval": true,
+    "rb_lines": 242
+   },
+   {
+    "id": "DungeonsAndDragons5",
+    "cases": 74,
+    "rb": [
+     "DungeonsAndDragons5",
+     "DungeonsAndDragons5_Korean"
+    ],
+    "eval": true,
+    "rb_lines": 336
+   }
+  ],
+  [
+   {
+    "id": "DungeonsAndDragons5:Korean",
+    "cases": 74,
+    "rb": [
+     "DungeonsAndDragons5",
+     "DungeonsAndDragons5_Korean"
+    ],
+    "eval": true,
+    "rb_lines": 336
+   },
+   {
+    "id": "SRS",
+    "cases": 74,
+    "rb": [
+     "SRS",
+     "SRS_Korean"
+    ],
+    "eval": true,
+    "rb_lines": 363
+   },
+   {
+    "id": "SRS:Korean",
+    "cases": 74,
+    "rb": [
+     "SRS",
+     "SRS_Korean"
+    ],
+    "eval": true,
+    "rb_lines": 363
+   },
+   {
+    "id": "WorldOfDarkness",
+    "cases": 74,
+    "rb": [
+     "WorldOfDarkness"
+    ],
+    "eval": true,
+    "rb_lines": 139
+   },
+   {
+    "id": "ColossalHunter",
+    "cases": 72,
+    "rb": [
+     "ColossalHunter"
+    ],
+    "eval": true,
+    "rb_lines": 555
+   },
+   {
+    "id": "EarthDawn",
+    "cases": 72,
+    "rb": [
+     "EarthDawn"
+    ],
+    "eval": true,
+    "rb_lines": 225
+   },
+   {
+    "id": "ShoujoTenrankai",
+    "cases": 72,
+    "rb": [
+     "ShoujoTenrankai"
+    ],
+    "eval": true,
+    "rb_lines": 677
+   },
+   {
+    "id": "DivineCharger",
+    "cases": 71,
+    "rb": [
+     "DivineCharger"
+    ],
+    "eval": true,
+    "rb_lines": 841
+   },
+   {
+    "id": "SteamPunkers",
+    "cases": 71,
+    "rb": [
+     "SteamPunkers"
+    ],
+    "eval": true,
+    "rb_lines": 505
+   },
+   {
+    "id": "Bakenokawa",
+    "cases": 69,
+    "rb": [
+     "Bakenokawa"
+    ],
+    "eval": true,
+    "rb_lines": 244
+   },
+   {
+    "id": "CthulhuTech",
+    "cases": 68,
+    "rb": [
+     "CthulhuTech"
+    ],
+    "eval": true,
+    "rb_lines": 256
+   },
+   {
+    "id": "KimitoYell",
+    "cases": 67,
+    "rb": [
+     "KimitoYell"
+    ],
+    "eval": true,
+    "rb_lines": 568
+   },
+   {
+    "id": "HunterTheReckoning5th",
+    "cases": 66,
+    "rb": [
+     "HunterTheReckoning5th"
+    ],
+    "eval": true,
+    "rb_lines": 163
+   },
+   {
+    "id": "KyokoShinshoku",
+    "cases": 66,
+    "rb": [
+     "KyokoShinshoku"
+    ],
+    "eval": true,
+    "rb_lines": 201
+   },
+   {
+    "id": "Insane",
+    "cases": 63,
+    "rb": [
+     "Insane",
+     "Insane_Korean"
+    ],
+    "eval": true,
+    "rb_lines": 249
+   },
+   {
+    "id": "KizunaBullet",
+    "cases": 63,
+    "rb": [
+     "KizunaBullet",
+     "KizunaBullet_Korean"
+    ],
+    "eval": true,
+    "rb_lines": 349
+   },
+   {
+    "id": "KizunaBullet:Korean",
+    "cases": 63,
+    "rb": [
+     "KizunaBullet",
+     "KizunaBullet_Korean"
+    ],
+    "eval": true,
+    "rb_lines": 349
+   },
+   {
+    "id": "NobunagasBlackCastle",
+    "cases": 63,
+    "rb": [
+     "NobunagasBlackCastle"
+    ],
+    "eval": true,
+    "rb_lines": 237
+   },
+   {
+    "id": "Garactier",
+    "cases": 62,
+    "rb": [
+     "Garactier"
+    ],
+    "eval": true,
+    "rb_lines": 479
+   },
+   {
+    "id": "ScreamHighSchool",
+    "cases": 61,
+    "rb": [
+     "ScreamHighSchool"
+    ],
+    "eval": true,
+    "rb_lines": 128
+   }
+  ],
+  [
+   {
+    "id": "GoblinSlayer",
+    "cases": 60,
+    "rb": [
+     "GoblinSlayer"
+    ],
+    "eval": true,
+    "rb_lines": 190
+   },
+   {
+    "id": "DesperateRun",
+    "cases": 57,
+    "rb": [
+     "DesperateRun"
+    ],
+    "eval": true,
+    "rb_lines": 163
+   },
+   {
+    "id": "HatsuneMiku",
+    "cases": 57,
+    "rb": [
+     "HatsuneMiku",
+     "HatsuneMiku_Korean"
+    ],
+    "eval": true,
+    "rb_lines": 248
+   },
+   {
+    "id": "HatsuneMiku:Korean",
+    "cases": 57,
+    "rb": [
+     "HatsuneMiku",
+     "HatsuneMiku_Korean"
+    ],
+    "eval": true,
+    "rb_lines": 248
+   },
+   {
+    "id": "Insane:Korean",
+    "cases": 57,
+    "rb": [
+     "Insane",
+     "Insane_Korean"
+    ],
+    "eval": true,
+    "rb_lines": 249
+   },
+   {
+    "id": "TrinitySeven",
+    "cases": 57,
+    "rb": [
+     "TrinitySeven"
+    ],
+    "eval": true,
+    "rb_lines": 363
+   },
+   {
+    "id": "CyberpunkRed",
+    "cases": 56,
+    "rb": [
+     "CyberpunkRed",
+     "CyberpunkRed_Korean"
+    ],
+    "eval": true,
+    "rb_lines": 206
+   },
+   {
+    "id": "CyberpunkRed:Korean",
+    "cases": 56,
+    "rb": [
+     "CyberpunkRed",
+     "CyberpunkRed_Korean"
+    ],
+    "eval": true,
+    "rb_lines": 206
+   },
+   {
+    "id": "DarkDaysDrive",
+    "cases": 56,
+    "rb": [
+     "DarkDaysDrive"
+    ],
+    "eval": true,
+    "rb_lines": 463
+   },
+   {
+    "id": "LiverLabyrinth",
+    "cases": 56,
+    "rb": [
+     "LiverLabyrinth"
+    ],
+    "eval": true,
+    "rb_lines": 321
+   },
+   {
+    "id": "NinjaSlayer",
+    "cases": 55,
+    "rb": [
+     "NinjaSlayer"
+    ],
+    "eval": true,
+    "rb_lines": 265
+   },
+   {
+    "id": "SamsaraBallad",
+    "cases": 55,
+    "rb": [
+     "SamsaraBallad"
+    ],
+    "eval": true,
+    "rb_lines": 139
+   },
+   {
+    "id": "VisionConnect",
+    "cases": 54,
+    "rb": [
+     "VisionConnect"
+    ],
+    "eval": true,
+    "rb_lines": 135
+   },
+   {
+    "id": "GardenOrderReEdit",
+    "cases": 53,
+    "rb": [
+     "GardenOrderReEdit"
+    ],
+    "eval": true,
+    "rb_lines": 849
+   },
+   {
+    "id": "MonotoneMuseum",
+    "cases": 53,
+    "rb": [
+     "MonotoneMuseum",
+     "MonotoneMuseum_Korean"
+    ],
+    "eval": true,
+    "rb_lines": 215
+   },
+   {
+    "id": "Garako",
+    "cases": 52,
+    "rb": [
+     "Garako"
+    ],
+    "eval": true,
+    "rb_lines": 660
+   },
+   {
+    "id": "GardenOrder",
+    "cases": 52,
+    "rb": [
+     "GardenOrder",
+     "GardenOrder_Korean"
+    ],
+    "eval": true,
+    "rb_lines": 1676
+   },
+   {
+    "id": "GardenOrder:Korean",
+    "cases": 52,
+    "rb": [
+     "GardenOrder",
+     "GardenOrder_Korean"
+    ],
+    "eval": true,
+    "rb_lines": 1676
+   },
+   {
+    "id": "JuinKansen",
+    "cases": 52,
+    "rb": [
+     "JuinKansen",
+     "JuinKansen_Korean"
+    ],
+    "eval": true,
+    "rb_lines": 130
+   },
+   {
+    "id": "JuinKansen:Korean",
+    "cases": 52,
+    "rb": [
+     "JuinKansen",
+     "JuinKansen_Korean"
+    ],
+    "eval": true,
+    "rb_lines": 130
+   }
+  ],
+  [
+   {
+    "id": "YankeeYogSothoth",
+    "cases": 52,
+    "rb": [
+     "YankeeYogSothoth"
+    ],
+    "eval": true,
+    "rb_lines": 435
+   },
+   {
+    "id": "LostRoyal",
+    "cases": 51,
+    "rb": [
+     "LostRoyal"
+    ],
+    "eval": true,
+    "rb_lines": 239
+   },
+   {
+    "id": "NightmareHunterDeep",
+    "cases": 51,
+    "rb": [
+     "NightmareHunterDeep"
+    ],
+    "eval": true,
+    "rb_lines": 116
+   },
+   {
+    "id": "Villaciel",
+    "cases": 51,
+    "rb": [
+     "Villaciel"
+    ],
+    "eval": true,
+    "rb_lines": 554
+   },
+   {
+    "id": "RokumonSekai2",
+    "cases": 50,
+    "rb": [
+     "RokumonSekai2"
+    ],
+    "eval": true,
+    "rb_lines": 110
+   },
+   {
+    "id": "SajinsenkiAGuS2E",
+    "cases": 49,
+    "rb": [
+     "SajinsenkiAGuS2E"
+    ],
+    "eval": true,
+    "rb_lines": 285
+   },
+   {
+    "id": "Utakaze",
+    "cases": 49,
+    "rb": [
+     "Utakaze"
+    ],
+    "eval": true,
+    "rb_lines": 211
+   },
+   {
+    "id": "BloodCrusade",
+    "cases": 48,
+    "rb": [
+     "BloodCrusade"
+    ],
+    "eval": true,
+    "rb_lines": 395
+   },
+   {
+    "id": "FilledWith",
+    "cases": 47,
+    "rb": [
+     "FilledWith"
+    ],
+    "eval": true,
+    "rb_lines": 372
+   },
+   {
+    "id": "HouraiGakuen",
+    "cases": 47,
+    "rb": [
+     "HouraiGakuen"
+    ],
+    "eval": true,
+    "rb_lines": 270
+   },
+   {
+    "id": "ShuumatsuKikou",
+    "cases": 47,
+    "rb": [
+     "ShuumatsuKikou"
+    ],
+    "eval": true,
+    "rb_lines": 298
+   },
+   {
+    "id": "Skynauts",
+    "cases": 47,
+    "rb": [
+     "Skynauts"
+    ],
+    "eval": true,
+    "rb_lines": 285
+   },
+   {
+    "id": "Ventangle",
+    "cases": 47,
+    "rb": [
+     "Ventangle",
+     "Ventangle_Korean"
+    ],
+    "eval": true,
+    "rb_lines": 175
+   },
+   {
+    "id": "Ventangle:Korean",
+    "cases": 47,
+    "rb": [
+     "Ventangle",
+     "Ventangle_Korean"
+    ],
+    "eval": true,
+    "rb_lines": 175
+   },
+   {
+    "id": "BeastBindTrinity",
+    "cases": 46,
+    "rb": [
+     "BeastBindTrinity"
+    ],
+    "eval": true,
+    "rb_lines": 354
+   },
+   {
+    "id": "DetatokoSaga",
+    "cases": 46,
+    "rb": [
+     "DetatokoSaga",
+     "DetatokoSaga_Korean"
+    ],
+    "eval": true,
+    "rb_lines": 269
+   },
+   {
+    "id": "Ryutama",
+    "cases": 46,
+    "rb": [
+     "Ryutama"
+    ],
+    "eval": true,
+    "rb_lines": 199
+   },
+   {
+    "id": "ShadowRun5",
+    "cases": 46,
+    "rb": [
+     "ShadowRun5"
+    ],
+    "eval": true,
+    "rb_lines": 80
+   },
+   {
+    "id": "ShinkuuGakuen",
+    "cases": 45,
+    "rb": [
+     "ShinkuuGakuen"
+    ],
+    "eval": true,
+    "rb_lines": 506
+   },
+   {
+    "id": "AlchemiaStruggle",
+    "cases": 44,
+    "rb": [
+     "AlchemiaStruggle"
+    ],
+    "eval": true,
+    "rb_lines": 346
+   }
+  ],
+  [
+   {
+    "id": "CardRanker",
+    "cases": 44,
+    "rb": [
+     "CardRanker"
+    ],
+    "eval": true,
+    "rb_lines": 209
+   },
+   {
+    "id": "AceKillerGene",
+    "cases": 43,
+    "rb": [
+     "AceKillerGene"
+    ],
+    "eval": true,
+    "rb_lines": 55
+   },
+   {
+    "id": "BloodMoon",
+    "cases": 43,
+    "rb": [
+     "BloodMoon"
+    ],
+    "eval": true,
+    "rb_lines": 254
+   },
+   {
+    "id": "ChroniclesOfDarkness2e",
+    "cases": 43,
+    "rb": [
+     "ChroniclesOfDarkness2e"
+    ],
+    "eval": true,
+    "rb_lines": 163
+   },
+   {
+    "id": "MonotoneMuseum:Korean",
+    "cases": 43,
+    "rb": [
+     "MonotoneMuseum",
+     "MonotoneMuseum_Korean"
+    ],
+    "eval": true,
+    "rb_lines": 215
+   },
+   {
+    "id": "DetatokoSaga:Korean",
+    "cases": 42,
+    "rb": [
+     "DetatokoSaga",
+     "DetatokoSaga_Korean"
+    ],
+    "eval": true,
+    "rb_lines": 269
+   },
+   {
+    "id": "MetalHead",
+    "cases": 42,
+    "rb": [
+     "MetalHead"
+    ],
+    "eval": true,
+    "rb_lines": 239
+   },
+   {
+    "id": "MorkBorg",
+    "cases": 42,
+    "rb": [
+     "MorkBorg",
+     "MorkBorg_Korean"
+    ],
+    "eval": true,
+    "rb_lines": 219
+   },
+   {
+    "id": "MorkBorg:Korean",
+    "cases": 42,
+    "rb": [
+     "MorkBorg",
+     "MorkBorg_Korean"
+    ],
+    "eval": true,
+    "rb_lines": 219
+   },
+   {
+    "id": "TalesFromTheLoop",
+    "cases": 42,
+    "rb": [
+     "TalesFromTheLoop"
+    ],
+    "eval": true,
+    "rb_lines": 83
+   },
+   {
+    "id": "Agnostos",
+    "cases": 41,
+    "rb": [
+     "Agnostos"
+    ],
+    "eval": true,
+    "rb_lines": 248
+   },
+   {
+    "id": "Ayabito",
+    "cases": 41,
+    "rb": [
+     "Ayabito"
+    ],
+    "eval": true,
+    "rb_lines": 395
+   },
+   {
+    "id": "InvisibleLiar",
+    "cases": 41,
+    "rb": [
+     "InvisibleLiar"
+    ],
+    "eval": true,
+    "rb_lines": 79
+   },
+   {
+    "id": "Irisbane",
+    "cases": 41,
+    "rb": [
+     "Irisbane",
+     "Irisbane_Korean"
+    ],
+    "eval": true,
+    "rb_lines": 193
+   },
+   {
+    "id": "Irisbane:Korean",
+    "cases": 41,
+    "rb": [
+     "Irisbane",
+     "Irisbane_Korean"
+    ],
+    "eval": true,
+    "rb_lines": 193
+   },
+   {
+    "id": "BeginningIdol2022",
+    "cases": 40,
+    "rb": [
+     "BeginningIdol2022"
+    ],
+    "eval": true,
+    "rb_lines": 184
+   },
+   {
+    "id": "BlindMythos",
+    "cases": 39,
+    "rb": [
+     "BlindMythos"
+    ],
+    "eval": true,
+    "rb_lines": 463
+   },
+   {
+    "id": "ArsMagica",
+    "cases": 38,
+    "rb": [
+     "ArsMagica"
+    ],
+    "eval": true,
+    "rb_lines": 149
+   },
+   {
+    "id": "DeadlineHeroes:Korean",
+    "cases": 38,
+    "rb": [
+     "DeadlineHeroes",
+     "DeadlineHeroes_Korean"
+    ],
+    "eval": true,
+    "rb_lines": 857
+   },
+   {
+    "id": "Revulture",
+    "cases": 38,
+    "rb": [
+     "Revulture",
+     "Revulture_Korean"
+    ],
+    "eval": true,
+    "rb_lines": 177
+   }
+  ],
+  [
+   {
+    "id": "Revulture:Korean",
+    "cases": 38,
+    "rb": [
+     "Revulture",
+     "Revulture_Korean"
+    ],
+    "eval": true,
+    "rb_lines": 177
+   },
+   {
+    "id": "BattleTech",
+    "cases": 37,
+    "rb": [
+     "BattleTech"
+    ],
+    "eval": true,
+    "rb_lines": 611
+   },
+   {
+    "id": "Nechronica",
+    "cases": 37,
+    "rb": [
+     "Nechronica",
+     "Nechronica_Korean"
+    ],
+    "eval": true,
+    "rb_lines": 188
+   },
+   {
+    "id": "GundogRevised",
+    "cases": 36,
+    "rb": [
+     "GundogRevised"
+    ],
+    "eval": true,
+    "rb_lines": 295
+   },
+   {
+    "id": "GurpsFW",
+    "cases": 36,
+    "rb": [
+     "GurpsFW"
+    ],
+    "eval": true,
+    "rb_lines": 2326
+   },
+   {
+    "id": "EarthDawn3",
+    "cases": 35,
+    "rb": [
+     "EarthDawn3"
+    ],
+    "eval": true,
+    "rb_lines": 275
+   },
+   {
+    "id": "EarthDawn4",
+    "cases": 35,
+    "rb": [
+     "EarthDawn4"
+    ],
+    "eval": true,
+    "rb_lines": 272
+   },
+   {
+    "id": "BladeOfArcana",
+    "cases": 34,
+    "rb": [
+     "BladeOfArcana"
+    ],
+    "eval": true,
+    "rb_lines": 252
+   },
+   {
+    "id": "GURPS",
+    "cases": 34,
+    "rb": [
+     "GURPS"
+    ],
+    "eval": true,
+    "rb_lines": 359
+   },
+   {
+    "id": "GundamSentinel",
+    "cases": 34,
+    "rb": [
+     "GundamSentinel"
+    ],
+    "eval": true,
+    "rb_lines": 377
+   },
+   {
+    "id": "RuinBreakers",
+    "cases": 34,
+    "rb": [
+     "RuinBreakers"
+    ],
+    "eval": true,
+    "rb_lines": 296
+   },
+   {
+    "id": "EdgeFlippers",
+    "cases": 33,
+    "rb": [
+     "EdgeFlippers"
+    ],
+    "eval": true,
+    "rb_lines": 315
+   },
+   {
+    "id": "Emoklore",
+    "cases": 33,
+    "rb": [
+     "Emoklore",
+     "Emoklore_Korean"
+    ],
+    "eval": true,
+    "rb_lines": 209
+   },
+   {
+    "id": "Emoklore:Korean",
+    "cases": 33,
+    "rb": [
+     "Emoklore",
+     "Emoklore_Korean"
+    ],
+    "eval": true,
+    "rb_lines": 209
+   },
+   {
+    "id": "NinjaSlayer2",
+    "cases": 33,
+    "rb": [
+     "NinjaSlayer2"
+    ],
+    "eval": true,
+    "rb_lines": 420
+   },
+   {
+    "id": "StrangerOfSwordCity",
+    "cases": 33,
+    "rb": [
+     "StrangerOfSwordCity"
+    ],
+    "eval": true,
+    "rb_lines": 115
+   },
+   {
+    "id": "GranCrest",
+    "cases": 32,
+    "rb": [
+     "GranCrest"
+    ],
+    "eval": true,
+    "rb_lines": 289
+   },
+   {
+    "id": "AniMalus",
+    "cases": 31,
+    "rb": [
+     "AniMalus"
+    ],
+    "eval": true,
+    "rb_lines": 261
+   },
+   {
+    "id": "Postman",
+    "cases": 31,
+    "rb": [
+     "Postman"
+    ],
+    "eval": true,
+    "rb_lines": 185
+   },
+   {
+    "id": "TwilightGunsmoke",
+    "cases": 31,
+    "rb": [
+     "TwilightGunsmoke"
+    ],
+    "eval": true,
+    "rb_lines": 526
+   }
+  ],
+  [
+   {
+    "id": "CastleInGray",
+    "cases": 30,
+    "rb": [
+     "CastleInGray"
+    ],
+    "eval": true,
+    "rb_lines": 135
+   },
+   {
+    "id": "Airgetlamh",
+    "cases": 29,
+    "rb": [
+     "Airgetlamh",
+     "Airgetlamh_Korean"
+    ],
+    "eval": true,
+    "rb_lines": 193
+   },
+   {
+    "id": "Airgetlamh:Korean",
+    "cases": 29,
+    "rb": [
+     "Airgetlamh",
+     "Airgetlamh_Korean"
+    ],
+    "eval": true,
+    "rb_lines": 193
+   },
+   {
+    "id": "BBN",
+    "cases": 29,
+    "rb": [
+     "BBN"
+    ],
+    "eval": true,
+    "rb_lines": 145
+   },
+   {
+    "id": "NSSQ",
+    "cases": 28,
+    "rb": [
+     "NSSQ"
+    ],
+    "eval": true,
+    "rb_lines": 180
+   },
+   {
+    "id": "Nechronica:Korean",
+    "cases": 28,
+    "rb": [
+     "Nechronica",
+     "Nechronica_Korean"
+    ],
+    "eval": true,
+    "rb_lines": 188
+   },
+   {
+    "id": "UnsungDuet",
+    "cases": 28,
+    "rb": [
+     "UnsungDuet",
+     "UnsungDuet_Korean"
+    ],
+    "eval": true,
+    "rb_lines": 122
+   },
+   {
+    "id": "UnsungDuet:Korean",
+    "cases": 28,
+    "rb": [
+     "UnsungDuet",
+     "UnsungDuet_Korean"
+    ],
+    "eval": true,
+    "rb_lines": 122
+   },
+   {
+    "id": "YuMyoKishi",
+    "cases": 28,
+    "rb": [
+     "YuMyoKishi"
+    ],
+    "eval": true,
+    "rb_lines": 141
+   },
+   {
+    "id": "SkynautsBouken",
+    "cases": 27,
+    "rb": [
+     "SkynautsBouken",
+     "SkynautsBouken_Korean"
+    ],
+    "eval": true,
+    "rb_lines": 291
+   },
+   {
+    "id": "SkynautsBouken:Korean",
+    "cases": 27,
+    "rb": [
+     "SkynautsBouken",
+     "SkynautsBouken_Korean"
+    ],
+    "eval": true,
+    "rb_lines": 291
+   },
+   {
+    "id": "TokyoGhostResearch",
+    "cases": 27,
+    "rb": [
+     "TokyoGhostResearch"
+    ],
+    "eval": true,
+    "rb_lines": 122
+   },
+   {
+    "id": "LiveraDoll",
+    "cases": 26,
+    "rb": [
+     "LiveraDoll"
+    ],
+    "eval": true,
+    "rb_lines": 325
+   },
+   {
+    "id": "NegikureNegimaki",
+    "cases": 26,
+    "rb": [
+     "NegikureNegimaki",
+     "NegikureNegimaki_Korean"
+    ],
+    "eval": true,
+    "rb_lines": 188
+   },
+   {
+    "id": "NegikureNegimaki:Korean",
+    "cases": 26,
+    "rb": [
+     "NegikureNegimaki",
+     "NegikureNegimaki_Korean"
+    ],
+    "eval": true,
+    "rb_lines": 188
+   },
+   {
+    "id": "SajinsenkiAGuS",
+    "cases": 26,
+    "rb": [
+     "SajinsenkiAGuS"
+    ],
+    "eval": true,
+    "rb_lines": 158
+   },
+   {
+    "id": "TokumeiTenkousei",
+    "cases": 26,
+    "rb": [
+     "TokumeiTenkousei"
+    ],
+    "eval": true,
+    "rb_lines": 97
+   },
+   {
+    "id": "Alsetto",
+    "cases": 25,
+    "rb": [
+     "Alsetto",
+     "Alsetto_Korean"
+    ],
+    "eval": true,
+    "rb_lines": 188
+   },
+   {
+    "id": "Alsetto:Korean",
+    "cases": 25,
+    "rb": [
+     "Alsetto",
+     "Alsetto_Korean"
+    ],
+    "eval": true,
+    "rb_lines": 188
+   },
+   {
+    "id": "Raisondetre",
+    "cases": 25,
+    "rb": [
+     "Raisondetre"
+    ],
+    "eval": true,
+    "rb_lines": 171
+   }
+  ],
+  [
+   {
+    "id": "AlterRaise",
+    "cases": 23,
+    "rb": [
+     "AlterRaise"
+    ],
+    "eval": true,
+    "rb_lines": 282
+   },
+   {
+    "id": "AnimaAnimus",
+    "cases": 23,
+    "rb": [
+     "AnimaAnimus",
+     "AnimaAnimus_Korean"
+    ],
+    "eval": true,
+    "rb_lines": 121
+   },
+   {
+    "id": "AnimaAnimus:Korean",
+    "cases": 23,
+    "rb": [
+     "AnimaAnimus",
+     "AnimaAnimus_Korean"
+    ],
+    "eval": true,
+    "rb_lines": 121
+   },
+   {
+    "id": "CodeLayerd",
+    "cases": 23,
+    "rb": [
+     "CodeLayerd"
+    ],
+    "eval": true,
+    "rb_lines": 102
+   },
+   {
+    "id": "Kamigakari",
+    "cases": 23,
+    "rb": [
+     "Kamigakari",
+     "Kamigakari_Korean"
+    ],
+    "eval": true,
+    "rb_lines": 239
+   },
+   {
+    "id": "Kamigakari:Korean",
+    "cases": 23,
+    "rb": [
+     "Kamigakari",
+     "Kamigakari_Korean"
+    ],
+    "eval": true,
+    "rb_lines": 239
+   },
+   {
+    "id": "StratoShout",
+    "cases": 23,
+    "rb": [
+     "StratoShout",
+     "StratoShout_Korean"
+    ],
+    "eval": true,
+    "rb_lines": 118
+   },
+   {
+    "id": "StratoShout:Korean",
+    "cases": 23,
+    "rb": [
+     "StratoShout",
+     "StratoShout_Korean"
+    ],
+    "eval": true,
+    "rb_lines": 118
+   },
+   {
+    "id": "ZombiLine",
+    "cases": 23,
+    "rb": [
+     "ZombiLine",
+     "ZombiLine_Korean"
+    ],
+    "eval": true,
+    "rb_lines": 145
+   },
+   {
+    "id": "ZombiLine:Korean",
+    "cases": 23,
+    "rb": [
+     "ZombiLine",
+     "ZombiLine_Korean"
+    ],
+    "eval": true,
+    "rb_lines": 145
+   },
+   {
+    "id": "ChaosFlare",
+    "cases": 22,
+    "rb": [
+     "ChaosFlare"
+    ],
+    "eval": true,
+    "rb_lines": 187
+   },
+   {
+    "id": "FateCoreSystem",
+    "cases": 22,
+    "rb": [
+     "FateCoreSystem"
+    ],
+    "eval": true,
+    "rb_lines": 121
+   },
+   {
+    "id": "GeishaGirlwithKatana",
+    "cases": 22,
+    "rb": [
+     "GeishaGirlwithKatana"
+    ],
+    "eval": true,
+    "rb_lines": 120
+   },
+   {
+    "id": "PulpCthulhu",
+    "cases": 22,
+    "rb": [
+     "PulpCthulhu"
+    ],
+    "eval": true,
+    "rb_lines": 184
+   },
+   {
+    "id": "TheUnofficialHollowKnightRPG",
+    "cases": 22,
+    "rb": [
+     "TheUnofficialHollowKnightRPG"
+    ],
+    "eval": true,
+    "rb_lines": 185
+   },
+   {
+    "id": "Avandner",
+    "cases": 21,
+    "rb": [
+     "Avandner"
+    ],
+    "eval": true,
+    "rb_lines": 100
+   },
+   {
+    "id": "IfIfIf",
+    "cases": 21,
+    "rb": [
+     "IfIfIf"
+    ],
+    "eval": true,
+    "rb_lines": 648
+   },
+   {
+    "id": "DarkSouls",
+    "cases": 20,
+    "rb": [
+     "DarkSouls"
+    ],
+    "eval": true,
+    "rb_lines": 91
+   },
+   {
+    "id": "Fiasco",
+    "cases": 20,
+    "rb": [
+     "Fiasco",
+     "Fiasco_Korean"
+    ],
+    "eval": true,
+    "rb_lines": 174
+   },
+   {
+    "id": "Fiasco:Korean",
+    "cases": 20,
+    "rb": [
+     "Fiasco",
+     "Fiasco_Korean"
+    ],
+    "eval": true,
+    "rb_lines": 174
+   }
+  ],
+  [
+   {
+    "id": "FinalFantasyXIV",
+    "cases": 20,
+    "rb": [
+     "FinalFantasyXIV",
+     "FinalFantasyXIV_English"
+    ],
+    "eval": true,
+    "rb_lines": 154
+   },
+   {
+    "id": "FinalFantasyXIV:English",
+    "cases": 20,
+    "rb": [
+     "FinalFantasyXIV",
+     "FinalFantasyXIV_English"
+    ],
+    "eval": true,
+    "rb_lines": 154
+   },
+   {
+    "id": "TacticalExorcist",
+    "cases": 20,
+    "rb": [
+     "TacticalExorcist"
+    ],
+    "eval": true,
+    "rb_lines": 222
+   },
+   {
+    "id": "ToshiakiHolyGrailWar",
+    "cases": 20,
+    "rb": [
+     "ToshiakiHolyGrailWar"
+    ],
+    "eval": true,
+    "rb_lines": 92
+   },
+   {
+    "id": "AFF2e",
+    "cases": 19,
+    "rb": [
+     "AFF2e"
+    ],
+    "eval": true,
+    "rb_lines": 141
+   },
+   {
+    "id": "Ainecadette",
+    "cases": 19,
+    "rb": [
+     "Ainecadette"
+    ],
+    "eval": true,
+    "rb_lines": 68
+   },
+   {
+    "id": "GehennaAn",
+    "cases": 19,
+    "rb": [
+     "GehennaAn"
+    ],
+    "eval": true,
+    "rb_lines": 136
+   },
+   {
+    "id": "KurayamiCrying",
+    "cases": 19,
+    "rb": [
+     "KurayamiCrying"
+    ],
+    "eval": true,
+    "rb_lines": 188
+   },
+   {
+    "id": "RyuTuber",
+    "cases": 19,
+    "rb": [
+     "RyuTuber"
+    ],
+    "eval": true,
+    "rb_lines": 268
+   },
+   {
+    "id": "Siren",
+    "cases": 19,
+    "rb": [
+     "Siren"
+    ],
+    "eval": true,
+    "rb_lines": 97
+   },
+   {
+    "id": "WoW",
+    "cases": 19,
+    "rb": [
+     "WoW"
+    ],
+    "eval": true,
+    "rb_lines": 161
+   },
+   {
+    "id": "WorldEndScrapyard",
+    "cases": 19,
+    "rb": [
+     "WorldEndScrapyard"
+    ],
+    "eval": true,
+    "rb_lines": 333
+   },
+   {
+    "id": "AssaultEngine",
+    "cases": 18,
+    "rb": [
+     "AssaultEngine"
+    ],
+    "eval": true,
+    "rb_lines": 91
+   },
+   {
+    "id": "HarnMaster",
+    "cases": 18,
+    "rb": [
+     "HarnMaster"
+    ],
+    "eval": true,
+    "rb_lines": 201
+   },
+   {
+    "id": "CharonSanctions",
+    "cases": 17,
+    "rb": [
+     "CharonSanctions"
+    ],
+    "eval": true,
+    "rb_lines": 112
+   },
+   {
+    "id": "Lost",
+    "cases": 17,
+    "rb": [
+     "Lost"
+    ],
+    "eval": true,
+    "rb_lines": 89
+   },
+   {
+    "id": "YankeeMustDie",
+    "cases": 17,
+    "rb": [
+     "YankeeMustDie"
+    ],
+    "eval": true,
+    "rb_lines": 192
+   },
+   {
+    "id": "RogueLikeHalf",
+    "cases": 16,
+    "rb": [
+     "RogueLikeHalf"
+    ],
+    "eval": true,
+    "rb_lines": 198
+   },
+   {
+    "id": "GhostLive",
+    "cases": 15,
+    "rb": [
+     "GhostLive"
+    ],
+    "eval": true,
+    "rb_lines": 144
+   },
+   {
+    "id": "Karukami",
+    "cases": 15,
+    "rb": [
+     "Karukami"
+    ],
+    "eval": true,
+    "rb_lines": 84
+   }
+  ],
+  [
+   {
+    "id": "Kutulu",
+    "cases": 15,
+    "rb": [
+     "Kutulu"
+    ],
+    "eval": true,
+    "rb_lines": 95
+   },
+   {
+    "id": "NRR",
+    "cases": 15,
+    "rb": [
+     "NRR"
+    ],
+    "eval": true,
+    "rb_lines": 122
+   },
+   {
+    "id": "Oukahoushin3rd",
+    "cases": 15,
+    "rb": [
+     "Oukahoushin3rd"
+    ],
+    "eval": true,
+    "rb_lines": 162
+   },
+   {
+    "id": "ParanoiaPerfect",
+    "cases": 15,
+    "rb": [
+     "ParanoiaPerfect"
+    ],
+    "eval": true,
+    "rb_lines": 74
+   },
+   {
+    "id": "Shiranui",
+    "cases": 15,
+    "rb": [
+     "Shiranui"
+    ],
+    "eval": true,
+    "rb_lines": 145
+   },
+   {
+    "id": "ZettaiReido",
+    "cases": 15,
+    "rb": [
+     "ZettaiReido"
+    ],
+    "eval": true,
+    "rb_lines": 137
+   },
+   {
+    "id": "FullFace",
+    "cases": 14,
+    "rb": [
+     "FullFace"
+    ],
+    "eval": true,
+    "rb_lines": 143
+   },
+   {
+    "id": "MagicPunk",
+    "cases": 14,
+    "rb": [
+     "MagicPunk",
+     "MagicPunk_Korean"
+    ],
+    "eval": true,
+    "rb_lines": 124
+   },
+   {
+    "id": "MagicPunk:Korean",
+    "cases": 14,
+    "rb": [
+     "MagicPunk",
+     "MagicPunk_Korean"
+    ],
+    "eval": true,
+    "rb_lines": 124
+   },
+   {
+    "id": "MamonoScramble",
+    "cases": 14,
+    "rb": [
+     "MamonoScramble"
+    ],
+    "eval": true,
+    "rb_lines": 98
+   },
+   {
+    "id": "NervWhitePaper",
+    "cases": 14,
+    "rb": [
+     "NervWhitePaper"
+    ],
+    "eval": true,
+    "rb_lines": 129
+   },
+   {
+    "id": "Aoharubaan",
+    "cases": 13,
+    "rb": [
+     "Aoharubaan"
+    ],
+    "eval": true,
+    "rb_lines": 91
+   },
+   {
+    "id": "KutuluRevised",
+    "cases": 13,
+    "rb": [
+     "KutuluRevised"
+    ],
+    "eval": true,
+    "rb_lines": 94
+   },
+   {
+    "id": "ParanoiaRebooted",
+    "cases": 13,
+    "rb": [
+     "ParanoiaRebooted"
+    ],
+    "eval": true,
+    "rb_lines": 109
+   },
+   {
+    "id": "PersonaO",
+    "cases": 13,
+    "rb": [
+     "PersonaO"
+    ],
+    "eval": true,
+    "rb_lines": 86
+   },
+   {
+    "id": "AngelGear",
+    "cases": 12,
+    "rb": [
+     "AngelGear"
+    ],
+    "eval": true,
+    "rb_lines": 128
+   },
+   {
+    "id": "DemonSpike",
+    "cases": 12,
+    "rb": [
+     "DemonSpike"
+    ],
+    "eval": true,
+    "rb_lines": 89
+   },
+   {
+    "id": "DiceOfTheDead",
+    "cases": 12,
+    "rb": [
+     "DiceOfTheDead"
+    ],
+    "eval": true,
+    "rb_lines": 114
+   },
+   {
+    "id": "Paradiso",
+    "cases": 12,
+    "rb": [
+     "Paradiso"
+    ],
+    "eval": true,
+    "rb_lines": 323
+   },
+   {
+    "id": "Strave",
+    "cases": 12,
+    "rb": [
+     "Strave"
+    ],
+    "eval": true,
+    "rb_lines": 223
+   }
+  ],
+  [
+   {
+    "id": "TherapieSein",
+    "cases": 12,
+    "rb": [
+     "TherapieSein"
+    ],
+    "eval": true,
+    "rb_lines": 93
+   },
+   {
+    "id": "CrashWorld",
+    "cases": 11,
+    "rb": [
+     "CrashWorld"
+    ],
+    "eval": true,
+    "rb_lines": 81
+   },
+   {
+    "id": "KinAriel",
+    "cases": 11,
+    "rb": [
+     "KinAriel"
+    ],
+    "eval": true,
+    "rb_lines": 117
+   },
+   {
+    "id": "ShuumatsuBargainWars",
+    "cases": 11,
+    "rb": [
+     "ShuumatsuBargainWars"
+    ],
+    "eval": true,
+    "rb_lines": 203
+   },
+   {
+    "id": "Bloodorium",
+    "cases": 10,
+    "rb": [
+     "Bloodorium",
+     "Bloodorium_Korean"
+    ],
+    "eval": true,
+    "rb_lines": 102
+   },
+   {
+    "id": "Bloodorium:Korean",
+    "cases": 10,
+    "rb": [
+     "Bloodorium",
+     "Bloodorium_Korean"
+    ],
+    "eval": true,
+    "rb_lines": 102
+   },
+   {
+    "id": "ConvictorDrive",
+    "cases": 10,
+    "rb": [
+     "ConvictorDrive"
+    ],
+    "eval": true,
+    "rb_lines": 118
+   },
+   {
+    "id": "Liminal",
+    "cases": 10,
+    "rb": [
+     "Liminal"
+    ],
+    "eval": true,
+    "rb_lines": 136
+   },
+   {
+    "id": "NanimonaiMura",
+    "cases": 10,
+    "rb": [
+     "NanimonaiMura"
+    ],
+    "eval": true,
+    "rb_lines": 112
+   },
+   {
+    "id": "Nuekagami",
+    "cases": 10,
+    "rb": [
+     "Nuekagami",
+     "Nuekagami_Korean"
+    ],
+    "eval": true,
+    "rb_lines": 94
+   },
+   {
+    "id": "Nuekagami:Korean",
+    "cases": 10,
+    "rb": [
+     "Nuekagami",
+     "Nuekagami_Korean"
+    ],
+    "eval": true,
+    "rb_lines": 94
+   },
+   {
+    "id": "PreciousDays",
+    "cases": 10,
+    "rb": [
+     "PreciousDays"
+    ],
+    "eval": true,
+    "rb_lines": 170
+   },
+   {
+    "id": "TrailOfCthulhu",
+    "cases": 10,
+    "rb": [
+     "TrailOfCthulhu"
+    ],
+    "eval": true,
+    "rb_lines": 139
+   },
+   {
+    "id": "WitchQuest",
+    "cases": 10,
+    "rb": [
+     "WitchQuest"
+    ],
+    "eval": true,
+    "rb_lines": 275
+   },
+   {
+    "id": "Illusio",
+    "cases": 9,
+    "rb": [
+     "Illusio"
+    ],
+    "eval": true,
+    "rb_lines": 80
+   },
+   {
+    "id": "NeonUnderRealm",
+    "cases": 9,
+    "rb": [
+     "NeonUnderRealm"
+    ],
+    "eval": true,
+    "rb_lines": 122
+   },
+   {
+    "id": "Paranoia",
+    "cases": 9,
+    "rb": [
+     "Paranoia"
+    ],
+    "eval": true,
+    "rb_lines": 64
+   },
+   {
+    "id": "RecordOfLodossWar",
+    "cases": 9,
+    "rb": [
+     "RecordOfLodossWar"
+    ],
+    "eval": true,
+    "rb_lines": 59
+   },
+   {
+    "id": "EndBreaker",
+    "cases": 8,
+    "rb": [
+     "EndBreaker"
+    ],
+    "eval": true,
+    "rb_lines": 131
+   },
+   {
+    "id": "MarvelHeroicRoleplaying",
+    "cases": 8,
+    "rb": [
+     "MarvelHeroicRoleplaying"
+    ],
+    "eval": true,
+    "rb_lines": 144
+   }
+  ],
+  [
+   {
+    "id": "RecordOfSteam",
+    "cases": 8,
+    "rb": [
+     "RecordOfSteam"
+    ],
+    "eval": true,
+    "rb_lines": 149
+   },
+   {
+    "id": "TheIndieHack",
+    "cases": 8,
+    "rb": [
+     "TheIndieHack"
+    ],
+    "eval": true,
+    "rb_lines": 82
+   },
+   {
+    "id": "OrgaRain",
+    "cases": 7,
+    "rb": [
+     "OrgaRain"
+    ],
+    "eval": true,
+    "rb_lines": 69
+   },
+   {
+    "id": "Sengensyou",
+    "cases": 7,
+    "rb": [
+     "Sengensyou"
+    ],
+    "eval": true,
+    "rb_lines": 59
+   },
+   {
+    "id": "GoldenSkyStories",
+    "cases": 6,
+    "rb": [
+     "GoldenSkyStories"
+    ],
+    "eval": true,
+    "rb_lines": 77
+   },
+   {
+    "id": "Magius",
+    "cases": 6,
+    "rb": [
+     "Magius",
+     "Magius_3rdNewTokyoCity"
+    ],
+    "eval": true,
+    "rb_lines": 187
+   },
+   {
+    "id": "Comes",
+    "cases": 2,
+    "rb": [
+     "Comes"
+    ],
+    "eval": true,
+    "rb_lines": 50
+   },
+   {
+    "id": "Yotabana",
+    "cases": 2,
+    "rb": [
+     "Yotabana"
+    ],
+    "eval": true,
+    "rb_lines": 62
+   }
+  ]
+ ],
+ "table_only": [
+  {
+   "id": "DiceBot",
+   "cases": 327,
+   "rb": [
+    "DiceBot"
+   ],
+   "eval": false,
+   "rb_lines": 35
+  },
+  {
+   "id": "ParasiteBlood",
+   "cases": 150,
+   "rb": [
+    "ParasiteBlood"
+   ],
+   "eval": false,
+   "rb_lines": 231
+  },
+  {
+   "id": "SwordWorld2.5:SimplifiedChinese",
+   "cases": 92,
+   "rb": [
+    "SwordWorld2_5_SimplifiedChinese"
+   ],
+   "eval": false,
+   "rb_lines": 95
+  },
+  {
+   "id": "InfiniteBabeL",
+   "cases": 81,
+   "rb": [
+    "InfiniteBabeL"
+   ],
+   "eval": false,
+   "rb_lines": 518
+  },
+  {
+   "id": "SwordWorld2.0:SimplifiedChinese",
+   "cases": 73,
+   "rb": [
+    "SwordWorld2_0_SimplifiedChinese"
+   ],
+   "eval": false,
+   "rb_lines": 84
+  },
+  {
+   "id": "RuneQuest",
+   "cases": 43,
+   "rb": [
+    "RuneQuest"
+   ],
+   "eval": false,
+   "rb_lines": 47
+  },
+  {
+   "id": "FullMetalPanic",
+   "cases": 37,
+   "rb": [
+    "FullMetalPanic",
+    "FullMetalPanic_Korean"
+   ],
+   "eval": false,
+   "rb_lines": 54
+  },
+  {
+   "id": "FullMetalPanic:Korean",
+   "cases": 37,
+   "rb": [
+    "FullMetalPanic",
+    "FullMetalPanic_Korean"
+   ],
+   "eval": false,
+   "rb_lines": 54
+  },
+  {
+   "id": "ShadowRun4",
+   "cases": 36,
+   "rb": [
+    "ShadowRun4"
+   ],
+   "eval": false,
+   "rb_lines": 49
+  },
+  {
+   "id": "EtrianOdysseySRS",
+   "cases": 33,
+   "rb": [
+    "EtrianOdysseySRS"
+   ],
+   "eval": false,
+   "rb_lines": 26
+  },
+  {
+   "id": "PhantasmAdventure",
+   "cases": 31,
+   "rb": [
+    "PhantasmAdventure"
+   ],
+   "eval": false,
+   "rb_lines": 69
+  },
+  {
+   "id": "WARPS",
+   "cases": 31,
+   "rb": [
+    "WARPS"
+   ],
+   "eval": false,
+   "rb_lines": 35
+  },
+  {
+   "id": "ShadowRun",
+   "cases": 29,
+   "rb": [
+    "ShadowRun"
+   ],
+   "eval": false,
+   "rb_lines": 26
+  },
+  {
+   "id": "Arianrhod",
+   "cases": 27,
+   "rb": [
+    "Arianrhod",
+    "Arianrhod_Korean"
+   ],
+   "eval": false,
+   "rb_lines": 79
+  },
+  {
+   "id": "Arianrhod:Korean",
+   "cases": 27,
+   "rb": [
+    "Arianrhod",
+    "Arianrhod_Korean"
+   ],
+   "eval": false,
+   "rb_lines": 79
+  },
+  {
+   "id": "TenkaRyouran",
+   "cases": 22,
+   "rb": [
+    "TenkaRyouran",
+    "TenkaRyouran_Korean"
+   ],
+   "eval": false,
+   "rb_lines": 56
+  },
+  {
+   "id": "TenkaRyouran:Korean",
+   "cases": 22,
+   "rb": [
+    "TenkaRyouran",
+    "TenkaRyouran_Korean"
+   ],
+   "eval": false,
+   "rb_lines": 56
+  },
+  {
+   "id": "JekyllAndHyde",
+   "cases": 20,
+   "rb": [
+    "JekyllAndHyde"
+   ],
+   "eval": false,
+   "rb_lines": 42
+  },
+  {
+   "id": "Alshard",
+   "cases": 19,
+   "rb": [
+    "Alshard"
+   ],
+   "eval": false,
+   "rb_lines": 26
+  },
+  {
+   "id": "MetallicGuardian",
+   "cases": 19,
+   "rb": [
+    "MetallicGuardian",
+    "MetallicGuardian_Korean"
+   ],
+   "eval": false,
+   "rb_lines": 58
+  },
+  {
+   "id": "MetallicGuardian:Korean",
+   "cases": 19,
+   "rb": [
+    "MetallicGuardian",
+    "MetallicGuardian_Korean"
+   ],
+   "eval": false,
+   "rb_lines": 58
+  },
+  {
+   "id": "Chill3",
+   "cases": 17,
+   "rb": [
+    "Chill3"
+   ],
+   "eval": false,
+   "rb_lines": 52
+  },
+  {
+   "id": "JamesBond",
+   "cases": 17,
+   "rb": [
+    "JamesBond"
+   ],
+   "eval": false,
+   "rb_lines": 45
+  },
+  {
+   "id": "Torg1.5",
+   "cases": 16,
+   "rb": [
+    "Torg1_5"
+   ],
+   "eval": false,
+   "rb_lines": 139
+  },
+  {
+   "id": "Gorilla",
+   "cases": 15,
+   "rb": [
+    "Gorilla"
+   ],
+   "eval": false,
+   "rb_lines": 38
+  },
+  {
+   "id": "EclipsePhase",
+   "cases": 14,
+   "rb": [
+    "EclipsePhase"
+   ],
+   "eval": false,
+   "rb_lines": 51
+  },
+  {
+   "id": "Hieizan",
+   "cases": 14,
+   "rb": [
+    "Hieizan"
+   ],
+   "eval": false,
+   "rb_lines": 39
+  },
+  {
+   "id": "InfiniteFantasia",
+   "cases": 14,
+   "rb": [
+    "InfiniteFantasia"
+   ],
+   "eval": false,
+   "rb_lines": 56
+  },
+  {
+   "id": "SharedFantasia",
+   "cases": 14,
+   "rb": [
+    "SharedFantasia"
+   ],
+   "eval": false,
+   "rb_lines": 65
+  },
+  {
+   "id": "WaresBlade",
+   "cases": 13,
+   "rb": [
+    "WaresBlade"
+   ],
+   "eval": false,
+   "rb_lines": 29
+  },
+  {
+   "id": "Elric",
+   "cases": 12,
+   "rb": [
+    "Elric"
+   ],
+   "eval": false,
+   "rb_lines": 40
+  },
+  {
+   "id": "ShinMegamiTenseiKakuseihen",
+   "cases": 12,
+   "rb": [
+    "ShinMegamiTenseiKakuseihen"
+   ],
+   "eval": false,
+   "rb_lines": 85
+  },
+  {
+   "id": "Gundog",
+   "cases": 11,
+   "rb": [
+    "Gundog"
+   ],
+   "eval": false,
+   "rb_lines": 53
+  },
+  {
+   "id": "Magius_3rdNewTokyoCity",
+   "cases": 10,
+   "rb": [
+    "Magius_3rdNewTokyoCity"
+   ],
+   "eval": false,
+   "rb_lines": 62
+  },
+  {
+   "id": "WorldsEndFrontline",
+   "cases": 10,
+   "rb": [
+    "WorldsEndFrontline",
+    "WorldsEndFrontline_Korean"
+   ],
+   "eval": false,
+   "rb_lines": 46
+  },
+  {
+   "id": "WorldsEndFrontline:Korean",
+   "cases": 10,
+   "rb": [
+    "WorldsEndFrontline",
+    "WorldsEndFrontline_Korean"
+   ],
+   "eval": false,
+   "rb_lines": 46
+  },
+  {
+   "id": "IthaWenUa",
+   "cases": 9,
+   "rb": [
+    "IthaWenUa"
+   ],
+   "eval": false,
+   "rb_lines": 31
+  },
+  {
+   "id": "NjslyrBattle",
+   "cases": 9,
+   "rb": [
+    "NjslyrBattle"
+   ],
+   "eval": false,
+   "rb_lines": 51
+  },
+  {
+   "id": "DungeonsAndDragons",
+   "cases": 8,
+   "rb": [
+    "DungeonsAndDragons",
+    "DungeonsAndDragons_Korean"
+   ],
+   "eval": false,
+   "rb_lines": 80
+  },
+  {
+   "id": "DungeonsAndDragons:Korean",
+   "cases": 8,
+   "rb": [
+    "DungeonsAndDragons",
+    "DungeonsAndDragons_Korean"
+   ],
+   "eval": false,
+   "rb_lines": 80
+  },
+  {
+   "id": "Pathfinder",
+   "cases": 8,
+   "rb": [
+    "Pathfinder"
+   ],
+   "eval": false,
+   "rb_lines": 21
+  },
+  {
+   "id": "Pendragon",
+   "cases": 8,
+   "rb": [
+    "Pendragon"
+   ],
+   "eval": false,
+   "rb_lines": 39
+  },
+  {
+   "id": "TokyoNova",
+   "cases": 8,
+   "rb": [
+    "TokyoNova"
+   ],
+   "eval": false,
+   "rb_lines": 19
+  },
+  {
+   "id": "GaiaCare",
+   "cases": 6,
+   "rb": [
+    "GaiaCare"
+   ],
+   "eval": false,
+   "rb_lines": 40
+  },
+  {
+   "id": "SevenFortressMobius",
+   "cases": 4,
+   "rb": [
+    "SevenFortressMobius"
+   ],
+   "eval": false,
+   "rb_lines": 34
+  },
+  {
+   "id": "NightWizard3rd",
+   "cases": 3,
+   "rb": [
+    "NightWizard3rd"
+   ],
+   "eval": false,
+   "rb_lines": 37
+  },
+  {
+   "id": "LostRecord",
+   "cases": 2,
+   "rb": [
+    "LostRecord"
+   ],
+   "eval": false,
+   "rb_lines": 29
+  },
+  {
+   "id": "RoleMaster",
+   "cases": 2,
+   "rb": [
+    "RoleMaster"
+   ],
+   "eval": false,
+   "rb_lines": 24
+  }
+ ]
+}

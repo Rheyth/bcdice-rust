@@ -11,7 +11,10 @@ AllCops:
     - 'tmp/**/*'
     - 'vendor/**/*'
     - '.git/**/*'
-    - lib/bcdice/arithmetic/parser.rb
+    # Rust 移植用の内部ツール（本家の品質基準とは別管理）
+    - 'rust/tools/**/*'
+    - 'bin/baseline_runner.rb'
+    - 'lib/bcdice/arithmetic/parser.rb'
     - lib/bcdice/command/parser.rb
     - lib/bcdice/common_command/add_dice/parser.rb
     - lib/bcdice/common_command/barabara_dice/parser.rb

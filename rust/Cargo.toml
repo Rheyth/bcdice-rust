@@ -1,0 +1,22 @@
+[package]
+name = "bcdice-rust"
+version = "0.1.0"
+edition = "2021"
+description = "Full Rust port of the BCDice TRPG dice command engine (336 game systems, verified against the Ruby implementation)"
+license = "BSD-3-Clause"
+repository = "https://github.com/Rheyth/bcdice-rust"
+keywords = ["trpg", "dice", "bcdice", "ttrpg"]
+categories = ["games", "parsing"]
+
+[lib]
+name = "bcdice"
+path = "src/lib.rs"
+
+[dependencies]
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+toml = "0.8"
+regex = "1"
+num-bigint = "0.4"
+num-rational = "0.4.2"
+num-traits = "0.2.19"

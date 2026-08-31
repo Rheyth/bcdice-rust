@@ -5,6 +5,8 @@ bcdice.exe
 *.html~
 tmp.txt
 .bundle/
+.bundle-gems/
+rust/target/
 vendor/
 Gemfile.lock
 coverage/

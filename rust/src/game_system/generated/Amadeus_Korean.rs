@@ -1,0 +1,483 @@
+//! P4で手書き移植した `lib/bcdice/game_system/Amadeus_Korean.rb`。
+//!
+//! メタデータ（id/name/sort_key/help_message/prefixes/settings）は
+//! `rust/tools/generate_game_systems.rb` が生成したスタブの値をそのまま保っている。
+//! 生成スクリプトを再実行するとこのファイルはスタブへ戻るので注意。
+//!
+//! Ruby側は `Amadeus` を継承し、`@locale` を `:ko_kr` に変えて
+//! `TABLES = translate_tables(:ko_kr)` を作り直すだけで、判定の実装は上書きしない。
+//! そのため評価は [`super::Amadeus::eval_specific_command`] をそのまま使い、
+//! ここには `ko_kr` ロケールの表と定型文だけを置く。
+//!
+//! 文言は `i18n/Amadeus/ko_kr.yml` と `i18n/ko_kr.yml`（`success` / `failure`）から
+//! 写したもので、値は1文字も変えていない。
+//! `i18n/Amadeus/ko_kr.yml` に無い表（`CST` 以降）は
+//! `lib/bcdice/base.rb` の `I18n.fallbacks.defaults = [:ja_jp]` により
+//! `ja_jp` の表がそのまま使われるので、[`super::Amadeus`] の定義を参照している。
+
+use super::Amadeus::{eval_specific_command, SystemTables};
+use crate::dice_table::{D66Table, RollableTable, Table, TableItem};
+use crate::enums::D66SortType;
+use crate::eval::EvalError;
+use crate::game_system::{GameSystem, SpecificCommandOutput, Target};
+use crate::normalize::CmpOp;
+use crate::randomizer::Randomizer;
+use crate::result::EvalResult;
+
+/// i18n `ko_kr.success`。
+const KO_SUCCESS: &str = "성공";
+/// i18n `ko_kr.failure`。
+const KO_FAILURE: &str = "실패";
+
+/// i18n `Amadeus.table.ECT`（ko_kr）。
+pub(crate) static KO_TABLE_ECT: Table = Table::from_dice(
+    "조우표",
+    1,
+    6,
+    &[
+        "고백. 당신은 신과 인간(짐승의 아이의 경우는 무언가의 동물)이 서로 사랑해 태어난 신의 아이입니다. 최근이 되어 그 사실과 예언에 관해 자신의 부모로부터 전해듣게 되었습니다. 당신은 양친이 있는 경우 어느 한쪽은 의붓부모가 됩니다.",
+        "고아. 당신은 부모에 대해 아무것도 몰랐습니다. 가혹한 환경에서 사는 동안, 당신의 형제자매가 당신을 맞이하러 왔습니다. 그리고 당신은 신의 아이이자, 예언의 당사자라는 것을 전해듣습니다.",
+        "가족. 당신은 신의 아이로서 어린 시절부터 생활해왔습니다. 현실과 <성지>를 왔다갔다하며 여러가지 것들을 신인 부모에게서 가르침 받았습니다. 그리고, 언젠가 모험에 나서, 영웅이 될 날을 즐겁게 기다리고 있었습니다.",
+        "혈맥. 당신의 일족에게는 '거대한 운명의 소유자가 태어난다'라고 하는 예언이 전해져 왔습니다. 그 예언의 아이가 당신입니다. 아마도, 당신의 먼 선조는 신이었을 것입니다. 일족은 당신에게 큰 기대와 두려움을 가지고 있습니다.",
+        "총애. 당신의 자질과 재능은 신에게 인정받았습니다. 그리고, 꿈 속에서 부모신과 만나, <신의 피>를 직접 하사받았습니다. 그 이후로, 당신은 불가사의한 것들이 보이거나 들리거나 하게 되었습니다.",
+        "귀의. 당신은 괴물에 의해 생명의 위협을 받았습니다. 하지만, 신의 피를 받은 것으로 죽음의 문턱에서 되돌아 왔습니다. 그 이후로, 당신은 당신을 구해준 신에게 귀의하여 인생을 바치기로 했습니다.",
+    ],
+);
+
+/// i18n `Amadeus.table.BST`（ko_kr）。
+pub(crate) static KO_TABLE_BST: Table = Table::from_dice(
+    "전장표",
+    1,
+    6,
+    &[
+        "묘지. 라운드 종료 시 PC와 괴물의 본체는 【생명력】이 1D6점 감소한다. PC가 기프트를 사용할 때 흑의 영역의 인과가 추가로 2개 있는것으로 취급한다.",
+        "시가지. 모든 PC와 괴물은 입히는 데미지가 1D6점 상승한다. PC가 기프트를 사용할 때 적의 영역의 인과가 추가로 2개 있는것으로 취급한다.",
+        "수중. 잠수상태가 아닌 PC는 모든 판정에 -1의 수정치가 붙는다. 라운드 종료 시, 잠수상태가 아닌 PC와 괴물의 본체는 【생명력】이 1D6점 감소한다. PC가 기프트를 사용할 때 청의 영역의 인과가 추가로 2개 있는것으로 취급한다.",
+        "삼림. 모든 PC와 괴물은 받는 데미지가 1D6점 감소한다. PC가 기프트를 사용할 때 녹의 영역의 인과가 추가로 2개 있는것으로 취급한다.",
+        "공중. 비행상태가 아닌 PC는 모든 판정에 -1의 수정치가 붙는다. 전투종료 시 괴물의 【생명력】이 1점이상 남아있을 경우 그 전투중에 한번도 비행상태가 되지 않은 PC와 괴물의 본체는 【생명력】이 [전투에 소비한 난전 라운드 수x3D6]점 감소한다. PC가 기프트를 사용할 때 백의 영역의 인과가 추가로 2개 있는것으로 취급한다.",
+        "평지. 아무런 효과도 없다.",
+    ],
+);
+
+/// i18n `Amadeus.table.RT`（ko_kr）。
+pub(crate) static KO_TABLE_RT: Table = Table::from_dice(
+    "관계표",
+    1,
+    6,
+    &[
+        "연심(플러스) / 살의(마이너스)",
+        "동정(플러스) / 모멸(마이너스)",
+        "동경(플러스) / 질투(마이너스)",
+        "신뢰(플러스) / 의심(마이너스)",
+        "공감(플러스) / 밥맛(마이너스)",
+        "소중(플러스) / 귀찮(마이너스)",
+    ],
+);
+
+/// i18n `Amadeus.table.PRT`（ko_kr）。
+pub(crate) static KO_TABLE_PRT: Table = Table::from_dice(
+    "부모마음표",
+    1,
+    6,
+    &[
+        "귀엽다(플러스) / 건방지다(마이너스)",
+        "기대(플러스) / 위협(마이너스)",
+        "자랑(플러스) / 수치(마이너스)",
+        "애정(플러스) / 무관심(마이너스)",
+        "유용(플러스) / 걱정(마이너스)",
+        "과보호(플러스) / 집착(마이너스)",
+    ],
+);
+
+/// i18n `Amadeus.table.FT`（ko_kr）。
+pub(crate) static KO_TABLE_FT: Table = Table::from_dice(
+    "펌블표",
+    1,
+    6,
+    &[
+        "운명의 수레바퀴가 회전한다. 각각의 영역의 인과를 적->청->녹->백->적으로 옮긴다.",
+        "동료에게 민폐를 끼친다. 자신 이외의 PC전원은 【생명력】이 1점 감소한다.",
+        "이 실패는 나중에 빌미가 될지도 모른다. 자신의 【생명력】이 1D6점 감소한다.",
+        "너무 큰 실패에 다른 사람들의 태도가 변한다. 자신에 대해 가장 높은 【마음】을 가지고 있는 캐릭터 전원의 【마음】의 속성이 반전한다.",
+        "마음에 큰 동요가 생긴다. 자신에 속성에 대응한 상태이상을 획득한다.
+(흑->절망, 적->분노, 청->두려움3, 녹->타락, 백->수치)",
+        "주변에 활기가 사라진다. 운명의 수레바퀴에서 흑의 영역 이외의 인과를 모두 1개씩 제거한다.",
+    ],
+);
+
+/// i18n `Amadeus.table.BT`（ko_kr）。
+pub(crate) static KO_TABLE_BT: D66Table = D66Table::new(
+    "휴식표",
+    D66SortType::Asc,
+    &[
+        (11, TableItem::Text("토착 괴물이 습격해왔다! 어떻게든 격퇴했지만 부상을 입었다. 자신은 1D6점 데미지를 입는다.")),
+        (12, TableItem::Text("미녀의 목욕을 훔쳐보고 말았다. 1D6을 굴려 1~2라면 「타락」, 3~4라면 「수치」, 5~6이라면 「중상1」의 상태이상을 획득한다.")),
+        (13, TableItem::Text("욕심이 강한 상인을 만났다. 이 신에 등장한 모든 캐릭터는 아이템을 살 수 있다. 단, 평소의 가격보다 1 높다.")),
+        (14, TableItem::Text("자신의 과거의 이야기를 한다. 어째서 이런 얘기가 됐지? PC 중에서 자신에 대해 가장 높은 【마음】을 가지고 있는 PC 전원은 【마음】의 속성이 반전한다.")),
+        (15, TableItem::Text("주변의 공기가 변한다. 운명의 수레바퀴가 움직일 예감! 각각의 영역의 인과를 적->청->녹->백->적으로 옮긴다.")),
+        (16, TableItem::Text("당신은 무심코 노래를 부른다. 어느샌가 모두가 그 노래에 집중하고 있었다. 흑의 영역 이외의 원하는 인과 1개를 다른 영역으로 옮긴다.")),
+        (22, TableItem::Text("〈절계〉의 바깥 세계의 친구를 떠올린다. 모두 건강하게 지내고 있을까?  이 PC가【일상】의 판정에 성공하면 자신의 상태이상 1개를 회복하거나 흑의 영역의 인과를 하나 제거할 수 있다.")),
+        (23, TableItem::Text("기묘한 상인을 만났다. 이 신에 등장한 모든 캐릭터는 아이템을 살 수 있다.")),
+        (24, TableItem::Text("말하는 동물에게 부탁을 받는다. 동물들도 이 신화재해로 고생하고 있는듯 하다. 이 PC는 「이 괴물의 본체의 【생명력】을 0으로 한다」라는 추가의 【임무】를 받는다. 이 【임무】를 달성하면 추가로 경험치를 20점 받는다.")),
+        (25, TableItem::Text("멋진 꿈을 꾼다. 이 표를 굴린 PC는 자신의 PC 이외의 캐릭터 1명에 대한 【마음】이 1점 상승한다.")),
+        (26, TableItem::Text("소중한 사람에게서 당신을 걱정하는 문자를 받았다. 뭐라고 답장하지? 이 표를 굴린 PC는 【일상】의 판정에 성공하면 자신의 상태이상을 1개 회복하거나 자신이 가진 【마음】의 체크를 1개 해제한다.")),
+        (33, TableItem::Text("친절한 상인을 만났다. 이 신에 등장한 모든 캐릭터는 아이템을 살 수 있다. 단, 평소의 가격보다 1 낮다.(1 미만은 되지 않는다.)")),
+        (34, TableItem::Text("무기의 정비를 한다. 이 표를 굴린 PC는 【일상】의 판정에 성공하면 이 세션 동안 무기 1개의 위력을 1점 상승시킬 수 있다.")),
+        (35, TableItem::Text("마지막으로 쇼핑을 했을때 잔돈을 더 받은걸 깨달았다. 코인을 1개 획득한다.")),
+        (36, TableItem::Text("식사를 하면서 동료들과 떠든다. 이 신에 등장해서 식사를 한 PC 전원은 자신이 가진 【마음】의 체크를 1개 해제한다.")),
+        (44, TableItem::Text("잠깐 잠들었는지 이상한 꿈을 꾼다. 이 표를 굴린 PC는 【영력】의 판정에 성공하면 원하는 예언카드 1장의 【진실】을 볼 수 있다.")),
+        (45, TableItem::Text("양아치들에게 얽힌 이성을 발견한다. 이 표를 굴린 PC가 【무용】의 판정에 성공하면 그 NPC는 이 표를 굴린 PC에 대한 【마음】을 1점 획득한다. 이 NPC를 협력자로 한다면 이 표를 굴린 PC가 이름과 관계를 자유롭게 정한다.")),
+        (46, TableItem::Text("기분좋은 바람이 분다. 운명이 당신을 도와주는듯한 기분이 든다. 원하는 영역에 인과를 1개 배치한다.")),
+        (55, TableItem::Text("눈을 뜨면 머리맡에 선물이 있다. 누굴까……? 이 표를 굴린 PC는 「랜덤 아이템표」를 사용한다.")),
+        (56, TableItem::Text("곤란해하는 신화생물을 도와줬다. 이 표를 굴린 PC는【일상】의 판정에 성공하면 다음 이동판정을 자동으로 성공한다.(달성치는 6으로 한다)")),
+        (66, TableItem::Text("부모신이 당신에게 이야기하고 있다. 부모자식간의 대화다. 이 표를 굴린 PC는 【일상】의 판정에 성공하면 자신의 부모신에 대한 【마음】이나 부모신의 자신에 대한 【마음】중 하나를 1점 상승시킨다.")),
+    ],
+);
+
+/// i18n `Amadeus.table.FWT`（ko_kr）。
+pub(crate) static KO_TABLE_FWT: Table = Table::from_dice(
+    "치명상표",
+    1,
+    6,
+    &[
+        "절망적인 공격을 받는다. 이 캐릭터는 사망한다.",
+        "고통의 비명을 지르고 무참하게 무너진다. 이 캐릭터는 행동불능이 되고 흑의 영역의 인과가 1 증가한다.",
+        "공격을 받은 무기가 부숴지고 적의 공격에 직격당한다. 이 캐릭터는 행동불능이 되고 아이템란 에서 무기 하나를 파괴한다.",
+        "강렬한 일격을 받아 기절한다. 이 캐릭터는 행동불능이 된다.",
+        "의식은 있지만 일어날 수 없다. 이 캐릭터는 행동불능이 되고 다음 신이 되면 【생명력】이 1점으로 회복된다.",
+        "기적적으로 버틴다. 【생명력】이 1점으로 회복된다.",
+    ],
+);
+
+/// i18n `Amadeus.table.BRT`（ko_kr）。
+pub(crate) static KO_TABLE_BRT: Table = Table::from_dice(
+    "전과표",
+    1,
+    6,
+    &[
+        "코인을 1개 획득한다.",
+        "코인을 1D6개 획득한다.",
+        "원하는 영역에 인과를 1개 배치한다.",
+        "흑의 영역의 인과를 1개 제거한다.",
+        "「랜덤 아이템표」를 1번 사용한다.",
+        "PC 전원은 인물란의 체크를 1개 해제한다.",
+    ],
+);
+
+/// i18n `Amadeus.table.RIT`（ko_kr）。
+pub(crate) static KO_TABLE_RIT: Table = Table::from_dice(
+    "랜덤아이템표",
+    2,
+    6,
+    &[
+        "「갑옷」을 1개 획득한다.",
+        "「단서」를 1개 획득한다.",
+        "「패션 아이템」을 1개 획득한다.",
+        "「수호부적」을 1개 획득한다.",
+        "「감로」을 1개 획득한다.",
+        "「식량」을 1D6개 획득한다.",
+        "「향」을 1개 획득한다.",
+        "「공물」을 1개 획득한다.",
+        "「영약」을 1개 획득한다.",
+        "「진수성찬」을 1개 획득한다.",
+        "「폭탄」을 1개 획득한다.",
+    ],
+);
+
+/// i18n `Amadeus.table.WT`（ko_kr）。
+pub(crate) static KO_TABLE_WT: Table = Table::from_dice(
+    "부상표",
+    1,
+    6,
+    &[
+        "자신의 【생명력】이 1D6점 감소한다.",
+        "코인을 1D6개 잃는다.",
+        "흑의 영역에 인과를 1개 배치한다.",
+        "「두려움3」의 상태이상을 획득한다.",
+        "「중상3」의 상태이상을 획득한다.",
+        "자신의 인물란의 가장 높은【마음】1개가 1점 감소한다. ",
+    ],
+);
+
+/// i18n `Amadeus.table.NMT`（ko_kr）。
+pub(crate) static KO_TABLE_NMT: Table = Table::from_dice(
+    "악몽표",
+    1,
+    6,
+    &[
+        "절망의 어둠에 시야를 차단당한다. 등뒤에 괴물의 기척이 느껴진다고 생각했을때는 늦었다. 비열한 공격이 당신을 덮친다. 원하는 능력치로 판정해 실패하면 사망한다.",
+        "절망의 어둠 속, 비통한 절규가 들려온다. 사건의 피해자들일까. 당신은 구하지 못했다. 【일상】의 판정에 실패하면 「절망」의 저주를 받는다.",
+        "절망의 어둠 속에서 괴물의 웃음소리가 메아리친다. 그것은 비웃는 소리였다. 괴물이나 동료들…… 무엇보다 자신에 대한 분노가 끓어오른다. 【일상】의 판정에 실패하면 「분노」의 저주를 받는다.",
+        "절망의 어둠 속에서 혼자 남겨졌다. 아무도 당신을 눈치채지 못한다. 고독에 견디면서 어떻게든 일상으로 귀환했지만…… 그 때의 공포를 극복하지 못했다. 【일상】의 판정에 실패하면 「두려움3」의 저주를 받는다.",
+        "절망의 어둠에서 귀환한 당신을 기다리고 있는건 전보다 나은것이 없는 일상이었다. 당신이 임무에 실패해도 세계는 변하지 않는다. 그렇다면, 더이상 당신은 그런 무서운 일을 당할 필요가 없지 않을까? 【일상】의 판정에 실패하면 「타락」의 저주를 받는다.",
+        "절망의 어둠 속에서 필사적으로 도망쳤다. 등뒤에서 동료의 목소리가 들린듯한 기분이 든다. 하지만, 당신은 돌아볼 수 없었다. 【일상】의 판정에 실패하면 「수치」의 저주를 받는다.",
+    ],
+);
+
+/// i18n `Amadeus.table.TGT`（ko_kr）。
+pub(crate) static KO_TABLE_TGT: Table = Table::from_dice(
+    "목표표",
+    1,
+    6,
+    &[
+        "악의. PC 중에서 가장 【생명력】이 낮은 PC 1명을 선택한다. 가장 낮은 【생명력】인 사람이 여럿 있을 경우, 그 중에서 GM이 자유롭게 선택한다.",
+        "교활. 가장 숫자가 높은 패러그래프에 있는 PC 1명을 선택한다. 전원이 장외에 있을 경우, 장외에 있는 PC 전원을 목표로 선택한다.",
+        "비도. PC 중에서 가장 【무용】랭크가 낮은 PC 1명을 선택한다. 가장 낮은 랭크를 가진 사람이 여럿 있을 경우, 그 중에서 가장 낮은 모드를 가진 사람을 1명 선택한다. 모드도 같을 경우, 그 중에서 GM이 자유롭게 선택한다.",
+        "견실. PC 중에서 가장 【기술】랭크가 낮은 PC 1명을 선택한다. 가장 낮은 랭크를 가진 사람이 여럿 있을 경우, 그 중에서 가장 낮은 모드를 가진 사람을 1명 선택한다. 모드도 같을 경우, 그 중에서 GM이 자유롭게 선택한다.",
+        "호쾌. PC 중에서 가장 【무용】랭크가 높은 PC 1명을 선택한다. 가장 높은 랭크를 가진 사람이 여럿 있을 경우, 그 중에서 가장 높은 모드를 가진 사람을 1명 선택한다. 모드도 같을 경우, 그 중에서 GM이 자유롭게 선택한다.",
+        "교활. 가장 숫자가 낮은 패러그래프에 있는 PC 1명을 선택한다. 전원이 장외에 있을 경우, 장외에 있는 PC 전원을 목표로 선택한다.",
+    ],
+);
+
+/// Ruby `TABLES`（`roll_tables` が引くコマンド名 → 表）。
+static KO_TABLES: &[(&str, &dyn RollableTable)] = &[
+    ("ECT", &KO_TABLE_ECT),
+    ("BST", &KO_TABLE_BST),
+    ("RT", &KO_TABLE_RT),
+    ("PRT", &KO_TABLE_PRT),
+    ("FT", &KO_TABLE_FT),
+    ("BT", &KO_TABLE_BT),
+    ("FWT", &KO_TABLE_FWT),
+    ("BRT", &KO_TABLE_BRT),
+    ("RIT", &KO_TABLE_RIT),
+    ("WT", &KO_TABLE_WT),
+    ("NMT", &KO_TABLE_NMT),
+    ("TGT", &KO_TABLE_TGT),
+    ("CST", &super::Amadeus::JA_TABLE_CST), // ko_kr に項目が無く ja_jp へフォールバックする
+    ("GCVT", &super::Amadeus::JA_TABLE_GCVT), // ko_kr に項目が無く ja_jp へフォールバックする
+    ("YCVT", &super::Amadeus::JA_TABLE_YCVT), // ko_kr に項目が無く ja_jp へフォールバックする
+    ("ECVT", &super::Amadeus::JA_TABLE_ECVT), // ko_kr に項目が無く ja_jp へフォールバックする
+    ("CCVT", &super::Amadeus::JA_TABLE_CCVT), // ko_kr に項目が無く ja_jp へフォールバックする
+    ("NCVT", &super::Amadeus::JA_TABLE_NCVT), // ko_kr に項目が無く ja_jp へフォールバックする
+    ("DGVT", &super::Amadeus::JA_TABLE_DGVT), // ko_kr に項目が無く ja_jp へフォールバックする
+    ("DAVT", &super::Amadeus::JA_TABLE_DAVT), // ko_kr に項目が無く ja_jp へフォールバックする
+    ("PRCT", &super::Amadeus::JA_TABLE_PRCT), // ko_kr に項目が無く ja_jp へフォールバックする
+    ("TCCT", &super::Amadeus::JA_TABLE_TCCT), // ko_kr に項目が無く ja_jp へフォールバックする
+    ("INCT", &super::Amadeus::JA_TABLE_INCT), // ko_kr に項目が無く ja_jp へフォールバックする
+    ("PSCT", &super::Amadeus::JA_TABLE_PSCT), // ko_kr に項目が無く ja_jp へフォールバックする
+    ("LVCT", &super::Amadeus::JA_TABLE_LVCT), // ko_kr に項目が無く ja_jp へフォールバックする
+    ("DACT", &super::Amadeus::JA_TABLE_DACT), // ko_kr に項目が無く ja_jp へフォールバックする
+    ("RGT", &super::Amadeus::JA_TABLE_RGT), // ko_kr に項目が無く ja_jp へフォールバックする
+    ("FBT", &super::Amadeus::JA_TABLE_FBT), // ko_kr に項目が無く ja_jp へフォールバックする
+    ("CHVT", &super::Amadeus::JA_TABLE_CHVT), // ko_kr に項目が無く ja_jp へフォールバックする
+    ("LCVT", &super::Amadeus::JA_TABLE_LCVT), // ko_kr に項目が無く ja_jp へフォールバックする
+    ("KCVT", &super::Amadeus::JA_TABLE_KCVT), // ko_kr に項目が無く ja_jp へフォールバックする
+    ("SAT", &super::Amadeus::JA_TABLE_SAT), // ko_kr に項目が無く ja_jp へフォールバックする
+    ("SMT", &super::Amadeus::JA_TABLE_SMT), // ko_kr に項目が無く ja_jp へフォールバックする
+];
+
+/// i18n `Amadeus.inga_table`（ko_kr）。
+static KO_INGA_TABLE: &[&str] = &["흑", "적", "청", "녹", "백", "임의"];
+/// i18n `Amadeus.special`（ko_kr）。
+const KO_SPECIAL: &str = "스페셜！";
+/// i18n `Amadeus.fumble`（ko_kr）。
+const KO_FUMBLE: &str = "펌블！";
+
+/// `ko_kr` ロケールの表と定型文一式。
+static KO_SYSTEM: SystemTables = SystemTables {
+    tables: KO_TABLES,
+    inga_table: KO_INGA_TABLE,
+    special: KO_SPECIAL,
+    fumble: KO_FUMBLE,
+    success: KO_SUCCESS,
+    failure: KO_FAILURE,
+};
+
+/// Ruby `BCDice::GameSystem::Amadeus_Korean`（ID: `Amadeus:Korean`）。
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct Amadeus_Korean;
+
+impl GameSystem for Amadeus_Korean {
+    fn id(&self) -> &'static str {
+        "Amadeus:Korean"
+    }
+
+    fn name(&self) -> &'static str {
+        "아마데우스"
+    }
+
+    fn sort_key(&self) -> &'static str {
+        "国際化:Korean:아마데우스"
+    }
+
+    fn help_message(&self) -> &'static str {
+        r#"・판정(Rx±y@z>=t)
+　다이스별로 성공, 실패의 판정을 합니다.
+　x：x에 랭크(S,A～D)를 입력.
+　y：y에 수정치를 입력. ±의 계산에 대응. 생략가능.
+　z：z에 스페셜이 되는 주사위 눈의 최저치를 입력.
+　생략한 경우, 6의 값만 스페셜이 됩니다.
+　t：t에 목표치를 입력. ±의 계산에 대응. 생략가능.
+　목표치를 생략한 경우, 목표치는 4로 계산됩니다.
+　예） RA　RB-1　RC>=5　RD+2　RS-1@5>=6
+　※ RB++ 나 RA- 같은, 플러스 마이너스만의 표기로는 계산되지 않습니다.
+　"달성치"_"판정결과"["주사위 눈""대응하는 인과"]와 같이 출력됩니다.
+　단, C.D랭크에서는 대응하는 인과가 출력되지 않습니다.
+　출력예)　1_펌블！[1흑] / 3_실패[3청]
+・각종표
+　　조우표　ECT／관계표　RT／부모마음표　PRT／전장표　BST／휴식표　BT／
+　　펌블표　FT／치명상표　FWT／전과표 BRT／랜덤아이템표　RIT／
+　　손상표　WT／악몽표　NMT／목표표　TGT／制約表 CST／
+　　ランダムギフト表 RGT／決戦戦果表 FBT／
+　　店内雰囲気表 SAT／特殊メニュー表 SMT
+・試練表（～VT）
+　ギリシャ神群 GCVT／ヤマト神群 YCVT／エジプト神群 ECVT／
+　クトゥルフ神群 CCVT／北欧神群 NCVT／中華神群 CHVT／
+  ラストクロニクル神群 LCVT／ケルト神群 KCVT／ダンジョン DGVT／日常 DAVT
+・挑戦テーマ表（～CT）
+　武勇 PRCT／技術 TCCT／頭脳 INCT／霊力 PSCT／愛 LVCT／日常 DACT
+"#
+    }
+
+    fn prefixes(&self) -> &'static [&'static str] {
+        &[
+            "R[A-DS]", "ECT", "BST", "RT", "PRT", "FT", "BT", "FWT", "BRT", "RIT", "WT", "NMT",
+            "TGT", "CST", "GCVT", "YCVT", "ECVT", "CCVT", "NCVT", "DGVT", "DAVT", "PRCT", "TCCT",
+            "INCT", "PSCT", "LVCT", "DACT", "RGT", "FBT", "CHVT", "LCVT", "KCVT", "SAT", "SMT",
+        ]
+    }
+
+    crate::impl_prefixes_pattern!();
+
+    /// Ruby `Amadeus#initialize` の `@sort_add_dice = true`。
+    fn sort_add_dice(&self) -> bool {
+        true
+    }
+
+    /// Ruby `Amadeus#initialize` の `@d66_sort_type = D66SortType::ASC`。
+    fn d66_sort_type(&self) -> D66SortType {
+        D66SortType::Asc
+    }
+
+    /// Ruby `Base#result_ndx`（`ko_kr` の定型文で）。
+    ///
+    /// Ruby側は `translate("success")` が `@locale`（このクラスでは `:ko_kr`）を見るため
+    /// `성공` / `실패` になる。トレイトの既定実装は `ja_jp` 固定の
+    /// `成功` / `失敗` を返すので、ここで上書きする。
+    /// 判定コマンド（`Rx`）でも各種表でもない加算ダイスがこの経路を通る。
+    fn result_ndx(&self, total: crate::Int, cmp_op: CmpOp, target: Target) -> Option<EvalResult> {
+        // Ruby: return nil if target.is_a?(String)（目標値 "?"）
+        let Target::Number(target) = target else {
+            return None;
+        };
+        if cmp_op.apply(&total, &target) {
+            Some(EvalResult::success(KO_SUCCESS))
+        } else {
+            Some(EvalResult::failure(KO_FAILURE))
+        }
+    }
+
+    /// Ruby `Amadeus#eval_game_system_specific_command`（`ko_kr` の表で）。
+    fn eval_game_system_specific_command(
+        &self,
+        command: &str,
+        rng: &mut Randomizer,
+    ) -> Result<Option<SpecificCommandOutput>, EvalError> {
+        eval_specific_command(&KO_SYSTEM, command, rng)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use std::path::{Path, PathBuf};
+
+    use crate::eval::eval_command;
+    use crate::game_system::GameSystemId;
+    use crate::randomizer::SeededRandomizer;
+    use crate::toml_test::TestDataFile;
+
+    fn toml_path() -> Option<PathBuf> {
+        let path = Path::new(env!("CARGO_MANIFEST_DIR"))
+            .parent()?
+            .join("test/data/Amadeus_Korean.toml");
+        path.exists().then_some(path)
+    }
+
+    fn check_flag(reasons: &mut Vec<String>, name: &str, expected: bool, actual: bool) {
+        if expected != actual {
+            reasons.push(format!(
+                "{name} flag mismatch: expected {expected}, actual {actual}"
+            ));
+        }
+    }
+
+    /// `test/data/Amadeus_Korean.toml` の全ケースが通ること。
+    ///
+    /// 判定項目は `rust/tests/toml_harness.rs::run_case` と同じ
+    /// （出力文字列・5フラグ・注入乱数を使い切ったか）。
+    #[test]
+    fn all_toml_cases_pass() {
+        let Some(path) = toml_path() else {
+            // worktree外でクレート単体ビルドされた場合
+            eprintln!("skip: test/data/Amadeus_Korean.toml not found");
+            return;
+        };
+
+        let data = TestDataFile::load(&path).expect("Amadeus_Korean.toml must parse");
+        assert_eq!(
+            data.tests.len(),
+            87,
+            "case count in test/data/Amadeus_Korean.toml"
+        );
+
+        let mut failures: Vec<String> = Vec::new();
+        for (i, tc) in data.tests.iter().enumerate() {
+            assert_eq!(
+                tc.game_system, "Amadeus:Korean",
+                "unexpected game system in Amadeus_Korean.toml"
+            );
+
+            let mut reasons: Vec<String> = Vec::new();
+            let rands: Vec<(i64, i64)> = tc.rands.iter().map(|r| (r.value, r.sides)).collect();
+            let mut src = SeededRandomizer::new(rands);
+
+            match eval_command(&GameSystemId::new("Amadeus:Korean"), &tc.input, &mut src) {
+                Err(e) => reasons.push(format!("eval error: {e}")),
+                Ok(None) => {
+                    if !tc.expects_nil() {
+                        reasons.push(format!(
+                            "eval returned nil, but output was expected: {:?}",
+                            tc.output
+                        ));
+                    }
+                }
+                Ok(Some(result)) => {
+                    if tc.expects_nil() {
+                        reasons.push(format!("expected nil output, got {:?}", result.text));
+                    } else if result.text != tc.output {
+                        reasons.push(format!(
+                            "output mismatch\n    expected: {:?}\n    actual:   {:?}",
+                            tc.output, result.text
+                        ));
+                    }
+                    check_flag(&mut reasons, "secret", tc.secret, result.secret);
+                    check_flag(&mut reasons, "success", tc.success, result.success);
+                    check_flag(&mut reasons, "failure", tc.failure, result.failure);
+                    check_flag(&mut reasons, "critical", tc.critical, result.critical);
+                    check_flag(&mut reasons, "fumble", tc.fumble, result.fumble);
+                }
+            }
+
+            if !src.is_empty() {
+                reasons.push(format!("unconsumed rands remain ({})", src.remaining()));
+            }
+
+            if !reasons.is_empty() {
+                failures.push(format!(
+                    "FAIL Amadeus:Korean:{}:{}\n  - {}",
+                    i + 1,
+                    tc.input,
+                    reasons.join("\n  - ")
+                ));
+            }
+        }
+
+        assert!(
+            failures.is_empty(),
+            "{}/{} Amadeus:Korean cases failed:\n{}",
+            failures.len(),
+            data.tests.len(),
+            failures.join("\n")
+        );
+    }
+}
