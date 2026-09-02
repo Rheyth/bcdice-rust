@@ -17,7 +17,7 @@
 //! **末尾までトークンを消費しきったこと（`$end` 到達）を必ず検査する**。
 //! Ruby側の `rescue ParseError -> nil` と同一の挙動になる。
 
-use num_traits::{Signed, ToPrimitive, Zero};
+use num_traits::{FromPrimitive, ToPrimitive, Zero};
 
 use crate::common_command::lexer::{self, Cursor, Tok};
 use crate::enums::RoundType;
@@ -93,52 +93,47 @@ pub(crate) fn floor_div(dividend: Int, divisor: Int) -> Int {
 
 /// Ruby `(dividend.to_f / divisor).ceil`。
 ///
+/// 本家 `node.rb` と同様に **常に to_f 経路**で計算する。`Int`（BigInt）を
+/// `to_f64()` で f64 へ丸めてから除算・`ceil` するため、2^53 超の入力では
+/// Ruby と同一の丸め落ちが発生する（等価性優先・意図的な挙動）。
+///
 /// 除数0のときRubyは `Float::INFINITY.ceil` で FloatDomainError を送出する。
-/// 被除数・除数が両方 i64 範囲内のときは現行どおり f64 経路で計算する。
-/// i64 範囲外のときは BigInt の正確な整数演算で ceil を計算する。
-/// （Rubyのf64丸めとの潜在的差は許容）。
+/// また、f64 への変換結果が無限大のとき（`10^400` 等の f64 最大超入力）も
+/// 本家同様 FloatDomainError 相当を返す。
 pub(crate) fn ceil_div(dividend: Int, divisor: Int) -> Result<Int, EvalError> {
-    if divisor.is_zero() {
+    let d = dividend.to_f64().ok_or(EvalError::FloatDomain)?;
+    let v = divisor.to_f64().ok_or(EvalError::FloatDomain)?;
+    let q = d / v;
+    if q.is_infinite() || q.is_nan() {
         return Err(EvalError::FloatDomain);
     }
-    if let (Some(d_i64), Some(v_i64)) = (dividend.to_i64(), divisor.to_i64()) {
-        return Ok(Int::from((d_i64 as f64 / v_i64 as f64).ceil() as i64));
-    }
-    let q = &dividend / &divisor;
-    let rem = &dividend % &divisor;
-    if !rem.is_zero() && ((dividend > Int::ZERO) == (divisor > Int::ZERO)) {
-        Ok(q + 1)
-    } else {
-        Ok(q)
-    }
+    // f64 の .ceil() は巨大な値で self をそのまま返すので、
+    // BigInt への再変換で丸め結果を再現する。
+    let c = q.ceil();
+    Int::from_f64(c).ok_or(EvalError::FloatDomain)
 }
 
 /// Ruby `(dividend.to_f / divisor).round`。
 ///
+/// 本家 `node.rb` と同様に **常に to_f 経路**で計算する。`Int`（BigInt）を
+/// `to_f64()` で f64 へ丸めてから除算・`round` するため、2^53 超の入力では
+/// Ruby と同一の丸め落ちが発生する（等価性優先・意図的な挙動）。
+/// f64 の `round()` は half away from zero なので本家と一致する。
+///
 /// 除数0のときRubyは `Float::INFINITY.round` で FloatDomainError を送出する。
-/// 被除数・除数が両方 i64 範囲内のときは現行どおり f64 経路（half away from zero）で計算する。
-/// i64 範囲外のときは BigInt の正確な整数演算で round（half away from zero）を計算する。
-/// （Rubyのf64丸めとの潜在的差は許容）。
+/// また、f64 への変換結果が無限大のとき（`10^400` 等の f64 最大超入力）も
+/// 本家同様 FloatDomainError 相当を返す。
 pub(crate) fn round_div(dividend: Int, divisor: Int) -> Result<Int, EvalError> {
-    if divisor.is_zero() {
+    let d = dividend.to_f64().ok_or(EvalError::FloatDomain)?;
+    let v = divisor.to_f64().ok_or(EvalError::FloatDomain)?;
+    let q = d / v;
+    if q.is_infinite() || q.is_nan() {
         return Err(EvalError::FloatDomain);
     }
-    if let (Some(d_i64), Some(v_i64)) = (dividend.to_i64(), divisor.to_i64()) {
-        return Ok(Int::from((d_i64 as f64 / v_i64 as f64).round() as i64));
-    }
-    let q = &dividend / &divisor;
-    let rem = &dividend % &divisor;
-    let rem_abs_2 = rem.abs() * 2;
-    let div_abs = divisor.abs();
-    if rem_abs_2 >= div_abs {
-        if (dividend > Int::ZERO) == (divisor > Int::ZERO) {
-            Ok(q + 1)
-        } else {
-            Ok(q - 1)
-        }
-    } else {
-        Ok(q)
-    }
+    // f64 の .round() は巨大な値で self をそのまま返すので、
+    // BigInt への再変換で丸め結果を再現する。
+    let r = q.round();
+    Int::from_f64(r).ok_or(EvalError::FloatDomain)
 }
 
 /// Ruby `Integer#/` そのもの。除数0で ZeroDivisionError。
@@ -412,5 +407,86 @@ mod tests {
     fn requires_end_of_input() {
         assert!(parse("1+2)").is_none());
         assert!(parse("1+2X").is_none());
+    }
+
+    /// Ruby実測値（`ruby -e 'p((2**53+1).to_f)'` 等）との一致を確認する。
+    /// BigInt→f64 の丸め落ち（2^53超）も本家どおりに再現する。
+    #[test]
+    fn ceil_round_div_matches_ruby_float_path() {
+        // Ruby: (9007199254740993.to_f / 1).ceil == 9007199254740992（2^53+1はf64で2^53に丸め落ち）
+        assert_eq!(
+            ceil_div(Int::from(9007199254740993i128), Int::from(1)),
+            Ok(Int::from(9007199254740992i128))
+        );
+        assert_eq!(
+            round_div(Int::from(9007199254740993i128), Int::from(1)),
+            Ok(Int::from(9007199254740992i128))
+        );
+        // Ruby: (10**18).to_f / 7 → 1.4285714285714286e+17 → 142857142857142864
+        // （正確な整数演算だと 142857142857142858 になり、差6が出る）
+        let d = Int::from(10).pow(18);
+        assert_eq!(
+            ceil_div(d.clone(), Int::from(7)),
+            Ok(Int::from(142857142857142864i128))
+        );
+        assert_eq!(
+            round_div(d, Int::from(7)),
+            Ok(Int::from(142857142857142864i128))
+        );
+        // Ruby: (9223372036854775809.to_f / 1).ceil == 9223372036854775808
+        // （旧実装のBigInt正確演算では 9223372036854775809 になり等価性が破れていた）
+        let n = Int::parse_bytes(b"9223372036854775809", 10).unwrap();
+        assert_eq!(
+            ceil_div(n.clone(), Int::from(1)),
+            Ok(Int::parse_bytes(b"9223372036854775808", 10).unwrap())
+        );
+        assert_eq!(
+            round_div(n, Int::from(1)),
+            Ok(Int::parse_bytes(b"9223372036854775808", 10).unwrap())
+        );
+        // i64範囲内の通常ケース（既存挙動の維持）
+        assert_eq!(ceil_div(Int::from(7), Int::from(2)), Ok(Int::from(4)));
+        assert_eq!(round_div(Int::from(7), Int::from(2)), Ok(Int::from(4)));
+        assert_eq!(round_div(Int::from(5), Int::from(2)), Ok(Int::from(3)));
+        assert_eq!(round_div(Int::from(-5), Int::from(2)), Ok(Int::from(-3)));
+        assert_eq!(ceil_div(Int::from(-7), Int::from(2)), Ok(Int::from(-3)));
+    }
+
+    /// f64最大超の入力は本家どおり FloatDomainError（Infinity.ceil がクラッシュ）。
+    #[test]
+    fn float_domain_error_on_overflow() {
+        // 10^400 は f64 (最大約1.8e308) に変換できない → to_f が Infinity → ceil が FloatDomainError
+        let big = Int::from(10).pow(400);
+        assert_eq!(
+            ceil_div(big.clone(), Int::from(1)),
+            Err(EvalError::FloatDomain)
+        );
+        assert_eq!(round_div(big, Int::from(1)), Err(EvalError::FloatDomain));
+        // 除数0: Float::INFINITY.ceil で FloatDomainError（本家どおり）
+        assert_eq!(
+            ceil_div(Int::from(1), Int::from(0)),
+            Err(EvalError::FloatDomain)
+        );
+        assert_eq!(
+            round_div(Int::from(1), Int::from(0)),
+            Err(EvalError::FloatDomain)
+        );
+    }
+
+    /// 評価器経由でも巨大数の丸めが本家どおりになること。
+    #[test]
+    fn eval_bignum_div_matches_ruby() {
+        // C9223372036854775809/1 → Ruby: 9223372036854775808（f64丸め落ち）
+        let r = eval("9223372036854775809/1", RoundType::Ceil).unwrap();
+        assert_eq!(
+            r,
+            Some(Int::parse_bytes(b"9223372036854775808", 10).unwrap())
+        );
+        // f64最大超 → FloatDomainError が伝播（ZeroDivision とは別の経路）
+        let src = format!("{}/1", Int::from(10).pow(400));
+        assert!(matches!(
+            eval(&src, RoundType::Ceil),
+            Err(EvalError::FloatDomain)
+        ));
     }
 }
