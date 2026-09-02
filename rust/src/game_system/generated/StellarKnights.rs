@@ -25,7 +25,7 @@ use crate::arithmetic;
 use crate::dice_table::{D66GridTable, D66HalfGridTable, D66OneThirdTable, RollableTable, Table};
 use crate::enums::RoundType;
 use crate::eval::EvalError;
-use crate::game_system::{dice_text, GameSystem, SpecificCommandOutput};
+use crate::game_system::{dice_text, table_helpers, GameSystem, SpecificCommandOutput};
 use crate::randomizer::Randomizer;
 use crate::result::EvalResult;
 
@@ -136,16 +136,13 @@ const STB2_KEYS: &[&str] = &["STB21", "STB22", "STB23", "STB24", "STB25", "STB26
 /// Ruby `['STA', 'STB', 'STC']`。
 const ALLS_KEYS: &[&str] = &["STA", "STB", "STC"];
 
-/// Ruby `Base#roll_tables(command, TABLES)` 相当（完全一致のキーだけ）。
+/// Ruby `Base#roll_tables(command, sys.tables)`。
 fn roll_tables(
     sys: &SystemTables,
     command: &str,
     rng: &mut Randomizer,
 ) -> Result<Option<String>, EvalError> {
-    let Some((_, table)) = sys.tables.iter().find(|(key, _)| *key == command) else {
-        return Ok(None);
-    };
-    Ok(Some(table.roll(rng)?.to_string()))
+    table_helpers::roll_table(command, sys.tables, rng)
 }
 
 /// `TABLES[key].roll` を順に呼び、`"\n"` で連結する。
