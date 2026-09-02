@@ -312,58 +312,12 @@ fn get_horidasibukuro_table(dice: i64, rng: &mut Randomizer) -> Result<String, E
 
 #[cfg(test)]
 mod tests {
-    use crate::eval::eval_command;
-    use crate::game_system::GameSystemId;
-    use crate::randomizer::SeededRandomizer;
-    use crate::toml_test::TestDataFile;
-    use std::path::Path;
-
     #[test]
     fn all_toml_cases_pass() {
-        let path = Path::new(env!("CARGO_MANIFEST_DIR"))
-            .parent()
-            .unwrap()
-            .join("test/data/DarkBlaze.toml");
-        if !path.exists() {
-            return;
-        }
-        let data = TestDataFile::load(&path).expect("DarkBlaze.toml must parse");
-        assert_eq!(
-            data.tests.len(),
+        crate::game_system::test_support::assert_toml_cases_strict(
+            "DarkBlaze",
+            "DarkBlaze.toml",
             101,
-            "case count in test/data/DarkBlaze.toml"
         );
-        for (i, tc) in data.tests.iter().enumerate() {
-            assert_eq!(tc.game_system, "DarkBlaze");
-            let mut src = SeededRandomizer::new(tc.rands.iter().map(|r| (r.value, r.sides)));
-            let result = eval_command(&GameSystemId::new("DarkBlaze"), &tc.input, &mut src)
-                .unwrap_or_else(|e| panic!("case {} {}: {e}", i + 1, tc.input));
-            if tc.expects_nil() {
-                assert!(result.is_none(), "case {} {}", i + 1, tc.input);
-            } else {
-                let result = result.unwrap_or_else(|| panic!("case {} {}: nil", i + 1, tc.input));
-                assert_eq!(result.text, tc.output, "case {} {} text", i + 1, tc.input);
-                assert_eq!(
-                    (
-                        result.secret,
-                        result.success,
-                        result.failure,
-                        result.critical,
-                        result.fumble
-                    ),
-                    (tc.secret, tc.success, tc.failure, tc.critical, tc.fumble),
-                    "case {} {} flags",
-                    i + 1,
-                    tc.input
-                );
-            }
-            assert!(
-                src.is_empty(),
-                "case {} {}: {} rands remain",
-                i + 1,
-                tc.input,
-                src.remaining()
-            );
-        }
     }
 }

@@ -444,69 +444,12 @@ static SPE: Table = Table::from_dice("特殊戦況表", 1, 10, SPE_ITEMS);
 
 #[cfg(test)]
 mod tests {
-    use crate::eval::eval_command;
-    use crate::game_system::GameSystemId;
-    use crate::randomizer::SeededRandomizer;
-    use crate::toml_test::TestDataFile;
-    use std::path::{Path, PathBuf};
-
-    fn toml_path() -> Option<PathBuf> {
-        let path = Path::new(env!("CARGO_MANIFEST_DIR"))
-            .parent()?
-            .join("test/data/SajinsenkiAGuS2E.toml");
-        path.exists().then_some(path)
-    }
-    fn check_flag(reasons: &mut Vec<String>, name: &str, expected: bool, actual: bool) {
-        if expected != actual {
-            reasons.push(format!(
-                "{name} flag mismatch: expected {expected}, actual {actual}"
-            ));
-        }
-    }
     #[test]
     fn all_toml_cases_pass() {
-        let Some(path) = toml_path() else {
-            return;
-        };
-        let data = TestDataFile::load(&path).expect("TOML must parse");
-        assert_eq!(
-            data.tests.len(),
+        crate::game_system::test_support::assert_toml_cases_strict(
+            "SajinsenkiAGuS2E",
+            "SajinsenkiAGuS2E.toml",
             49,
-            "case count in test/data/SajinsenkiAGuS2E.toml"
         );
-        let mut failures = Vec::new();
-        for (i, tc) in data.tests.iter().enumerate() {
-            assert_eq!(tc.game_system, "SajinsenkiAGuS2E");
-            let mut reasons = Vec::new();
-            let mut src = SeededRandomizer::new(tc.rands.iter().map(|r| (r.value, r.sides)));
-            match eval_command(&GameSystemId::new("SajinsenkiAGuS2E"), &tc.input, &mut src) {
-                Err(e) => reasons.push(format!("eval error: {e}")),
-                Ok(None) => {
-                    if !tc.expects_nil() {
-                        reasons.push("unexpected nil".to_owned());
-                    }
-                }
-                Ok(Some(result)) => {
-                    if tc.expects_nil() || result.text != tc.output {
-                        reasons.push(format!(
-                            "expected {:?}, actual {:?}",
-                            tc.output, result.text
-                        ));
-                    }
-                    check_flag(&mut reasons, "secret", tc.secret, result.secret);
-                    check_flag(&mut reasons, "success", tc.success, result.success);
-                    check_flag(&mut reasons, "failure", tc.failure, result.failure);
-                    check_flag(&mut reasons, "critical", tc.critical, result.critical);
-                    check_flag(&mut reasons, "fumble", tc.fumble, result.fumble);
-                }
-            }
-            if !src.is_empty() {
-                reasons.push(format!("unconsumed rands: {}", src.remaining()));
-            }
-            if !reasons.is_empty() {
-                failures.push(format!("{}:{}: {}", i + 1, tc.input, reasons.join("; ")));
-            }
-        }
-        assert!(failures.is_empty(), "{}", failures.join("\n"));
     }
 }
