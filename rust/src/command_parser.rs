@@ -329,6 +329,8 @@ impl Parser {
     /// FloatDomainError（`@1/0C` 等）はRubyでは rescue されずクラッシュするが、
     /// ここでは `None`（パース失敗）に畳んでいる。本家のクラッシュを再現する意味が
     /// 無く、呼び出し側（P4のゲームシステム）の契約が `Parsed | nil` であるため。
+    /// 本家 rescue 範囲の実測: `lib/bcdice/arithmetic.rb:17` は `rescue ZeroDivisionError`
+    /// のみで、FloatDomainError は対象外（クラッシュ）。
     pub fn parse(&self, source: &str) -> Option<Parsed> {
         let tokens = lex(source, &self.notations);
         let mut cur = Cursor::new(&tokens);

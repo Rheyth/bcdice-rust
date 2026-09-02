@@ -8,6 +8,8 @@ use crate::randomizer::{sat_i64, Randomizer};
 use crate::Int;
 
 /// 振り足しループの上限。Ruby `RerollDice::REROLL_LIMIT`。
+/// 本家 `reroll_dice/node.rb:83` の `while !dice_queue.empty? && loop_count < REROLL_LIMIT`
+/// と同一構造（ループ上限到達時の無言打ち切りは本家由来の挙動）。
 pub const REROLL_LIMIT: usize = 10000;
 
 /// Ruby `RerollDice.eval(command, game_system, randomizer)`。

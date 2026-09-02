@@ -30,10 +30,10 @@ pub mod dummy_system;
 pub mod generated;
 pub mod int_helpers;
 pub mod registry;
-#[cfg(test)]
-pub mod test_support;
 pub(crate) mod str_helpers;
 pub(crate) mod table_helpers;
+#[cfg(test)]
+pub mod test_support;
 
 use std::borrow::Cow;
 
