@@ -16,7 +16,7 @@ use crate::arithmetic;
 use crate::enums::RoundType;
 use crate::eval::EvalError;
 use crate::format::modifier;
-use crate::game_system::{GameSystem, SpecificCommandOutput};
+use crate::game_system::{str_helpers, GameSystem, SpecificCommandOutput};
 use crate::randomizer::Randomizer;
 
 /// Ruby `Ryutama#initialize` の `@valid_dice_types`。
@@ -73,12 +73,9 @@ fn roll_pattern() -> &'static Regex {
     RE.get_or_init(|| Regex::new(r"^R(\d+)(,(\d+))?([+\-\d]+)?(>=(\d+))?").expect("valid regex"))
 }
 
-/// Ruby の `String#to_i`（多倍長）。`i64` に収まらない入力は飽和させる。
-///
-/// 桁あふれする能力値は `@valid_dice_types` に含まれないので、
-/// 飽和しても最終的に「不正なダイス」として弾かれ、挙動は変わらない。
+/// Ruby `String#to_i`。`i64` に収まらない指定は `i64::MAX`に飽和。
 fn to_i(digits: &str) -> i64 {
-    digits.parse::<i64>().unwrap_or(i64::MAX)
+    str_helpers::to_i_max(digits)
 }
 
 /// Ruby `Ryutama#eval_game_system_specific_command` 本体。

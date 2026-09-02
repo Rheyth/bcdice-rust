@@ -28,7 +28,7 @@ use crate::dice_table::{
 };
 use crate::enums::{D66SortType, RoundType};
 use crate::eval::EvalError;
-use crate::game_system::{GameSystem, SpecificCommandOutput, Target};
+use crate::game_system::{table_helpers, GameSystem, SpecificCommandOutput, Target};
 use crate::normalize::CmpOp;
 use crate::randomizer::sat_i64;
 use crate::randomizer::Randomizer;
@@ -73,25 +73,17 @@ fn check_result_2d6(
 
 /// Ruby `BloodMoon#eval_game_system_specific_command`。
 ///
-/// `roll_tables(command, TABLES) || BloodCrusade::RTT.roll_command(randomizer, command)`。
+/// `table_helpers::roll_table(command, TABLES, TABLES) || BloodCrusade::RTT.roll_command(randomizer, command)`。
 fn eval_specific_command(
     command: &str,
     rng: &mut Randomizer,
 ) -> Result<Option<SpecificCommandOutput>, EvalError> {
-    if let Some(text) = roll_tables(command, rng)? {
+    if let Some(text) = table_helpers::roll_table(command, TABLES, rng)? {
         return Ok(Some(SpecificCommandOutput::text(text)));
     }
     Ok(RTT
         .roll_command(rng, command)?
         .map(SpecificCommandOutput::text))
-}
-
-/// Ruby `Base#roll_tables(command, TABLES)`。
-fn roll_tables(command: &str, rng: &mut Randomizer) -> Result<Option<String>, EvalError> {
-    match TABLES.iter().find(|(key, _)| *key == command) {
-        None => Ok(None),
-        Some((_, table)) => Ok(Some(table.roll(rng)?.to_string())),
-    }
 }
 
 // ---------------------------------------------------------------------------

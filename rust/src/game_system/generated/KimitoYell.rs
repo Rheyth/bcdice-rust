@@ -18,7 +18,7 @@ use regex::Regex;
 use crate::dice_table::{D66Table, RollableTable, TableItem};
 use crate::enums::D66SortType;
 use crate::eval::EvalError;
-use crate::game_system::{GameSystem, SpecificCommandOutput};
+use crate::game_system::{dice_text, GameSystem, SpecificCommandOutput};
 use crate::randomizer::Randomizer;
 use crate::result::EvalResult;
 
@@ -143,7 +143,6 @@ impl GameSystem for KimitoYell {
     }
 }
 
-/// Ruby `Subject#roll_tables(command, TABLES)`。
 fn roll_tables(command: &str, rng: &mut Randomizer) -> Result<Option<String>, EvalError> {
     let Some((_, table)) = TABLES.iter().find(|(key, _)| *key == command) else {
         return Ok(None);
@@ -487,7 +486,7 @@ fn roll_ky_judge(command: &str, rng: &mut Randomizer) -> Result<Option<EvalResul
     let mut r = EvalResult::new();
     r.text = format!(
         "({command}) ＞ [{}] ＞ {}",
-        join_dice(&dice_list),
+        dice_text::join_dice(&dice_list),
         result_txts.join("・")
     );
     r.success = is_success;
@@ -682,14 +681,6 @@ fn generate_new_name(command: &str, rng: &mut Randomizer) -> Result<Option<Strin
     };
 
     Ok(Some(resulttxt))
-}
-
-/// Ruby `dice_list.join(',')`。
-fn join_dice(dice: &[i64]) -> String {
-    dice.iter()
-        .map(|d| d.to_string())
-        .collect::<Vec<_>>()
-        .join(",")
 }
 
 #[cfg(test)]

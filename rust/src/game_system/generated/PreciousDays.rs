@@ -19,7 +19,7 @@ use crate::dice_table::{D66RangeTable, RangeInc, RollableTable, Table};
 use crate::enums::RoundType;
 use crate::eval::EvalError;
 use crate::format::modifier;
-use crate::game_system::{GameSystem, SpecificCommandOutput};
+use crate::game_system::{dice_text, GameSystem, SpecificCommandOutput};
 use crate::normalize::CmpOp;
 use crate::randomizer::Randomizer;
 use crate::result::EvalResult;
@@ -410,7 +410,10 @@ fn roll_pd(command: &str, rng: &mut Randomizer) -> Result<Option<EvalResult>, Ev
     let modify_str = modifier(&cmd.modify_number);
     let mut sequence = vec![
         format!("({command})"),
-        format!("{dice_total}[{}]{modify_str}", join_dice(&dice_list)),
+        format!(
+            "{dice_total}[{}]{modify_str}",
+            dice_text::join_dice(&dice_list)
+        ),
         total.to_string(),
     ];
     // Ruby: result.text が nil のケースは `.compact` で消える
@@ -420,15 +423,6 @@ fn roll_pd(command: &str, rng: &mut Randomizer) -> Result<Option<EvalResult>, Ev
 
     result.text = sequence.join(" ＞ ");
     Ok(Some(result))
-}
-
-/// Ruby `dice_list.join(',')`。
-fn join_dice(dice_list: &[i64]) -> String {
-    dice_list
-        .iter()
-        .map(|d| d.to_string())
-        .collect::<Vec<_>>()
-        .join(",")
 }
 
 #[cfg(test)]

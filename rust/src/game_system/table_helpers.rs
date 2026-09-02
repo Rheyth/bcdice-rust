@@ -4,36 +4,21 @@
 //! Ruby の `Base#roll_tables(command, tables)` は
 //! `tables[command]&.roll(randomizer)&.to_s` に相当し、未定義コマンドは `nil`（`Ok(None)`）。
 //!
-//! 引数の持ち方（`TABLES` 直参照 / スライス / ロケール別 `SystemTables`）は
-//! 呼び出し側ごとに異なるため、配列スライス版を基本に各ラッパを提供する。
-//!
 //! 生成コード側でこの形のローカル関数を新設することは禁止（R3 移植規約）。
+//! 具体型（`&Table` / `&D66GridTable` 等のスライス）もトレイトオブジェクト
+//! （`&dyn RollableTable`）と同じ関数で扱えるよう、ジェネリクスで受ける。
 
-use crate::dice_table::{RollableTable, Table};
+use crate::dice_table::RollableTable;
 use crate::eval::EvalError;
 use crate::randomizer::Randomizer;
 
 /// Ruby `Base#roll_tables(command, tables)`。表を引けたら `RollResult#to_s` を返す。
 ///
-/// `RollableTable` を実装する表（`Table` / `D66Table` / `ChainTable` 等）用。
-pub(crate) fn roll_rollable_table(
+/// `T` は [`RollableTable`] を実装する具体型（`Table` 等）か
+/// トレイトオブジェクト型（`dyn RollableTable`）。
+pub(crate) fn roll_table<T: ?Sized + RollableTable>(
     command: &str,
-    tables: &[(&str, &dyn RollableTable)],
-    rng: &mut Randomizer,
-) -> Result<Option<String>, EvalError> {
-    match tables.iter().find(|(key, _)| *key == command) {
-        None => Ok(None),
-        Some((_, table)) => Ok(Some(table.roll(rng)?.to_string())),
-    }
-}
-
-/// [`roll_rollable_table`] の `Table` 専用版。
-///
-/// `TABLES` が `&[(&str, &Table)]` のシステム（`&Table` は `&dyn RollableTable` に
-/// 自動アップキャストされないため、型合わせのための明示的な多重定義）。
-pub(crate) fn roll_plain_table(
-    command: &str,
-    tables: &[(&str, &Table)],
+    tables: &[(&str, &T)],
     rng: &mut Randomizer,
 ) -> Result<Option<String>, EvalError> {
     match tables.iter().find(|(key, _)| *key == command) {

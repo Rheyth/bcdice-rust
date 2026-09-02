@@ -16,7 +16,7 @@
 //! - 汎用 `#results_multiplication` / `#result_raoundup` ＋ `*HS*` 乗算ロール
 
 use crate::eval::EvalError;
-use crate::game_system::{GameSystem, SpecificCommandOutput};
+use crate::game_system::{dice_text, GameSystem, SpecificCommandOutput};
 use crate::randomizer::Randomizer;
 
 /// Ruby `BCDice::GameSystem::HeroScale`（ID: `HeroScale`）。
@@ -134,7 +134,12 @@ fn select_origin(command: &str, rng: &mut Randomizer) -> Result<Option<String>, 
                 let sides: i64 = rhs.parse().unwrap_or(0);
                 let natural_result = rng.roll_barabara(times, sides)?;
                 let total = results_multiplication(&natural_result);
-                let message = format!("{} ＞ {}[{}]", order[0], total, join_dice(&natural_result));
+                let message = format!(
+                    "{} ＞ {}[{}]",
+                    order[0],
+                    total,
+                    dice_text::join_dice(&natural_result)
+                );
                 Ok(Some(message))
             } else {
                 Ok(None)
@@ -146,14 +151,6 @@ fn select_origin(command: &str, rng: &mut Randomizer) -> Result<Option<String>, 
 /// Ruby `/^\d+$/` 相当。
 fn is_digits(s: &str) -> bool {
     !s.is_empty() && s.bytes().all(|b| b.is_ascii_digit())
-}
-
-/// Ruby `dice_list.join(',')`。
-fn join_dice(dice: &[i64]) -> String {
-    dice.iter()
-        .map(|d| d.to_string())
-        .collect::<Vec<_>>()
-        .join(",")
 }
 
 /// Ruby `#results_multiplication`。全要素の積（Ruby は Bignum だが Rust では飽和乗算）。
@@ -186,7 +183,11 @@ fn origin_great(order: &[&str], rng: &mut Randomizer) -> Result<String, EvalErro
         Some("B") => fate_body(&natural_result, rng)?,
         _ => {
             let total = results_multiplication(&natural_result);
-            format!("超越 ＞ {}[{}]", total, join_dice(&natural_result))
+            format!(
+                "超越 ＞ {}[{}]",
+                total,
+                dice_text::join_dice(&natural_result)
+            )
         }
     };
     Ok(message)
@@ -204,9 +205,9 @@ fn fate_passion(natural_result: &[i64]) -> String {
     format!(
         "激情の超越 ＞ {}[{}] ＞ {}[{}]",
         subtotal,
-        join_dice(natural_result),
+        dice_text::join_dice(natural_result),
         total,
-        join_dice(&modified_result)
+        dice_text::join_dice(&modified_result)
     )
 }
 
@@ -220,7 +221,7 @@ fn fate_science(natural_result: &[i64], order: &[&str]) -> String {
             let mut message = format!(
                 "科学の超越 ＞ {}[{}] ＞ {}",
                 subtotal,
-                join_dice(natural_result),
+                dice_text::join_dice(natural_result),
                 total
             );
             if total > 1023 {
@@ -254,9 +255,9 @@ fn fate_body(natural_result: &[i64], rng: &mut Randomizer) -> Result<String, Eva
     Ok(format!(
         "肉体の超越 ＞ {}[{}] ＞ {}[{}]",
         subtotal,
-        join_dice(natural_result),
+        dice_text::join_dice(natural_result),
         total,
-        join_dice(&modified_result)
+        dice_text::join_dice(&modified_result)
     ))
 }
 
@@ -273,7 +274,11 @@ fn origin_protection(order: &[&str], rng: &mut Randomizer) -> Result<String, Eva
         Some("S") => fate_choice(&natural_result, rng)?,
         _ => {
             let total = results_multiplication(&natural_result);
-            format!("加護 ＞ {}[{}]", total, join_dice(&natural_result))
+            format!(
+                "加護 ＞ {}[{}]",
+                total,
+                dice_text::join_dice(&natural_result)
+            )
         }
     };
     Ok(message)
@@ -290,9 +295,9 @@ fn fate_reversal(natural_result: &[i64]) -> String {
     format!(
         "逆転の加護 ＞ {}[{}] ＞ {}[{}]",
         subtotal,
-        join_dice(natural_result),
+        dice_text::join_dice(natural_result),
         total,
-        join_dice(&modified_result)
+        dice_text::join_dice(&modified_result)
     )
 }
 
@@ -303,7 +308,7 @@ fn fate_peace(natural_result: &[i64]) -> String {
     format!(
         "安寧の加護 ＞ {}[{}] ＞ {}",
         subtotal,
-        join_dice(natural_result),
+        dice_text::join_dice(natural_result),
         total
     )
 }
@@ -326,9 +331,9 @@ fn fate_choice(natural_result: &[i64], rng: &mut Randomizer) -> Result<String, E
     Ok(format!(
         "選択の加護 ＞ {}[{}] ＞ {}[{}]",
         subtotal,
-        join_dice(natural_result),
+        dice_text::join_dice(natural_result),
         total,
-        join_dice(&modified_result)
+        dice_text::join_dice(&modified_result)
     ))
 }
 
@@ -354,12 +359,16 @@ fn origin_vow(order: &[&str], rng: &mut Randomizer) -> Result<String, EvalError>
                 format!(
                     "契約 ＞ {}[{}] ＞ {}[{}]",
                     subtotal,
-                    join_dice(&natural_result),
+                    dice_text::join_dice(&natural_result),
                     total,
-                    join_dice(&modified_result)
+                    dice_text::join_dice(&modified_result)
                 )
             } else {
-                format!("契約 ＞ {}[{}]", subtotal, join_dice(&natural_result))
+                format!(
+                    "契約 ＞ {}[{}]",
+                    subtotal,
+                    dice_text::join_dice(&natural_result)
+                )
             }
         }
     };
@@ -377,19 +386,23 @@ fn fate_offering(natural_result: &[i64], order: &[&str]) -> String {
         format!(
             "奉納の契約 ＞ {}[{}] ＞ {}[{}]",
             subtotal,
-            join_dice(natural_result),
+            dice_text::join_dice(natural_result),
             total,
-            join_dice(&modified_result)
+            dice_text::join_dice(&modified_result)
         )
     } else {
-        format!("奉納の契約 ＞ {}[{}]", subtotal, join_dice(natural_result))
+        format!(
+            "奉納の契約 ＞ {}[{}]",
+            subtotal,
+            dice_text::join_dice(natural_result)
+        )
     };
 
     // Ruby: offering_result.sort!.reverse!.shift(1)（最大値1個を除去した残りを降順表示）
     let mut offering_result = natural_result.to_vec();
     offering_result.sort_unstable_by(|a, b| b.cmp(a));
     offering_result.remove(0);
-    message += &format!("(奉納：{})", join_dice(&offering_result));
+    message += &format!("(奉納：{})", dice_text::join_dice(&offering_result));
     message
 }
 
@@ -400,7 +413,7 @@ fn fate_burning(natural_result: &[i64]) -> String {
     format!(
         "燃焼の契約 ＞ {}[{}] ＞ {}",
         subtotal,
-        join_dice(natural_result),
+        dice_text::join_dice(natural_result),
         total
     )
 }
@@ -418,9 +431,9 @@ fn fate_exploitation(natural_result: &[i64], order: &[&str]) -> String {
         format!(
             "収奪の契約 ＞ {}[{}] ＞ {}[{}]",
             subtotal,
-            join_dice(natural_result),
+            dice_text::join_dice(natural_result),
             total,
-            join_dice(&modified_result)
+            dice_text::join_dice(&modified_result)
         )
     } else {
         "エラー：収奪数を指定してください。".to_string()
@@ -446,9 +459,9 @@ fn fate_acceptance(natural_result: &[i64], order: &[&str]) -> String {
         format!(
             "享受の契約 ＞ {}[{}] ＞ {}[{}]",
             subtotal,
-            join_dice(natural_result),
+            dice_text::join_dice(natural_result),
             total,
-            join_dice(&modified_result)
+            dice_text::join_dice(&modified_result)
         )
     } else {
         "エラー：享受数を指定してください。".to_string()
@@ -468,7 +481,11 @@ fn origin_curse(order: &[&str], rng: &mut Randomizer) -> Result<String, EvalErro
         Some("D") => fate_distortion(&natural_result),
         _ => {
             let total = results_multiplication(&natural_result);
-            format!("呪い ＞ {}[{}]", total, join_dice(&natural_result))
+            format!(
+                "呪い ＞ {}[{}]",
+                total,
+                dice_text::join_dice(&natural_result)
+            )
         }
     };
     Ok(message)
@@ -488,9 +505,9 @@ fn fate_ruin(natural_result: &[i64], rng: &mut Randomizer) -> Result<String, Eva
     Ok(format!(
         "破滅の呪い ＞ {}[{}] ＞ {}[{}]",
         subtotal,
-        join_dice(natural_result),
+        dice_text::join_dice(natural_result),
         total,
-        join_dice(&modified_result)
+        dice_text::join_dice(&modified_result)
     ))
 }
 
@@ -515,9 +532,9 @@ fn fate_collapse(natural_result: &[i64]) -> String {
     format!(
         "崩壊の呪い ＞ {}[{}] ＞ {}[{}]",
         subtotal,
-        join_dice(natural_result),
+        dice_text::join_dice(natural_result),
         total,
-        join_dice(&modified_result)
+        dice_text::join_dice(&modified_result)
     )
 }
 
@@ -537,9 +554,9 @@ fn fate_distortion(natural_result: &[i64]) -> String {
     format!(
         "歪曲の呪い ＞ {}[{}] ＞ {}[{}]",
         subtotal,
-        join_dice(natural_result),
+        dice_text::join_dice(natural_result),
         total,
-        join_dice(&modified_result)
+        dice_text::join_dice(&modified_result)
     )
 }
 
@@ -558,7 +575,11 @@ fn origin_stranger(order: &[&str], rng: &mut Randomizer) -> Result<String, EvalE
         Some("B") => fate_beyond(&natural_result, order, rng)?,
         _ => {
             let total = results_multiplication(&natural_result);
-            format!("異物 ＞ {}[{}]", total, join_dice(&natural_result))
+            format!(
+                "異物 ＞ {}[{}]",
+                total,
+                dice_text::join_dice(&natural_result)
+            )
         }
     };
     Ok(message)
@@ -577,9 +598,9 @@ fn fate_imitation(natural_result: &[i64]) -> String {
     format!(
         "模造の異物 ＞ {}[{}] ＞ {}[{}]",
         subtotal,
-        join_dice(natural_result),
+        dice_text::join_dice(natural_result),
         total,
-        join_dice(&modified_result)
+        dice_text::join_dice(&modified_result)
     )
 }
 
@@ -602,9 +623,9 @@ fn fate_mixed(
         format!(
             "混血の異物 ＞ {}[{}] ＞ {}[{}](追加振り)",
             subtotal,
-            join_dice(natural_result),
+            dice_text::join_dice(natural_result),
             total,
-            join_dice(&modified_result)
+            dice_text::join_dice(&modified_result)
         )
     } else {
         let min = natural_result.iter().min().copied().unwrap_or(1);
@@ -614,9 +635,9 @@ fn fate_mixed(
         format!(
             "混血の異物 ＞ {}[{}] ＞ {}[{}](10置換)",
             subtotal,
-            join_dice(natural_result),
+            dice_text::join_dice(natural_result),
             total,
-            join_dice(&modified_result)
+            dice_text::join_dice(&modified_result)
         )
     };
     Ok(message)
@@ -646,9 +667,9 @@ fn fate_beyond(
     Ok(format!(
         "彼方の異物 ＞ {}[{}] ＞ {}[{}]",
         subtotal,
-        join_dice(natural_result),
+        dice_text::join_dice(natural_result),
         total,
-        join_dice(&modified_result)
+        dice_text::join_dice(&modified_result)
     ))
 }
 
@@ -665,7 +686,11 @@ fn origin_karma(order: &[&str], rng: &mut Randomizer) -> Result<String, EvalErro
         Some("S") => fate_sealed(&natural_result, order),
         _ => {
             let total = results_multiplication(&natural_result);
-            format!("報い ＞ {}[{}]", total, join_dice(&natural_result))
+            format!(
+                "報い ＞ {}[{}]",
+                total,
+                dice_text::join_dice(&natural_result)
+            )
         }
     };
     Ok(message)
@@ -688,9 +713,9 @@ fn fate_depravity(natural_result: &[i64]) -> String {
     format!(
         "堕落の報い ＞ {}[{}] ＞ {}[{}]",
         subtotal,
-        join_dice(natural_result),
+        dice_text::join_dice(natural_result),
         total,
-        join_dice(&modified_result)
+        dice_text::join_dice(&modified_result)
     )
 }
 
@@ -703,9 +728,9 @@ fn fate_oblivion(natural_result: &[i64], rng: &mut Randomizer) -> Result<String,
     Ok(format!(
         "忘却の報い ＞ {}[{}] ＞ {}[{}]",
         subtotal,
-        join_dice(natural_result),
+        dice_text::join_dice(natural_result),
         total,
-        join_dice(&modified_result)
+        dice_text::join_dice(&modified_result)
     ))
 }
 
@@ -722,9 +747,9 @@ fn fate_sealed(natural_result: &[i64], order: &[&str]) -> String {
     let mut message = format!(
         "封印の報い ＞ {}[{}] ＞ {}[{}]",
         subtotal,
-        join_dice(natural_result),
+        dice_text::join_dice(natural_result),
         total,
-        join_dice(&modified_result)
+        dice_text::join_dice(&modified_result)
     );
     if total <= 30 {
         sealed_break = sealed_break.saturating_mul(4);
@@ -751,7 +776,11 @@ fn origin_absorption(order: &[&str], rng: &mut Randomizer) -> Result<String, Eva
         Some("C") => fate_concept(&natural_result, order),
         _ => {
             let total = results_multiplication(&natural_result);
-            format!("同化 ＞ {}[{}]", total, join_dice(&natural_result))
+            format!(
+                "同化 ＞ {}[{}]",
+                total,
+                dice_text::join_dice(&natural_result)
+            )
         }
     };
     Ok(message)
@@ -802,7 +831,7 @@ fn fate_monster(order: &[&str], rng: &mut Randomizer) -> Result<String, EvalErro
         let mut message = format!(
             "怪物の同化 ＞ {}[{}] 浸蝕値：{}",
             total,
-            join_dice(&modified_result),
+            dice_text::join_dice(&modified_result),
             subtotal
         );
         if [2, 4, 6, 8, 10, 12, 20, 60].contains(&subtotal) {
@@ -829,14 +858,14 @@ fn fate_treasure(natural_result: &[i64], order: &[&str]) -> String {
             format!(
                 "秘宝の同化 ＞ {}[{}] ＞ {}(同調成功)",
                 subtotal,
-                join_dice(natural_result),
+                dice_text::join_dice(natural_result),
                 total
             )
         } else {
             format!(
                 "秘宝の同化 ＞ {}[{}] ＞ {}(同調失敗)",
                 subtotal,
-                join_dice(natural_result),
+                dice_text::join_dice(natural_result),
                 total
             )
         }
@@ -859,9 +888,9 @@ fn fate_concept(natural_result: &[i64], order: &[&str]) -> String {
         format!(
             "概念の同化 ＞ {}[{}] ＞ {}[{}]",
             subtotal,
-            join_dice(natural_result),
+            dice_text::join_dice(natural_result),
             total,
-            join_dice(&modified_result)
+            dice_text::join_dice(&modified_result)
         )
     } else {
         "エラー：事象強度を指定してください。".to_string()
@@ -879,7 +908,7 @@ fn origin_normal(rng: &mut Randomizer) -> Result<String, EvalError> {
     Ok(format!(
         "下位存在 ＞ {}[{}]",
         total,
-        join_dice(&natural_result)
+        dice_text::join_dice(&natural_result)
     ))
 }
 
@@ -892,7 +921,11 @@ fn origin_unique(order: &[&str], rng: &mut Randomizer) -> Result<String, EvalErr
         Some("C") => fate_chance(&natural_result),
         _ => {
             let total = results_multiplication(&natural_result);
-            format!("中位存在 ＞ {}[{}]", total, join_dice(&natural_result))
+            format!(
+                "中位存在 ＞ {}[{}]",
+                total,
+                dice_text::join_dice(&natural_result)
+            )
         }
     };
     Ok(message)
@@ -908,14 +941,14 @@ fn fate_growth(natural_result: &[i64], order: &[&str]) -> String {
         message = format!(
             "萌芽の中位存在 ＞ {}[{}] ＞ {}",
             subtotal,
-            join_dice(natural_result),
+            dice_text::join_dice(natural_result),
             total
         );
     } else {
         message = format!(
             "萌芽の中位存在 ＞ {}[{}]",
             subtotal,
-            join_dice(natural_result)
+            dice_text::join_dice(natural_result)
         );
     }
     // Ruby: order[2].to_i（数字以外は0・nilは0）
@@ -937,9 +970,9 @@ fn fate_transition(natural_result: &[i64], rng: &mut Randomizer) -> Result<Strin
     Ok(format!(
         "変遷の中位存在 ＞ {}[{}] ＞ {}[{}]",
         subtotal,
-        join_dice(natural_result),
+        dice_text::join_dice(natural_result),
         total,
-        join_dice(&modified_result)
+        dice_text::join_dice(&modified_result)
     ))
 }
 
@@ -951,14 +984,14 @@ fn fate_chance(natural_result: &[i64]) -> String {
         format!(
             "偶然の中位存在 ＞ {}[{}] ＞ {}",
             subtotal,
-            join_dice(natural_result),
+            dice_text::join_dice(natural_result),
             total
         )
     } else {
         format!(
             "偶然の中位存在 ＞ {}[{}]",
             subtotal,
-            join_dice(natural_result)
+            dice_text::join_dice(natural_result)
         )
     }
 }
@@ -980,7 +1013,11 @@ fn origin_omnipotent(order: &[&str], rng: &mut Randomizer) -> Result<String, Eva
         Some("E") => fate_element(rng)?,
         _ => {
             let total = results_multiplication(&natural_result);
-            format!("上位存在 ＞ {}[{}]", total, join_dice(&natural_result))
+            format!(
+                "上位存在 ＞ {}[{}]",
+                total,
+                dice_text::join_dice(&natural_result)
+            )
         }
     };
 
@@ -998,9 +1035,9 @@ fn fate_god(natural_result: &[i64]) -> String {
     format!(
         "大神の上位存在 ＞ {}[{}] ＞ {}[{}]",
         subtotal,
-        join_dice(natural_result),
+        dice_text::join_dice(natural_result),
         total,
-        join_dice(&modified_result)
+        dice_text::join_dice(&modified_result)
     )
 }
 
@@ -1015,9 +1052,9 @@ fn fate_holy(natural_result: &[i64]) -> String {
     format!(
         "神性の上位存在 ＞ {}[{}] ＞ {}[{}]",
         subtotal,
-        join_dice(natural_result),
+        dice_text::join_dice(natural_result),
         total,
-        join_dice(&modified_result)
+        dice_text::join_dice(&modified_result)
     )
 }
 
@@ -1028,7 +1065,7 @@ fn fate_wicked(natural_result: &[i64]) -> String {
     format!(
         "魔性の上位存在 ＞ {}[{}] ＞ {}",
         subtotal,
-        join_dice(natural_result),
+        dice_text::join_dice(natural_result),
         total
     )
 }
@@ -1040,7 +1077,7 @@ fn fate_malice(natural_result: &[i64]) -> String {
     format!(
         "悪意の上位存在 ＞ {}[{}] ＞ {}",
         subtotal,
-        join_dice(natural_result),
+        dice_text::join_dice(natural_result),
         total
     )
 }
@@ -1056,7 +1093,7 @@ fn fate_sin(
         let mut message = format!(
             "大罪の上位存在 ＞ {}[{}]",
             subtotal,
-            join_dice(natural_result)
+            dice_text::join_dice(natural_result)
         );
         let sin_weight: i64 = order[2].parse().unwrap_or(0);
         let mut total = subtotal;
@@ -1064,7 +1101,7 @@ fn fate_sin(
         while sin_count < 3 && total < sin_weight {
             let modified_result = rng.roll_barabara(3, 12)?;
             total = results_multiplication(&modified_result);
-            message += &format!(" ＞ {}[{}]", total, join_dice(&modified_result));
+            message += &format!(" ＞ {}[{}]", total, dice_text::join_dice(&modified_result));
             sin_count += 1;
         }
         Ok(message)
@@ -1082,9 +1119,9 @@ fn fate_destruction(natural_result: &[i64], rng: &mut Randomizer) -> Result<Stri
     Ok(format!(
         "破壊の上位存在 ＞ {}[{}] ＞ {}[{}]",
         subtotal,
-        join_dice(natural_result),
+        dice_text::join_dice(natural_result),
         total,
-        join_dice(&modified_result)
+        dice_text::join_dice(&modified_result)
     ))
 }
 
@@ -1099,9 +1136,9 @@ fn fate_anguish(natural_result: &[i64]) -> String {
     format!(
         "懊悩の上位存在 ＞ {}[{}] ＞ {}[{}]",
         subtotal,
-        join_dice(natural_result),
+        dice_text::join_dice(natural_result),
         total,
-        join_dice(&modified_result)
+        dice_text::join_dice(&modified_result)
     )
 }
 
@@ -1116,9 +1153,9 @@ fn fate_ordeal(natural_result: &[i64]) -> String {
     format!(
         "試練の上位存在 ＞ {}[{}] ＞ {}[{}]",
         subtotal,
-        join_dice(natural_result),
+        dice_text::join_dice(natural_result),
         total,
-        join_dice(&modified_result)
+        dice_text::join_dice(&modified_result)
     )
 }
 
@@ -1133,9 +1170,9 @@ fn fate_creation(natural_result: &[i64]) -> String {
     format!(
         "創造の上位存在 ＞ {}[{}] ＞ {}[{}]",
         subtotal,
-        join_dice(natural_result),
+        dice_text::join_dice(natural_result),
         total,
-        join_dice(&modified_result)
+        dice_text::join_dice(&modified_result)
     )
 }
 
@@ -1152,7 +1189,7 @@ fn fate_element(rng: &mut Randomizer) -> Result<String, EvalError> {
     Ok(format!(
         "元素の上位存在 ＞ {}[{}]",
         total,
-        join_dice(&modified_result)
+        dice_text::join_dice(&modified_result)
     ))
 }
 

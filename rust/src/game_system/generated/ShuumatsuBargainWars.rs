@@ -17,7 +17,7 @@ use crate::command_parser::{Parser, SuffixPosition};
 use crate::dice_table::{ChainTable, D66Table, RollableTable, Table, TableItem};
 use crate::enums::{D66SortType, RoundType};
 use crate::eval::EvalError;
-use crate::game_system::{GameSystem, SpecificCommandOutput};
+use crate::game_system::{dice_text, table_helpers, GameSystem, SpecificCommandOutput};
 use crate::normalize::CmpOp;
 use crate::randomizer::Randomizer;
 use crate::result::EvalResult;
@@ -215,25 +215,17 @@ impl GameSystem for ShuumatsuBargainWars {
         command: &str,
         rng: &mut Randomizer,
     ) -> Result<Option<SpecificCommandOutput>, EvalError> {
-        // Ruby: roll_bg(command) || roll_tables(command, TABLES)
+        // Ruby: roll_bg(command) || table_helpers::roll_table(command, TABLES, TABLES)
         if let Some(result) = roll_bg(command, rng)? {
             return Ok(Some(SpecificCommandOutput::result(result)));
         }
 
-        if let Some(text) = roll_tables(command, rng)? {
+        if let Some(text) = table_helpers::roll_table(command, TABLES, rng)? {
             return Ok(Some(SpecificCommandOutput::text(text)));
         }
 
         Ok(None)
     }
-}
-
-/// Ruby `Base#roll_tables(command, TABLES)`。
-fn roll_tables(command: &str, rng: &mut Randomizer) -> Result<Option<String>, EvalError> {
-    let Some((_, table)) = TABLES.iter().find(|(key, _)| *key == command) else {
-        return Ok(None);
-    };
-    Ok(Some(table.roll(rng)?.to_string()))
 }
 
 /// Ruby `ShuumatsuBargainWars#roll_bg`。
@@ -294,20 +286,11 @@ fn roll_bg(command: &str, rng: &mut Randomizer) -> Result<Option<EvalResult>, Ev
     result.text = format!(
         "({}) ＞ [{}] ＞ {}",
         parsed.to_s(SuffixPosition::AfterCommand),
-        join_dice(&dice_list),
+        dice_text::join_dice(&dice_list),
         result.text
     );
 
     Ok(Some(result))
-}
-
-/// Ruby `dice_list.join(',')`。
-fn join_dice(dice_list: &[i64]) -> String {
-    dice_list
-        .iter()
-        .map(|d| d.to_string())
-        .collect::<Vec<_>>()
-        .join(",")
 }
 
 #[cfg(test)]

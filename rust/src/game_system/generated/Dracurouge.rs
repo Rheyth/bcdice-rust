@@ -39,7 +39,7 @@ use crate::dice_table::{D66Table, RollableTable, Table, TableItem};
 use crate::enums::{D66SortType, RoundType};
 use crate::eval::EvalError;
 use crate::format;
-use crate::game_system::{GameSystem, SpecificCommandOutput};
+use crate::game_system::{dice_text, GameSystem, SpecificCommandOutput};
 use crate::randomizer::Randomizer;
 use crate::Int as I;
 
@@ -145,11 +145,9 @@ fn parse_i64(text: &str) -> i64 {
 }
 
 /// Ruby `dice_list.join(sep)`。
+/// Ruby `dice.join(sep)`。
 fn join_dice(dice: &[i64], sep: &str) -> String {
-    dice.iter()
-        .map(|d| d.to_string())
-        .collect::<Vec<_>>()
-        .join(sep)
+    dice_text::join_dice_with_sep(dice, sep)
 }
 
 /// Ruby `Dracurouge#roll_conduct_dice`（行い判定 `DRx+y`）。

@@ -11,7 +11,7 @@ use crate::dice_table::{
 use crate::enums::{D66SortType, RoundType};
 use crate::eval::EvalError;
 use crate::format::modifier;
-use crate::game_system::{GameSystem, SpecificCommandOutput, Target};
+use crate::game_system::{dice_text, table_helpers, GameSystem, SpecificCommandOutput, Target};
 use crate::normalize::CmpOp;
 use crate::randomizer::Randomizer;
 use crate::result::{CheckOutcome, EvalResult};
@@ -619,7 +619,7 @@ pub(crate) fn eval_specific_command(
     if let Some(result) = action_roll(sys, command, rng)? {
         return Ok(Some(SpecificCommandOutput::result(result)));
     }
-    if let Some(text) = roll_tables(sys.tables, command, rng)? {
+    if let Some(text) = table_helpers::roll_table(command, sys.tables, rng)? {
         return Ok(Some(SpecificCommandOutput::text(text)));
     }
     Ok(sys
@@ -644,17 +644,6 @@ pub(crate) fn check_result_nd6(
         EvalResult::failure(sys.failure)
     };
     Some(CheckOutcome::Result(Box::new(result)))
-}
-
-fn roll_tables(
-    tables: &'static [(&'static str, &'static dyn RollableTable)],
-    command: &str,
-    rng: &mut Randomizer,
-) -> Result<Option<String>, EvalError> {
-    let Some((_, table)) = tables.iter().find(|(key, _)| *key == command) else {
-        return Ok(None);
-    };
-    Ok(Some(table.roll(rng)?.to_string()))
 }
 
 fn action_roll(
@@ -714,7 +703,7 @@ fn action_roll(
     let dice_text = if dice_list.is_empty() {
         dice_total.to_string()
     } else {
-        format!("{dice_total}[{}]", join_dice(&dice_list))
+        format!("{dice_total}[{}]", dice_text::join_dice(&dice_list))
     };
     let mut sequence = vec![
         format!("({})", cmd.to_s(SuffixPosition::AfterModifyNumber)),
@@ -726,14 +715,6 @@ fn action_roll(
     }
     result.text = sequence.join(" ＞ ");
     Ok(Some(result))
-}
-
-fn join_dice(dice_list: &[i64]) -> String {
-    dice_list
-        .iter()
-        .map(i64::to_string)
-        .collect::<Vec<_>>()
-        .join(",")
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]

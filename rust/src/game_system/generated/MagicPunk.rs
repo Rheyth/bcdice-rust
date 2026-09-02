@@ -16,7 +16,7 @@ use std::sync::OnceLock;
 use regex::Regex;
 
 use crate::eval::EvalError;
-use crate::game_system::{GameSystem, SpecificCommandOutput};
+use crate::game_system::{dice_text, GameSystem, SpecificCommandOutput};
 use crate::randomizer::Randomizer;
 use crate::result::EvalResult;
 
@@ -122,21 +122,12 @@ pub(crate) fn roll_mp(
 
     let mut r = EvalResult::with_text(format!(
         "({dices}MP{spec}C{challenge}) > [{}] > {result}",
-        join_dice(&dice_list)
+        dice_text::join_dice(&dice_list)
     ));
     r.fumble = is_bb;
     r.critical = is_jp;
     r.set_condition(check);
     Ok(Some(r))
-}
-
-/// Ruby `dice_list.join(',')`。
-fn join_dice(dice_list: &[i64]) -> String {
-    dice_list
-        .iter()
-        .map(|d| d.to_string())
-        .collect::<Vec<_>>()
-        .join(",")
 }
 
 /// Ruby `BCDice::GameSystem::MagicPunk`（ID: `MagicPunk`）。

@@ -13,10 +13,10 @@
 use std::sync::OnceLock;
 
 use crate::command_parser::{Parser, SuffixPosition};
-use crate::dice_table::{RollableTable, Table};
+use crate::dice_table::Table;
 use crate::enums::RoundType;
 use crate::eval::EvalError;
-use crate::game_system::{GameSystem, SpecificCommandOutput};
+use crate::game_system::{dice_text, table_helpers, GameSystem, SpecificCommandOutput};
 use crate::normalize::CmpOp;
 use crate::randomizer::sat_i64;
 use crate::randomizer::Randomizer;
@@ -108,25 +108,17 @@ DCT: 遅延イベント表を振る
         command: &str,
         rng: &mut Randomizer,
     ) -> Result<Option<SpecificCommandOutput>, EvalError> {
-        // Ruby: roll_command(command) || roll_tables(command, TABLES)
+        // Ruby: roll_command(command) || table_helpers::roll_table(command, TABLES, TABLES)
         if let Some(result) = roll_command(command, rng)? {
             return Ok(Some(SpecificCommandOutput::result(result)));
         }
 
-        if let Some(text) = roll_tables(command, rng)? {
+        if let Some(text) = table_helpers::roll_table(command, TABLES, rng)? {
             return Ok(Some(SpecificCommandOutput::text(text)));
         }
 
         Ok(None)
     }
-}
-
-/// Ruby `Base#roll_tables(command, TABLES)`。
-fn roll_tables(command: &str, rng: &mut Randomizer) -> Result<Option<String>, EvalError> {
-    let Some((_, table)) = TABLES.iter().find(|(key, _)| *key == command) else {
-        return Ok(None);
-    };
-    Ok(Some(table.roll(rng)?.to_string()))
 }
 
 /// Ruby `ConvictorDrive#roll_command`。
@@ -167,7 +159,7 @@ fn roll_command(command: &str, rng: &mut Randomizer) -> Result<Option<EvalResult
 
     let mut parts = vec![
         cmd.to_s(SuffixPosition::AfterCommand),
-        join_dice(&dice_list),
+        dice_text::join_dice(&dice_list),
     ];
     if critical_num > 0 {
         parts.push(format!("クリティカル数{critical_num}"));
@@ -194,15 +186,6 @@ fn clamp_critical(critical: i64, target: i64) -> i64 {
     } else {
         critical.min(10)
     }
-}
-
-/// Ruby `dice_list.join(',')`。
-fn join_dice(dice_list: &[i64]) -> String {
-    dice_list
-        .iter()
-        .map(|d| d.to_string())
-        .collect::<Vec<_>>()
-        .join(",")
 }
 
 #[cfg(test)]

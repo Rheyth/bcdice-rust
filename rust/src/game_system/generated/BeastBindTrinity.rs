@@ -17,7 +17,9 @@ use crate::dice_table::{D66GridTable, RollableTable, Table};
 use crate::enums::RoundType;
 use crate::eval::EvalError;
 use crate::format::modifier;
-use crate::game_system::{GameSystem, SpecificCommandOutput};
+use crate::game_system::{
+    dice_text, str_helpers, table_helpers, GameSystem, SpecificCommandOutput,
+};
 use crate::normalize::{self, CmpOp};
 use crate::randomizer::Randomizer;
 use crate::result::EvalResult;
@@ -92,7 +94,7 @@ impl GameSystem for BeastBindTrinity {
         command: &str,
         rng: &mut Randomizer,
     ) -> Result<Option<SpecificCommandOutput>, EvalError> {
-        if let Some(text) = roll_tables(command, rng)? {
+        if let Some(text) = table_helpers::roll_table(command, TABLES, rng)? {
             return Ok(Some(SpecificCommandOutput::text(text)));
         }
 
@@ -105,25 +107,14 @@ impl GameSystem for BeastBindTrinity {
     }
 }
 
-/// Ruby `Base#roll_tables(command, TABLES)`。
-fn roll_tables(command: &str, rng: &mut Randomizer) -> Result<Option<String>, EvalError> {
-    match TABLES.iter().find(|(key, _)| *key == command) {
-        None => Ok(None),
-        Some((_, table)) => Ok(Some(table.roll(rng)?.to_string())),
-    }
-}
-
 // ---------------------------------------------------------------------------
 // 判定コマンド
 // ---------------------------------------------------------------------------
 
 /// Ruby `String#to_i`（符号付きの数字列）。桁あふれは符号側へ飽和させる。
+/// Ruby `String#to_i`。`i64` 範囲外は符号方向に飽和。
 fn to_i(source: &str) -> i64 {
-    source.parse().unwrap_or(if source.starts_with('-') {
-        i64::MIN
-    } else {
-        i64::MAX
-    })
+    str_helpers::to_i_signed_saturating(source)
 }
 
 /// Ruby `ArithmeticEvaluator.eval(expr)`（不正な式は 0）。
@@ -233,7 +224,7 @@ impl BBCommand {
         let total = self.calc_total(dice_total, fumble, critical);
 
         let dice_list_org_str = (dice_list_filtered != dice_list_org)
-            .then(|| format!("[{}]", join_dice(&dice_list_org)));
+            .then(|| format!("[{}]", dice_text::join_dice(&dice_list_org)));
 
         let mut result = self.result_compare(total);
         result.critical = critical;
@@ -294,7 +285,7 @@ impl BBCommand {
     fn interim_expr(&self, dice_list: &[i64], dice_total: i64, critical: bool) -> String {
         let mut expr = format!(
             "{dice_total}[{}]{}",
-            join_dice(dice_list),
+            dice_text::join_dice(dice_list),
             modifier(&crate::Int::from(self.modify_number))
         );
         if critical {
@@ -373,15 +364,6 @@ fn parse_fumble(sharp: Option<&str>) -> i64 {
         Some(_) => sharp_value,
         None => 2,
     }
-}
-
-/// Ruby `dice_list.join(',')`。
-fn join_dice(dice_list: &[i64]) -> String {
-    dice_list
-        .iter()
-        .map(|d| d.to_string())
-        .collect::<Vec<_>>()
-        .join(",")
 }
 
 // ---------------------------------------------------------------------------

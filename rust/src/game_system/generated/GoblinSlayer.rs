@@ -18,7 +18,7 @@ use regex::Regex;
 
 use crate::enums::RoundType;
 use crate::eval::EvalError;
-use crate::game_system::{GameSystem, SpecificCommandOutput};
+use crate::game_system::{dice_text, str_helpers, GameSystem, SpecificCommandOutput};
 use crate::randomizer::Randomizer;
 
 /// Ruby `GoblinSlayer::CRITICAL`。
@@ -104,21 +104,9 @@ impl GameSystem for GoblinSlayer {
 }
 
 /// Ruby `String#to_i` 相当。桁あふれは符号方向へ飽和させる。
+/// Ruby `String#to_i`。`i64` 範囲外は符号方向に飽和。
 fn to_i(text: &str) -> i64 {
-    text.parse().unwrap_or(if text.starts_with('-') {
-        i64::MIN
-    } else {
-        i64::MAX
-    })
-}
-
-/// Ruby `dice_list.join(",")`。
-fn join_dice(dice_list: &[i64]) -> String {
-    dice_list
-        .iter()
-        .map(|d| d.to_string())
-        .collect::<Vec<_>>()
-        .join(",")
+    str_helpers::to_i_signed_saturating(text)
 }
 
 /// Ruby `/^GS([-+]?\d+)?(?:(?:([@#])([-+]?\d+))(?:([@#])([-+]?\d+))?)?(?:(>=?)(\d+))?$/i`。
@@ -169,7 +157,7 @@ fn get_check_result(command: &str, rng: &mut Randomizer) -> Result<Option<String
 
     let dice_list = rng.roll_barabara(2, 6)?;
     let total: i64 = dice_list.iter().sum();
-    let dice_text = join_dice(&dice_list);
+    let dice_text = dice_text::join_dice(&dice_list);
     let achievement = basis + total;
 
     let fumble = total <= threshold_fumble;
@@ -230,7 +218,7 @@ fn murmur_chant_pray_invoke(
 
     let dice_list = rng.roll_barabara(2, 6)?;
     let total: i64 = dice_list.iter().sum();
-    let dice_text = join_dice(&dice_list);
+    let dice_text = dice_text::join_dice(&dice_list);
     let achievement = total + luck;
     let result = format!(
         " ＞ {}",
@@ -274,7 +262,7 @@ fn damage_bonus(command: &str, rng: &mut Randomizer) -> Result<Option<String>, E
 
     let dice_list = rng.roll_barabara(times, 6)?;
     let total: i64 = dice_list.iter().sum();
-    let dice_text = join_dice(&dice_list);
+    let dice_text = dice_text::join_dice(&dice_list);
     Ok(Some(format!("{fmt}{total}[{dice_text}] ＞ {total}")))
 }
 

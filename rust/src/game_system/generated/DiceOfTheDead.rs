@@ -19,7 +19,7 @@ use regex::Regex;
 
 use crate::enums::D66SortType;
 use crate::eval::EvalError;
-use crate::game_system::{GameSystem, SpecificCommandOutput};
+use crate::game_system::{str_helpers, GameSystem, SpecificCommandOutput};
 use crate::randomizer::Randomizer;
 use crate::result::EvalResult;
 
@@ -105,13 +105,9 @@ fn zombie_pattern() -> &'static Regex {
     RE.get_or_init(|| Regex::new(r"^ZMB(\+(\d+))?$").expect("valid regex"))
 }
 
-/// Ruby の `String#to_i`（多倍長）。`i64` に収まらない入力は飽和させる。
-///
-/// 被弾回数は繰り返し回数、感染度は合計値の加算にしか使わない。
-/// 桁あふれする入力は Ruby でも実質的に応答不能（巨大ループ）なので、
-/// 飽和させても意味のある差は生じない。
+/// Ruby `String#to_i`。`i64` に収まらない指定は `i64::MAX`に飽和。
 fn to_i(digits: &str) -> i64 {
-    digits.parse::<i64>().unwrap_or(i64::MAX)
+    str_helpers::to_i_max(digits)
 }
 
 /// Ruby `checkInfection` の表（行=左のダイス、列=右のダイス）。

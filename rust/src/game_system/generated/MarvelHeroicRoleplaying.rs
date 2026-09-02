@@ -13,7 +13,7 @@ use std::sync::OnceLock;
 use regex::Regex;
 
 use crate::eval::EvalError;
-use crate::game_system::{GameSystem, SpecificCommandOutput};
+use crate::game_system::{dice_text, str_helpers, GameSystem, SpecificCommandOutput};
 use crate::randomizer::Randomizer;
 use crate::result::EvalResult;
 
@@ -91,7 +91,7 @@ fn resolute_action(command: &str, rng: &mut Randomizer) -> Result<Option<EvalRes
             });
         }
 
-        let dice_text = join_dice(&dices);
+        let dice_text = dice_text::join_dice(&dices);
         output_parts.push(format!("D{}[{dice_text}]", db.sides));
     }
     // Ruby: 先頭に付いた "," を `delete_prefix(",")` で落とす＝カンマ区切りの連結。
@@ -191,17 +191,9 @@ fn result_prioritize_effect_dice(dice_stats_arr: &[DiceStats]) -> (i64, i64) {
 }
 
 /// Ruby `String#to_i`。i64に収まらない値は飽和させる（Rubyでは Bignum）。
+/// Ruby `String#to_i`。`i64` に収まらない指定は `i64::MAX` に飽和。
 fn to_i(digits: &str) -> i64 {
-    digits.parse().unwrap_or(i64::MAX)
-}
-
-/// Ruby `dices.join(",")`。
-fn join_dice(dices: &[i64]) -> String {
-    dices
-        .iter()
-        .map(|d| d.to_string())
-        .collect::<Vec<_>>()
-        .join(",")
+    str_helpers::to_i_max(digits)
 }
 
 /// Ruby `BCDice::GameSystem::MarvelHeroicRoleplaying`（ID: `MarvelHeroicRoleplaying`）。

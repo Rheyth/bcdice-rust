@@ -16,7 +16,7 @@ use regex::{Captures, Regex};
 use crate::arithmetic::{self};
 use crate::enums::RoundType;
 use crate::eval::EvalError;
-use crate::game_system::{GameSystem, SpecificCommandOutput};
+use crate::game_system::{str_helpers, GameSystem, SpecificCommandOutput};
 use crate::randomizer::Randomizer;
 
 /// Ruby `BCDice::GameSystem::GehennaAn`（ID: `GehennaAn`）。
@@ -163,8 +163,9 @@ impl GameSystem for GehennaAn {
 ///
 /// 桁あふれする入力は Ruby だと Bignum になり、`roll_barabara` の個数上限で
 /// TooManyRandsError になる。i64 に収まらない場合も同じ経路へ落とす。
+/// Ruby `String#to_i`。`i64` に収まらない指定は `i64::MAX` に飽和。
 fn to_i(text: &str) -> i64 {
-    text.parse().unwrap_or(i64::MAX)
+    str_helpers::to_i_max(text)
 }
 
 /// Ruby `GehennaAn#replace_text`。4つの `gsub` を宣言順に適用する。

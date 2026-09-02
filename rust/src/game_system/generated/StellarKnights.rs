@@ -25,7 +25,7 @@ use crate::arithmetic;
 use crate::dice_table::{D66GridTable, D66HalfGridTable, D66OneThirdTable, RollableTable, Table};
 use crate::enums::RoundType;
 use crate::eval::EvalError;
-use crate::game_system::{GameSystem, SpecificCommandOutput};
+use crate::game_system::{dice_text, GameSystem, SpecificCommandOutput};
 use crate::randomizer::Randomizer;
 use crate::result::EvalResult;
 
@@ -167,15 +167,6 @@ fn roll_named_tables(
     Ok(parts.join("\n"))
 }
 
-/// Ruby `[#{dices.join(',')}]` の内側。空白なし。
-fn join_dice(dices: &[i64]) -> String {
-    dices
-        .iter()
-        .map(ToString::to_string)
-        .collect::<Vec<_>>()
-        .join(",")
-}
-
 /// Ruby `StellarKnights#resolute_action`。
 fn resolute_action(
     sys: &SystemTables,
@@ -186,7 +177,7 @@ fn resolute_action(
 ) -> Result<Option<SpecificCommandOutput>, EvalError> {
     let mut dices = rng.roll_barabara(num_dices, 6)?;
     dices.sort_unstable();
-    let dice_text = join_dice(&dices);
+    let dice_text = dice_text::join_dice(&dices);
 
     let mut output = format!(
         "({}) ＞ {dice_text}",
@@ -211,7 +202,7 @@ fn resolute_action(
     if !rules.is_empty() {
         dices.sort_unstable();
         output.push_str(" ＞ [");
-        output.push_str(&join_dice(&dices));
+        output.push_str(&dice_text::join_dice(&dices));
         output.push(']');
     }
 

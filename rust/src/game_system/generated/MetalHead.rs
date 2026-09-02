@@ -33,6 +33,14 @@ use crate::normalize::CmpOp;
 use crate::randomizer::Randomizer;
 use crate::result::{CheckOutcome, EvalResult};
 
+/// Ruby `Base#roll_tables(command, TABLES)`。
+fn roll_tables(command: &str, rng: &mut Randomizer) -> Result<Option<String>, EvalError> {
+    let Some((_, table)) = TABLES.iter().find(|(key, _)| *key == command) else {
+        return Ok(None);
+    };
+    Ok(Some(table.roll(rng)?.to_string()))
+}
+
 // ---------------------------------------------------------------------------
 // 入力の書き換え（Ruby `#change_text`）
 // ---------------------------------------------------------------------------
@@ -109,14 +117,6 @@ fn eval_specific_command(
     }
 
     Ok(None)
-}
-
-/// Ruby `Base#roll_tables(command, TABLES)`。
-fn roll_tables(command: &str, rng: &mut Randomizer) -> Result<Option<String>, EvalError> {
-    let Some((_, table)) = TABLES.iter().find(|(key, _)| *key == command) else {
-        return Ok(None);
-    };
-    Ok(Some(table.roll(rng)?.to_string()))
 }
 
 // ---------------------------------------------------------------------------

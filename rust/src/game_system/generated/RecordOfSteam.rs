@@ -13,7 +13,7 @@ use std::sync::OnceLock;
 use regex::Regex;
 
 use crate::eval::EvalError;
-use crate::game_system::{GameSystem, SpecificCommandOutput};
+use crate::game_system::{dice_text, str_helpers, GameSystem, SpecificCommandOutput};
 use crate::randomizer::Randomizer;
 
 /// Ruby `diceCount >= 150` / `criticalValue >= 3` のときの文言。
@@ -94,7 +94,7 @@ fn get_dice_roll_result(
     while dice_count > 0 {
         // Ruby側はソートしない（出目は振った順に並ぶ）。
         let dice_list = rng.roll_barabara(dice_count, 6)?;
-        let dice_list_text = join_dice(&dice_list);
+        let dice_list_text = dice_text::join_dice(&dice_list);
 
         if !roll_result.is_empty() {
             roll_result.push(',');
@@ -201,17 +201,9 @@ fn uniq_len(dice_list: &[i64]) -> usize {
 }
 
 /// Ruby `String#to_i`。i64に収まらない値は飽和させる（Rubyでは Bignum）。
+/// Ruby `String#to_i`。`i64` に収まらない指定は `i64::MAX` に飽和。
 fn to_i(digits: &str) -> i64 {
-    digits.parse().unwrap_or(i64::MAX)
-}
-
-/// Ruby `diceList.join(",")`。
-fn join_dice(dice_list: &[i64]) -> String {
-    dice_list
-        .iter()
-        .map(|d| d.to_string())
-        .collect::<Vec<_>>()
-        .join(",")
+    str_helpers::to_i_max(digits)
 }
 
 /// Ruby `BCDice::GameSystem::RecordOfSteam`（ID: `RecordOfSteam`）。

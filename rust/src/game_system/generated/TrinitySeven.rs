@@ -14,7 +14,7 @@ use crate::dice_table::{RollableTable, Table};
 use crate::enums::RoundType;
 use crate::eval::EvalError;
 use crate::format::modifier;
-use crate::game_system::{GameSystem, SpecificCommandOutput, Target};
+use crate::game_system::{dice_text, GameSystem, SpecificCommandOutput, Target};
 use crate::normalize::CmpOp;
 use crate::randomizer::Randomizer;
 use crate::result::{CheckOutcome, EvalResult};
@@ -203,7 +203,7 @@ fn roll_damage(command: &str, rng: &mut Randomizer) -> Result<Option<String>, Ev
 
     let mut dice_list = rng.roll_barabara(dice_count, 6)?;
     dice_list.sort_unstable();
-    let dice_text = join_dice(&dice_list);
+    let dice_text = dice_text::join_dice(&dice_list);
 
     let (total, additional) = get_roll_damage_result(
         dice_count,
@@ -213,7 +213,7 @@ fn roll_damage(command: &str, rng: &mut Randomizer) -> Result<Option<String>, Ev
     );
     let additional_text = additional
         .as_ref()
-        .map(|list| format!("→[{}]", join_dice(list)))
+        .map(|list| format!("→[{}]", dice_text::join_dice(list)))
         .unwrap_or_default();
 
     Ok(Some(format!(
@@ -266,14 +266,6 @@ fn pow7(exp: i64) -> i64 {
         Ok(e) => 7i64.checked_pow(e).unwrap_or(i64::MAX),
         Err(_) => i64::MAX,
     }
-}
-
-fn join_dice(dice_list: &[i64]) -> String {
-    dice_list
-        .iter()
-        .map(|d| d.to_string())
-        .collect::<Vec<_>>()
-        .join(",")
 }
 
 /// Ruby `TrinitySeven#roll_name`。

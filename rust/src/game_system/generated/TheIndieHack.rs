@@ -12,7 +12,7 @@ use std::sync::OnceLock;
 use regex::Regex;
 
 use crate::eval::EvalError;
-use crate::game_system::{GameSystem, SpecificCommandOutput};
+use crate::game_system::{dice_text, GameSystem, SpecificCommandOutput};
 use crate::randomizer::Randomizer;
 use crate::result::EvalResult;
 
@@ -35,14 +35,14 @@ fn resolute_action(command: &str, rng: &mut Randomizer) -> Result<Option<EvalRes
     let abilities = to_i(abilities_text);
 
     let mut dices = rng.roll_barabara(2, 6)?;
-    let dice_text = join_dice(&dices);
+    let dice_text = dice_text::join_dice(&dices);
     // `roll_barabara(2, 6)` は必ず2個返す（上限超過は Err）。
     if dices.len() < 2 {
         return Ok(None);
     }
     dices[0] += cl;
     dices[1] += abilities;
-    let dice_text2 = join_dice(&dices);
+    let dice_text2 = dice_text::join_dice(&dices);
 
     let diff = dices[1] - dices[0];
     let side = if diff == 0 {
@@ -87,15 +87,6 @@ fn get_success_level(die_difference: i64) -> &'static str {
 /// Ruby `String#to_i`（`nil.to_i == 0`、先頭の `+` / `-` を解釈する）。
 fn to_i(source: &str) -> i64 {
     source.parse().unwrap_or(0)
-}
-
-/// Ruby `dices.join(",")`。
-fn join_dice(dices: &[i64]) -> String {
-    dices
-        .iter()
-        .map(|d| d.to_string())
-        .collect::<Vec<_>>()
-        .join(",")
 }
 
 /// Ruby `BCDice::GameSystem::TheIndieHack`（ID: `TheIndieHack`）。

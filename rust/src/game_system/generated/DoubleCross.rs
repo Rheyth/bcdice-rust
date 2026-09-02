@@ -27,7 +27,7 @@ use crate::dice_table::{RangeInc, RangeTable, RollableTable, Table};
 use crate::enums::RoundType;
 use crate::eval::EvalError;
 use crate::format::modifier;
-use crate::game_system::{GameSystem, SpecificCommandOutput};
+use crate::game_system::{str_helpers, GameSystem, SpecificCommandOutput};
 use crate::normalize::CmpOp;
 use crate::randomizer::sat_i64;
 use crate::randomizer::Randomizer;
@@ -215,18 +215,9 @@ fn parse_dx_shippu_doto(command: &str) -> Option<Dx> {
     ))
 }
 
-/// Ruby `String#to_i`（先頭の十進数だけを読み、無ければ 0）。
-///
-/// ここに来る文字列は `\d+DX\d*` の一部なので符号や空白は現れない。
+/// Ruby `String#to_i`。`i64` に収まらない指定は `i64::MAX`に飽和。
 fn ruby_to_i(s: &str) -> i64 {
-    let digits: String = s.chars().take_while(char::is_ascii_digit).collect();
-    if digits.is_empty() {
-        // Ruby: "".to_i == 0
-        return 0;
-    }
-    // 桁あふれは Ruby だと Bignum になる。i64 に収まらない場合は飽和させ、
-    // ダイス個数なら `roll_barabara` の上限（TooManyRandsError）へ落ちるようにする。
-    digits.parse().unwrap_or(i64::MAX)
+    str_helpers::leading_digits_to_i_max(s)
 }
 
 /// Ruby `DoubleCross::DX`（成功判定コマンドのノード）。

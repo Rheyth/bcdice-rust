@@ -24,11 +24,11 @@ use std::sync::OnceLock;
 use regex::Regex;
 
 use crate::command_parser::{Parser, SuffixPosition};
-use crate::dice_table::{RollableTable, Table};
+use crate::dice_table::Table;
 use crate::enums::RoundType;
 use crate::eval::EvalError;
 use crate::format::modifier;
-use crate::game_system::{GameSystem, SpecificCommandOutput, Target};
+use crate::game_system::{dice_text, table_helpers, GameSystem, SpecificCommandOutput, Target};
 use crate::normalize::CmpOp;
 use crate::randomizer::Randomizer;
 use crate::result::{CheckOutcome, EvalResult};
@@ -67,22 +67,10 @@ pub(crate) fn eval_specific_command(
     command: &str,
     rng: &mut Randomizer,
 ) -> Result<Option<SpecificCommandOutput>, EvalError> {
-    if let Some(text) = roll_tables(sys, command, rng)? {
+    if let Some(text) = table_helpers::roll_table(command, sys.tables, rng)? {
         return Ok(Some(SpecificCommandOutput::text(text)));
     }
     Ok(nechronica_check(sys, command, rng)?.map(SpecificCommandOutput::result))
-}
-
-/// Ruby `Base#roll_tables(command, tables)`。
-fn roll_tables(
-    sys: &SystemTables,
-    command: &str,
-    rng: &mut Randomizer,
-) -> Result<Option<String>, EvalError> {
-    let Some((_, table)) = sys.tables.iter().find(|(key, _)| *key == command) else {
-        return Ok(None);
-    };
-    Ok(Some(table.roll(rng)?.to_string()))
 }
 
 /// Ruby `Nechronica#result_nd10`（後方互換を維持するため、1d10>=nを目標値nの1NCとして処理）。
@@ -197,8 +185,12 @@ fn nechronica_check(
 
     let mut sequence = vec![
         format!("({})", cmd.to_s(SuffixPosition::AfterCommand)),
-        format!("[{}]{}", join_dice(&dice), modifier(&modify_number)),
-        format!("{total}[{}]", join_dice(&dice_mod)),
+        format!(
+            "[{}]{}",
+            dice_text::join_dice(&dice),
+            modifier(&modify_number)
+        ),
+        format!("{total}[{}]", dice_text::join_dice(&dice_mod)),
         result.text.clone(),
     ];
     if let Some(na) = na {
@@ -228,14 +220,6 @@ fn get_hit_location(sys: &SystemTables, value: i64) -> Option<String> {
     } else {
         Some(text.to_owned())
     }
-}
-
-/// Ruby `dice.join(',')`。
-fn join_dice(dice: &[i64]) -> String {
-    dice.iter()
-        .map(|d| d.to_string())
-        .collect::<Vec<_>>()
-        .join(",")
 }
 
 // ---------------------------------------------------------------------------

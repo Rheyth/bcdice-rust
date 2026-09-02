@@ -20,7 +20,7 @@ use std::sync::OnceLock;
 use regex::Regex;
 
 use crate::eval::EvalError;
-use crate::game_system::{GameSystem, SpecificCommandOutput};
+use crate::game_system::{str_helpers, GameSystem, SpecificCommandOutput};
 use crate::randomizer::Randomizer;
 use crate::result::EvalResult;
 
@@ -38,14 +38,9 @@ fn cd_pattern() -> &'static Regex {
     })
 }
 
-/// `\d+` にマッチした部分を `i64` にする。Ruby の `String#to_i` は多倍長なので
-/// 桁あふれしないが、Rustでは飽和させる（実用上到達しない経路）。
+/// Ruby `String#to_i`。`i64` に収まらない指定は 符号方向に飽和。
 fn to_i(s: &str) -> i64 {
-    s.parse::<i64>().unwrap_or(if s.starts_with('-') {
-        i64::MIN
-    } else {
-        i64::MAX
-    })
+    str_helpers::to_i_signed_saturating(s)
 }
 
 // ---------------------------------------------------------------------------

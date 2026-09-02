@@ -19,7 +19,7 @@ use crate::command_parser::{Parser, SuffixPosition};
 use crate::dice_table::{RangeInc, RangeTable, RollableTable, Table};
 use crate::enums::RoundType;
 use crate::eval::EvalError;
-use crate::game_system::{GameSystem, SpecificCommandOutput};
+use crate::game_system::{dice_text, GameSystem, SpecificCommandOutput};
 use crate::normalize::CmpOp;
 use crate::randomizer::Randomizer;
 use crate::result::EvalResult;
@@ -179,7 +179,7 @@ fn check_action(
 
     let sequence = [
         format!("({})", parsed.to_s(SuffixPosition::AfterCommand)),
-        format!("[{}]", join_dice(&dice_list)),
+        format!("[{}]", dice_text::join_dice(&dice_list)),
         success_message.to_owned(),
     ];
 
@@ -188,15 +188,6 @@ fn check_action(
     result.critical = is_critical;
     result.fumble = is_fumble;
     Ok(Some(result))
-}
-
-/// Ruby `dice_list.join(',')`。
-fn join_dice(dice_list: &[i64]) -> String {
-    dice_list
-        .iter()
-        .map(|d| d.to_string())
-        .collect::<Vec<_>>()
-        .join(",")
 }
 
 /// Ruby `BCDice::GameSystem::ZombiLine`（ID: `ZombiLine`）。

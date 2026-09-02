@@ -18,7 +18,7 @@ use crate::dice_table::{
 };
 use crate::enums::D66SortType;
 use crate::eval::EvalError;
-use crate::game_system::{GameSystem, SpecificCommandOutput, Target};
+use crate::game_system::{table_helpers, GameSystem, SpecificCommandOutput, Target};
 use crate::normalize::CmpOp;
 use crate::randomizer::Randomizer;
 use crate::result::{CheckOutcome, EvalResult};
@@ -591,17 +591,6 @@ fn get_interim_reference_number(rng: &mut Randomizer) -> Result<(String, String)
     Ok((output, total_n))
 }
 
-fn roll_tables(
-    tables: &'static [(&'static str, &'static dyn RollableTable)],
-    command: &str,
-    rng: &mut Randomizer,
-) -> Result<Option<String>, EvalError> {
-    match tables.iter().find(|(key, _)| *key == command) {
-        None => Ok(None),
-        Some((_, table)) => Ok(Some(table.roll(rng)?.to_string())),
-    }
-}
-
 /// Ruby `Insane#result_2d6`。
 pub(crate) fn check_result_2d6(
     sys: &SystemTables,
@@ -664,7 +653,8 @@ pub(crate) fn eval_specific_command(
             if let Some(text) = sys.rtt.roll_command(rng, command)? {
                 return Ok(Some(SpecificCommandOutput::text(text)));
             }
-            Ok(roll_tables(sys.tables, command, rng)?.map(SpecificCommandOutput::text))
+            Ok(table_helpers::roll_table(command, sys.tables, rng)?
+                .map(SpecificCommandOutput::text))
         }
     }
 }

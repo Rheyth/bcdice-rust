@@ -16,7 +16,7 @@ use std::sync::OnceLock;
 use regex::{Captures, Regex};
 
 use crate::eval::EvalError;
-use crate::game_system::{GameSystem, SpecificCommandOutput};
+use crate::game_system::{dice_text, GameSystem, SpecificCommandOutput};
 use crate::randomizer::Randomizer;
 use crate::result::EvalResult;
 
@@ -64,13 +64,6 @@ fn has_456(dice: &[i64]) -> bool {
     dice.contains(&4) && dice.contains(&5) && dice.contains(&6)
 }
 
-fn join_dice(dice: &[i64]) -> String {
-    dice.iter()
-        .map(|d| d.to_string())
-        .collect::<Vec<_>>()
-        .join(",")
-}
-
 /// Ruby `Result.new.tap { ... }` の共通部分。
 ///
 /// `result.critical` / `result.fumble` は `condition=`（success/failure）とは
@@ -105,7 +98,7 @@ fn resolute_action(command: &str, rng: &mut Randomizer) -> Result<Option<EvalRes
             "({num_dice}{}AM<={num_target},{num_success})",
             with_symbol(num_bonus)
         ),
-        join_dice(&dice),
+        dice_text::join_dice(&dice),
         format!("成功数{success_num}"),
         if result.success { "成功" } else { "失敗" }.to_owned(),
     ];
@@ -141,7 +134,7 @@ fn resolute_investigation(
 
     let mut sequence = vec![
         format!("({}AI<={num_target},{num_success})", with_symbol(num_bonus)),
-        join_dice(&dice),
+        dice_text::join_dice(&dice),
         format!("成功数{success_num}"),
         if result.success { "成功" } else { "失敗" }.to_owned(),
     ];
@@ -192,7 +185,7 @@ fn resolute_attacking(
 
     let mut sequence = vec![
         format!("({}AA<={num_target})", with_symbol(num_bonus)),
-        join_dice(&dice),
+        dice_text::join_dice(&dice),
         format!("成功数{success_num}"),
         if result.success { "成功" } else { "失敗" }.to_owned(),
     ];
@@ -227,7 +220,7 @@ fn resolute_guarding(command: &str, rng: &mut Randomizer) -> Result<Option<EvalR
 
     let mut sequence = vec![
         format!("({}AG={num_target})", with_symbol(num_bonus)),
-        join_dice(&dice),
+        dice_text::join_dice(&dice),
         format!("成功数{success_num}"),
         if result.success {
             format!("成功 ＞ ダメージ軽減({})", success_num * 2)
@@ -265,7 +258,7 @@ fn resolute_dodging(command: &str, rng: &mut Randomizer) -> Result<Option<EvalRe
 
     let sequence = [
         format!("({}AD={num_target})", with_symbol(num_bonus)),
-        join_dice(&dice),
+        dice_text::join_dice(&dice),
         format!("成功数{success_num}"),
         if result.success {
             "成功(ダメージ無効)".to_owned()

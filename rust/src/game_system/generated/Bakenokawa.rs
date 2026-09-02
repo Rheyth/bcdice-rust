@@ -18,7 +18,7 @@ use crate::command_parser::Parser;
 use crate::dice_table::{D66Table, RollableTable, Table, TableItem};
 use crate::enums::{D66SortType, RoundType};
 use crate::eval::EvalError;
-use crate::game_system::{GameSystem, SpecificCommandOutput};
+use crate::game_system::{dice_text, table_helpers, GameSystem, SpecificCommandOutput};
 use crate::randomizer::Randomizer;
 use crate::result::EvalResult;
 
@@ -319,14 +319,6 @@ static TABLES: &[(&str, &dyn RollableTable)] = &[
 // コマンド評価
 // ---------------------------------------------------------------------------
 
-/// Ruby `Base#roll_tables(command, tables)`。
-fn roll_tables(command: &str, rng: &mut Randomizer) -> Result<Option<String>, EvalError> {
-    match TABLES.iter().find(|(key, _)| *key == command) {
-        None => Ok(None),
-        Some((_, table)) => Ok(Some(table.roll(rng)?.to_string())),
-    }
-}
-
 /// Ruby `Bakenokawa#check_action`（行為判定 `xBKy@z`）。
 fn check_action(command: &str, rng: &mut Randomizer) -> Result<Option<EvalResult>, EvalError> {
     static PARSER: OnceLock<Parser> = OnceLock::new();
@@ -358,7 +350,7 @@ fn check_action(command: &str, rng: &mut Randomizer) -> Result<Option<EvalResult
 
     let mut dice_arr = rng.roll_barabara(dice_cnt, crate::randomizer::sat_i64(&dice_faces))?;
     dice_arr.sort_unstable();
-    let dice_str = join_dice(&dice_arr);
+    let dice_str = dice_text::join_dice(&dice_arr);
     let dice_sum: i64 = dice_arr.iter().fold(0i64, |a, b| a.wrapping_add(*b));
     let has_special = dice_sum >= special_target;
     let has_fumble = dice_sum <= 2;
@@ -379,15 +371,6 @@ fn check_action(command: &str, rng: &mut Randomizer) -> Result<Option<EvalResult
         failure: !result,
         ..EvalResult::default()
     }))
-}
-
-/// Ruby `dice_arr.join(",")`。
-fn join_dice(dice_list: &[i64]) -> String {
-    dice_list
-        .iter()
-        .map(|d| d.to_string())
-        .collect::<Vec<_>>()
-        .join(",")
 }
 
 /// Ruby `BCDice::GameSystem::Bakenokawa`（ID: `Bakenokawa`）。
@@ -453,7 +436,7 @@ impl GameSystem for Bakenokawa {
         if let Some(result) = check_action(command, rng)? {
             return Ok(Some(SpecificCommandOutput::result(result)));
         }
-        Ok(roll_tables(command, rng)?.map(SpecificCommandOutput::text))
+        Ok(table_helpers::roll_table(command, TABLES, rng)?.map(SpecificCommandOutput::text))
     }
 }
 

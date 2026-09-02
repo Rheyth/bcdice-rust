@@ -14,10 +14,10 @@
 //! Ruby側にロケール差分（`ko_kr` など）は無い。
 
 use crate::dice_table::sai_fic_skill_table::{DEFAULT_RCT_FORMAT, DEFAULT_SKILL_FORMAT};
-use crate::dice_table::{RollableTable, SaiFicCategory, SaiFicFormats, SaiFicSkillTable, Table};
+use crate::dice_table::{SaiFicCategory, SaiFicFormats, SaiFicSkillTable, Table};
 use crate::enums::{D66SortType, RoundType};
 use crate::eval::EvalError;
-use crate::game_system::{GameSystem, SpecificCommandOutput, Target};
+use crate::game_system::{table_helpers, GameSystem, SpecificCommandOutput, Target};
 use crate::normalize::CmpOp;
 use crate::randomizer::Randomizer;
 use crate::result::{CheckOutcome, EvalResult};
@@ -272,14 +272,6 @@ static RTT: SaiFicSkillTable = SaiFicSkillTable::new(RTT_CATEGORIES)
         skill: DEFAULT_SKILL_FORMAT,
     });
 
-/// Ruby `Base#roll_tables(command, tables)`。
-fn roll_tables(command: &str, rng: &mut Randomizer) -> Result<Option<String>, EvalError> {
-    let Some((_, table)) = TABLES.iter().find(|(key, _)| *key == command) else {
-        return Ok(None);
-    };
-    Ok(Some(table.roll(rng)?.to_string()))
-}
-
 /// Ruby `BCDice::GameSystem::Peekaboo`（ID: `Peekaboo`）。
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct Peekaboo;
@@ -395,7 +387,7 @@ impl GameSystem for Peekaboo {
         command: &str,
         rng: &mut Randomizer,
     ) -> Result<Option<SpecificCommandOutput>, EvalError> {
-        if let Some(text) = roll_tables(command, rng)? {
+        if let Some(text) = table_helpers::roll_table(command, TABLES, rng)? {
             return Ok(Some(SpecificCommandOutput::text(text)));
         }
         Ok(RTT

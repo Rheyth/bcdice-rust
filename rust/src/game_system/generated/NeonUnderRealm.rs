@@ -16,7 +16,7 @@ use crate::arithmetic;
 use crate::enums::RoundType;
 use crate::eval::EvalError;
 use crate::format::modifier;
-use crate::game_system::{GameSystem, SpecificCommandOutput};
+use crate::game_system::{dice_text, GameSystem, SpecificCommandOutput};
 use crate::randomizer::Randomizer;
 use crate::result::EvalResult;
 
@@ -97,7 +97,7 @@ fn build_expr_text(dice_count: i64, n: i64, k: i64, l: i64, dice_list: &[i64]) -
     };
     format!(
         "{dice_count}B10<={n}{k_text}{l_text}[{}]",
-        join_dice(dice_list)
+        dice_text::join_dice(dice_list)
     )
 }
 
@@ -170,15 +170,6 @@ fn eval_specific_command(
     result.failure = !is_success;
 
     Ok(Some(result))
-}
-
-/// Ruby `dice_list.join(',')`。
-fn join_dice(dice_list: &[i64]) -> String {
-    dice_list
-        .iter()
-        .map(|d| d.to_string())
-        .collect::<Vec<_>>()
-        .join(",")
 }
 
 /// Ruby `BCDice::GameSystem::NeonUnderRealm`（ID: `NeonUnderRealm`）。

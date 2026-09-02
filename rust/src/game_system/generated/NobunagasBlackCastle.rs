@@ -17,9 +17,9 @@ use std::sync::OnceLock;
 
 use regex::Regex;
 
-use crate::dice_table::{RollableTable, Table};
+use crate::dice_table::Table;
 use crate::eval::EvalError;
-use crate::game_system::{GameSystem, SpecificCommandOutput};
+use crate::game_system::{table_helpers, GameSystem, SpecificCommandOutput};
 use crate::randomizer::Randomizer;
 use crate::result::EvalResult;
 
@@ -84,14 +84,6 @@ static ERT: Table = Table::from_dice("遭遇反応表", 2, 6, ERT_ITEMS);
 
 /// Ruby `TABLES`（`roll_tables` が引くコマンド名 → 表）。
 static TABLES: &[(&str, &Table)] = &[("OSWT", &OSWT), ("SWT", &SWT), ("ART", &ART), ("ERT", &ERT)];
-
-/// Ruby `Base#roll_tables(command, tables)`。
-fn roll_tables(command: &str, rng: &mut Randomizer) -> Result<Option<String>, EvalError> {
-    let Some((_, table)) = TABLES.iter().find(|(key, _)| *key == command) else {
-        return Ok(None);
-    };
-    Ok(Some(table.roll(rng)?.to_string()))
-}
 
 /// Ruby `NobunagasBlackCastle#resolute_action` の `/^([+-]?\d*)DR(\d+)$/`。
 fn action_pattern() -> &'static Regex {
@@ -306,7 +298,7 @@ impl GameSystem for NobunagasBlackCastle {
         if let Some(result) = resolute_initiative(command, rng)? {
             return Ok(Some(SpecificCommandOutput::result(result)));
         }
-        if let Some(text) = roll_tables(command, rng)? {
+        if let Some(text) = table_helpers::roll_table(command, TABLES, rng)? {
             return Ok(Some(SpecificCommandOutput::text(text)));
         }
         Ok(make_npc_status(command, rng)?.map(SpecificCommandOutput::text))

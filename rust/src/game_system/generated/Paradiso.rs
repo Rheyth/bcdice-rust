@@ -19,7 +19,7 @@ use regex::Regex;
 
 use crate::dice_table::RangeInc;
 use crate::eval::EvalError;
-use crate::game_system::{GameSystem, SpecificCommandOutput};
+use crate::game_system::{str_helpers, GameSystem, SpecificCommandOutput};
 use crate::randomizer::Randomizer;
 
 /// Ruby `get_radiomarietta_table` の項目（ラジオマリエッタ表、1D20）。
@@ -333,16 +333,9 @@ fn roll_1d20_table(
     Ok(format!("{name}({dice})：{text}"))
 }
 
-/// Ruby `String#to_i`。ここに来るのは `\d+` なので符号や空白は現れない。
+/// Ruby `String#to_i`。`i64` に収まらない指定は `i64::MAX`に飽和。
 fn ruby_to_i(s: &str) -> i64 {
-    let digits: String = s.chars().take_while(char::is_ascii_digit).collect();
-    if digits.is_empty() {
-        // Ruby: "".to_i == 0
-        return 0;
-    }
-    // 桁あふれは Ruby だと Bignum になる。i64 に収まらない場合は飽和させ、
-    // ダイス個数なら `roll_once` の呼び出し回数上限（TooManyRandsError）へ落ちる。
-    digits.parse().unwrap_or(i64::MAX)
+    str_helpers::leading_digits_to_i_max(s)
 }
 
 #[cfg(test)]

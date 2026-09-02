@@ -15,7 +15,7 @@ use std::sync::OnceLock;
 use regex::Regex;
 
 use crate::eval::EvalError;
-use crate::game_system::{GameSystem, SpecificCommandOutput};
+use crate::game_system::{dice_text, GameSystem, SpecificCommandOutput};
 use crate::randomizer::Randomizer;
 
 /// Ruby `BCDice::GameSystem::AFF2e`（ID: `AFF2e`）。
@@ -78,7 +78,7 @@ fn eval_specific_command(
         let dice_command = format!("2D6<={diff}");
         let dice_list = rng.roll_barabara(2, 6)?;
         let total: i64 = dice_list.iter().sum();
-        let dice_str = join_dice(&dice_list);
+        let dice_str = dice_text::join_dice(&dice_list);
         let expr = format!("{total}[{dice_str}]");
         let succ = successful_or_failed(total, diff);
         vec![parentheses(&dice_command), expr, succ.to_owned()]
@@ -91,7 +91,7 @@ fn eval_specific_command(
         let dice_command = format!("2D6{}", explicit_sign(corr));
         let dice_list = rng.roll_barabara(2, 6)?;
         let total: i64 = dice_list.iter().sum();
-        let dice_str = join_dice(&dice_list);
+        let dice_str = dice_text::join_dice(&dice_list);
         let expr = format!("{total}[{dice_str}]{}", explicit_sign(corr));
         let crit = critical(total);
         // Ruby: [..., crit, total + corr].compact （crit が nil のとき落ちる）
@@ -232,15 +232,6 @@ fn ruby_split(s: &str, sep: char) -> Vec<&str> {
         parts.pop();
     }
     parts
-}
-
-/// Ruby `dice_list.join(",")`。
-fn join_dice(dice_list: &[i64]) -> String {
-    dice_list
-        .iter()
-        .map(|d| d.to_string())
-        .collect::<Vec<_>>()
-        .join(",")
 }
 
 #[cfg(test)]

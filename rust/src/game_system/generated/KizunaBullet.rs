@@ -19,7 +19,7 @@ use crate::command_parser::Parser;
 use crate::dice_table::{D66Table, RollableTable, Table, TableItem};
 use crate::enums::{D66SortType, RoundType};
 use crate::eval::EvalError;
-use crate::game_system::{GameSystem, SpecificCommandOutput};
+use crate::game_system::{dice_text, GameSystem, SpecificCommandOutput};
 use crate::randomizer::Randomizer;
 use crate::result::EvalResult;
 
@@ -88,6 +88,7 @@ pub(crate) fn eval_specific_command(
 }
 
 /// Ruby `Base#roll_tables(command, tables)`。
+/// Ruby `Base#roll_tables(command, tables)`。
 fn roll_tables(
     sys: &SystemTables,
     command: &str,
@@ -110,15 +111,6 @@ fn roll_tables(
     }
 }
 
-/// Ruby `[#{dice_list.join(',')}]`。
-fn join_dice(dice_list: &[i64]) -> String {
-    dice_list
-        .iter()
-        .map(|d| d.to_string())
-        .collect::<Vec<_>>()
-        .join(",")
-}
-
 /// Ruby `KizunaBullet#roll_max`（最大値 `nDM`）。
 fn roll_max(command: &str, rng: &mut Randomizer) -> Result<Option<EvalResult>, EvalError> {
     let parser = Parser::new(&["DM"], RoundType::Ceil).has_prefix_number();
@@ -137,7 +129,7 @@ fn roll_max(command: &str, rng: &mut Randomizer) -> Result<Option<EvalResult>, E
 
     Ok(Some(EvalResult::with_text(format!(
         "{command} ＞ [{}] ＞ {max}",
-        join_dice(&dice_list)
+        dice_text::join_dice(&dice_list)
     ))))
 }
 
@@ -180,7 +172,7 @@ fn roll_investigate(
 
     let mut result = EvalResult::with_text(format!(
         "{command} ＞ [{}] ＞ {}",
-        join_dice(&dice_list),
+        dice_text::join_dice(&dice_list),
         texts.concat()
     ));
     // Ruby: `r.condition = is_success` の後に `r.fumble = is_fumble`

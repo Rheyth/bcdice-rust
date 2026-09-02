@@ -24,7 +24,7 @@ use crate::dice_table::{
 };
 use crate::enums::D66SortType;
 use crate::eval::EvalError;
-use crate::game_system::{GameSystem, SpecificCommandOutput, Target};
+use crate::game_system::{table_helpers, GameSystem, SpecificCommandOutput, Target};
 use crate::normalize::CmpOp;
 use crate::randomizer::Randomizer;
 use crate::result::{CheckOutcome, EvalResult};
@@ -90,25 +90,13 @@ pub(crate) fn eval_specific_command(
     command: &str,
     rng: &mut Randomizer,
 ) -> Result<Option<SpecificCommandOutput>, EvalError> {
-    if let Some(text) = roll_tables(sys.tables, command, rng)? {
+    if let Some(text) = table_helpers::roll_table(command, sys.tables, rng)? {
         return Ok(Some(SpecificCommandOutput::text(text)));
     }
     Ok(sys
         .rtt
         .roll_command(rng, command)?
         .map(SpecificCommandOutput::text))
-}
-
-/// Ruby `Base#roll_tables(command, tables)`。
-fn roll_tables(
-    tables: &'static [(&'static str, &'static dyn RollableTable)],
-    command: &str,
-    rng: &mut Randomizer,
-) -> Result<Option<String>, EvalError> {
-    match tables.iter().find(|(key, _)| *key == command) {
-        None => Ok(None),
-        Some((_, table)) => Ok(Some(table.roll(rng)?.to_string())),
-    }
 }
 
 /// Ruby `Base#result_ndx`（ロケールの定型文で）。

@@ -14,7 +14,7 @@ use std::sync::OnceLock;
 use regex::Regex;
 
 use crate::eval::EvalError;
-use crate::game_system::{GameSystem, SpecificCommandOutput};
+use crate::game_system::{dice_text, str_helpers, GameSystem, SpecificCommandOutput};
 use crate::randomizer::Randomizer;
 use crate::result::EvalResult;
 
@@ -96,8 +96,9 @@ fn dragon_dice_name(crit: i64) -> &'static str {
 ///
 /// Ruby は多倍長になるが、`getValue` で 100 を超える値は 0 に畳まれるので
 /// 結果は変わらない。
+/// Ruby `String#to_i`。`i64` に収まらない指定は `i64::MAX` に飽和。
 fn to_i(digits: &str) -> i64 {
-    digits.parse().unwrap_or(i64::MAX)
+    str_helpers::to_i_max(digits)
 }
 
 /// Ruby `Utakaze#getValue`: 100 を超える値は 0 にする。
@@ -140,7 +141,7 @@ fn check_roll(command: &str, rng: &mut Randomizer) -> Result<Option<EvalResult>,
     let sequence = [
         command.to_owned(),
         format!("({base}D6)"),
-        format!("[{}]", join_dice(&dice_list)),
+        format!("[{}]", dice_text::join_dice(&dice_list)),
         result.text.clone(),
     ];
     result.text = sequence.join(" ＞ ");
@@ -209,7 +210,7 @@ fn opposed_roll(command: &str, rng: &mut Randomizer) -> Result<Option<EvalResult
     let sequence = [
         command.to_owned(),
         format!("({base}D6)"),
-        format!("[{}]", join_dice(&dice_list)),
+        format!("[{}]", dice_text::join_dice(&dice_list)),
         result.text.clone(),
     ];
     result.text = sequence.join(" ＞ ");
@@ -297,15 +298,6 @@ fn is_normal_dice(crit: i64) -> bool {
 /// Ruby `Utakaze#isDragonDice`。
 fn is_dragon_dice(crit: i64) -> bool {
     crit != 0
-}
-
-/// Ruby `dice_list.join(',')`。
-fn join_dice(dice_list: &[i64]) -> String {
-    dice_list
-        .iter()
-        .map(|d| d.to_string())
-        .collect::<Vec<_>>()
-        .join(",")
 }
 
 #[cfg(test)]

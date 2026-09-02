@@ -28,7 +28,7 @@ use crate::arithmetic;
 use crate::enums::RoundType;
 use crate::eval::EvalError;
 use crate::format::modifier;
-use crate::game_system::{GameSystem, SpecificCommandOutput};
+use crate::game_system::{str_helpers, GameSystem, SpecificCommandOutput};
 use crate::normalize::{self, CmpOp};
 use crate::randomizer::Randomizer;
 use crate::Int as I;
@@ -183,17 +183,9 @@ fn arithmetic_evaluator_eval(expr: Option<&str>) -> Result<i64, EvalError> {
         .unwrap_or(0))
 }
 
-/// Ruby の `String#to_i`（ここに来るのは `\d+` にマッチした文字列だけ）。
-///
-/// 桁あふれは Ruby だと Bignum になるので、`i64` に収まらない場合は飽和させる。
+/// Ruby `String#to_i`。`i64` に収まらない指定は 符号方向に飽和。
 fn to_i(digits: &str) -> i64 {
-    digits.parse().unwrap_or_else(|_| {
-        if digits.starts_with('-') {
-            i64::MIN
-        } else {
-            i64::MAX
-        }
-    })
+    str_helpers::to_i_signed_saturating(digits)
 }
 
 /// Ruby `m[n].split(',').map(&:to_i)`。

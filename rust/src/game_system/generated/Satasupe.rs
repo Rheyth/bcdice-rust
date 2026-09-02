@@ -34,7 +34,7 @@ use crate::command_parser::Parser;
 use crate::dice_table::{D66GridTable, RollableTable, Table};
 use crate::enums::{D66SortType, RoundType};
 use crate::eval::EvalError;
-use crate::game_system::{GameSystem, SpecificCommandOutput};
+use crate::game_system::{str_helpers, GameSystem, SpecificCommandOutput};
 use crate::randomizer::Randomizer;
 use crate::result::EvalResult;
 
@@ -656,17 +656,9 @@ fn pick<T>(table: &'static [T], index: i64) -> Result<&'static T, EvalError> {
         .ok_or(EvalError::Internal("Satasupe: table index out of range"))
 }
 
-/// Ruby `String#to_i`（先頭の十進数だけを読み、無ければ 0）。
-///
-/// ここに渡るのは `\d*` / `\d+` に一致した部分文字列なので符号や空白は現れない。
-/// 桁あふれは Ruby だと多倍長整数になる。`i64` に収まらない場合は飽和させる。
+/// Ruby `String#to_i`。`i64` に収まらない指定は `i64::MAX`に飽和。
 fn ruby_to_i(s: &str) -> i64 {
-    let digits: String = s.chars().take_while(char::is_ascii_digit).collect();
-    if digits.is_empty() {
-        // Ruby: "".to_i == 0
-        return 0;
-    }
-    digits.parse().unwrap_or(i64::MAX)
+    str_helpers::leading_digits_to_i_max(s)
 }
 
 // ---------------------------------------------------------------------------

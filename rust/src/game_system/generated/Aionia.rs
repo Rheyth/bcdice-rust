@@ -12,7 +12,7 @@ use regex::Regex;
 use crate::arithmetic;
 use crate::enums::RoundType;
 use crate::eval::EvalError;
-use crate::game_system::{GameSystem, SpecificCommandOutput};
+use crate::game_system::{dice_text, GameSystem, SpecificCommandOutput};
 use crate::randomizer::sat_i64;
 use crate::randomizer::Randomizer;
 use crate::result::EvalResult;
@@ -185,7 +185,7 @@ fn roll_skills(command: &str, rng: &mut Randomizer) -> Result<Option<EvalResult>
 
     let text = format!(
         "({command}) ＞ {dice_total}[{}]{bonus_text} ＞ {bonus_result}{result}",
-        join_dice(&dice_list)
+        dice_text::join_dice(&dice_list)
     );
 
     let mut r = EvalResult::with_text(text);
@@ -244,14 +244,6 @@ fn roll_damage_check(command: &str, rng: &mut Randomizer) -> Result<Option<EvalR
     r.success = is_success;
     r.failure = !is_success;
     Ok(Some(r))
-}
-
-/// Ruby `dice_list.join(',')`。
-fn join_dice(dice: &[i64]) -> String {
-    dice.iter()
-        .map(|d| d.to_string())
-        .collect::<Vec<_>>()
-        .join(",")
 }
 
 #[cfg(test)]

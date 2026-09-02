@@ -27,7 +27,7 @@ use crate::dice_table::{RollableTable, SaiFicCategory, SaiFicFormats, SaiFicSkil
 use crate::enums::{D66SortType, RoundType};
 use crate::eval::EvalError;
 use crate::format::modifier;
-use crate::game_system::{GameSystem, SpecificCommandOutput, Target};
+use crate::game_system::{dice_text, GameSystem, SpecificCommandOutput, Target};
 use crate::normalize::CmpOp;
 use crate::randomizer::sat_i64;
 use crate::randomizer::Randomizer;
@@ -304,7 +304,8 @@ fn action_roll(
 
     let mut dice_list_full = rng.roll_barabara(times, 6)?;
     dice_list_full.sort_unstable();
-    let dice_list_full_str = (times > 2).then(|| format!("[{}]", join_dice(&dice_list_full)));
+    let dice_list_full_str =
+        (times > 2).then(|| format!("[{}]", dice_text::join_dice(&dice_list_full)));
 
     // Ruby: dice_list = dice_list_full[-2, 2]
     let dice_list = &dice_list_full[dice_list_full.len().saturating_sub(2)..];
@@ -333,7 +334,7 @@ fn action_roll(
     sequence.extend(dice_list_full_str);
     sequence.push(format!(
         "{dice_total}[{}]{}",
-        join_dice(dice_list),
+        dice_text::join_dice(dice_list),
         modifier(&cmd.modify_number)
     ));
     sequence.push(total.to_string());
@@ -344,15 +345,6 @@ fn action_roll(
 
     result.text = sequence.join(" ＞ ");
     Ok(Some(result))
-}
-
-/// Ruby `dice_list.join(',')`。
-fn join_dice(dice_list: &[i64]) -> String {
-    dice_list
-        .iter()
-        .map(|d| d.to_string())
-        .collect::<Vec<_>>()
-        .join(",")
 }
 
 // ---------------------------------------------------------------------------

@@ -18,7 +18,7 @@ use regex::{Captures, Regex};
 use crate::arithmetic;
 use crate::enums::RoundType;
 use crate::eval::EvalError;
-use crate::game_system::{GameSystem, SpecificCommandOutput};
+use crate::game_system::{dice_text, GameSystem, SpecificCommandOutput};
 use crate::randomizer::Randomizer;
 use crate::result::EvalResult;
 use crate::Int as I;
@@ -193,15 +193,6 @@ fn eval_floor(source: &str) -> Result<Option<I>, EvalError> {
     arithmetic::eval(source, RoundType::Floor)
 }
 
-/// Ruby `dice_list.join(',')`。
-fn join_dice(dice_list: &[i64]) -> String {
-    dice_list
-        .iter()
-        .map(ToString::to_string)
-        .collect::<Vec<_>>()
-        .join(",")
-}
-
 /// Ruby `@randomizer.roll_barabara(times, sides).sort`。
 fn roll_sorted(rng: &mut Randomizer, times: i64, sides: i64) -> Result<Vec<i64>, EvalError> {
     let mut dice_list = rng.roll_barabara(times, sides)?;
@@ -297,13 +288,13 @@ fn roll_ad(
     let result_text = if times == 1 {
         format!(
             "({command}) ＞ {} ＞ {}",
-            join_dice(&dice_list),
+            dice_text::join_dice(&dice_list),
             status_name(result)
         )
     } else {
         format!(
             "({command}) ＞ {total}[{}] ＞ {}",
-            join_dice(&dice_list),
+            dice_text::join_dice(&dice_list),
             status_name(result)
         )
     };
@@ -399,7 +390,7 @@ fn roll_ab(
 
     let result_text = format!(
         "({command}) ＞ [{}] ＞ {success_count}+{critical_count}C-{error_count}E ＞ 成功数{result_count}",
-        join_dice(&dice_list)
+        dice_text::join_dice(&dice_list)
     );
     Ok(ab_eval_result(
         result_text,
@@ -434,12 +425,12 @@ fn roll_ab_withtype(
         result_count += result_mod;
         format!(
             "({command}) ＞ [{}] ＞ {success_count}+{critical_count}C-{error_count}E+{result_mod}({type_name}) ＞ 成功数{result_count}",
-            join_dice(&dice_list)
+            dice_text::join_dice(&dice_list)
         )
     } else {
         format!(
             "({command}) ＞ [{}] ＞ {success_count}+{critical_count}C-{error_count}E ＞ 成功数{result_count}",
-            join_dice(&dice_list)
+            dice_text::join_dice(&dice_list)
         )
     };
 
@@ -556,7 +547,7 @@ fn roll_orp(
     let dice_list = roll_sorted(rng, times, 100)?;
     let success_count = dice_list.iter().filter(|n| **n <= target).count() as i64;
 
-    result_texts.push(format!("[{}]", join_dice(&dice_list)));
+    result_texts.push(format!("[{}]", dice_text::join_dice(&dice_list)));
     result_texts.push(format!("成功数{success_count}"));
     if success_count > 0 {
         result_texts.push("成功".to_owned());

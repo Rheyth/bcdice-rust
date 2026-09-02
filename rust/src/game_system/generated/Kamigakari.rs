@@ -20,7 +20,7 @@ use regex::Regex;
 use crate::dice_table::{D66Table, RollableTable, Table, TableItem};
 use crate::enums::D66SortType;
 use crate::eval::EvalError;
-use crate::game_system::{GameSystem, SpecificCommandOutput};
+use crate::game_system::{table_helpers, GameSystem, SpecificCommandOutput};
 use crate::randomizer::Randomizer;
 
 static JA_RT_ITEMS: &[&str] = &[
@@ -472,18 +472,6 @@ fn get_price(sys: &SystemTables, effect: &str) -> Option<String> {
     Some(format!("{gold}({}:{power})", sys.effect_power))
 }
 
-/// Ruby `Base#roll_tables`。
-fn roll_tables(
-    tables: &'static [(&'static str, &'static dyn RollableTable)],
-    command: &str,
-    rng: &mut Randomizer,
-) -> Result<Option<String>, EvalError> {
-    match tables.iter().find(|(key, _)| *key == command) {
-        None => Ok(None),
-        Some((_, table)) => Ok(Some(table.roll(rng)?.to_string())),
-    }
-}
-
 /// Ruby `Kamigakari#eval_game_system_specific_command`。
 pub(crate) fn eval_specific_command(
     sys: &SystemTables,
@@ -491,7 +479,9 @@ pub(crate) fn eval_specific_command(
     rng: &mut Randomizer,
 ) -> Result<Option<SpecificCommandOutput>, EvalError> {
     let Some(caps) = mt_pattern().captures(command) else {
-        return Ok(roll_tables(sys.tables, command, rng)?.map(SpecificCommandOutput::text));
+        return Ok(
+            table_helpers::roll_table(command, sys.tables, rng)?.map(SpecificCommandOutput::text)
+        );
     };
 
     // Ruby: rank = Regexp.last_match(1); rank ||= 1; rank = rank.to_i

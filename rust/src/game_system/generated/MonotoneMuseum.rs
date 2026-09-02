@@ -23,7 +23,7 @@ use crate::dice_table::{D66GridTable, D66RangeTable, RangeInc, RollableTable, Ta
 use crate::enums::RoundType;
 use crate::eval::EvalError;
 use crate::format;
-use crate::game_system::{GameSystem, SpecificCommandOutput};
+use crate::game_system::{table_helpers, GameSystem, SpecificCommandOutput};
 use crate::randomizer::Randomizer;
 use crate::result::EvalResult;
 
@@ -593,18 +593,6 @@ fn check_roll(
     Ok(Some(result))
 }
 
-/// Ruby `Base#roll_tables(command, TABLES)`。
-fn roll_tables(
-    tables: &'static [(&'static str, &'static dyn RollableTable)],
-    command: &str,
-    rng: &mut Randomizer,
-) -> Result<Option<String>, EvalError> {
-    match tables.iter().find(|(key, _)| *key == command) {
-        None => Ok(None),
-        Some((_, table)) => Ok(Some(table.roll(rng)?.to_string())),
-    }
-}
-
 /// Ruby `MonotoneMuseum#eval_game_system_specific_command`。
 pub(crate) fn eval_specific_command(
     sys: &SystemTables,
@@ -614,7 +602,7 @@ pub(crate) fn eval_specific_command(
     if let Some(result) = check_roll(sys, command, rng)? {
         return Ok(Some(SpecificCommandOutput::result(result)));
     }
-    Ok(roll_tables(sys.tables, command, rng)?.map(SpecificCommandOutput::text))
+    Ok(table_helpers::roll_table(command, sys.tables, rng)?.map(SpecificCommandOutput::text))
 }
 
 /// Ruby `BCDice::GameSystem::MonotoneMuseum`（ID: `MonotoneMuseum`）。

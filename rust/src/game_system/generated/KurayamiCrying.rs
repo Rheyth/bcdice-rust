@@ -19,9 +19,9 @@ use std::sync::OnceLock;
 
 use regex::Regex;
 
-use crate::dice_table::{RollableTable, Table};
+use crate::dice_table::Table;
 use crate::eval::EvalError;
-use crate::game_system::{GameSystem, SpecificCommandOutput};
+use crate::game_system::{table_helpers, GameSystem, SpecificCommandOutput};
 use crate::randomizer::Randomizer;
 
 /// Ruby `BCDice::GameSystem::KurayamiCrying`（ID: `KurayamiCrying`）。
@@ -93,12 +93,7 @@ fn roll_tables(
     command: &str,
     rng: &mut Randomizer,
 ) -> Result<Option<SpecificCommandOutput>, EvalError> {
-    let Some((_, table)) = TABLES.iter().find(|(key, _)| *key == command) else {
-        return Ok(None);
-    };
-    Ok(Some(SpecificCommandOutput::text(
-        table.roll(rng)?.to_string(),
-    )))
+    Ok(table_helpers::roll_table(command, TABLES, rng)?.map(SpecificCommandOutput::text))
 }
 
 /// Ruby `TABLES["ACT"]`（`1D10`）の項目。

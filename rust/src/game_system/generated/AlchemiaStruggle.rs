@@ -22,7 +22,7 @@ use regex::Regex;
 use crate::dice_table::{D66ParityTable, D66Table, RollableTable, Table, TableItem};
 use crate::enums::{D66SortType, RoundType};
 use crate::eval::EvalError;
-use crate::game_system::{GameSystem, SpecificCommandOutput};
+use crate::game_system::{str_helpers, table_helpers, GameSystem, SpecificCommandOutput};
 use crate::randomizer::Randomizer;
 
 // ---------------------------------------------------------------------------
@@ -57,7 +57,7 @@ fn eval_specific_command(
     if let Some(text) = try_roll_uldice(c, rng)? {
         return Ok(Some(SpecificCommandOutput::text(text)));
     }
-    Ok(roll_tables(c, rng)?.map(SpecificCommandOutput::text))
+    Ok(table_helpers::roll_table(c, TABLES, rng)?.map(SpecificCommandOutput::text))
 }
 
 /// Ruby `ALIAS[command] || command`。
@@ -68,20 +68,9 @@ fn resolve_alias(command: &str) -> &str {
         .map_or(command, |(_, full)| *full)
 }
 
-/// Ruby `Base#roll_tables(command, TABLES)`。
-fn roll_tables(command: &str, rng: &mut Randomizer) -> Result<Option<String>, EvalError> {
-    match TABLES.iter().find(|(key, _)| *key == command) {
-        None => Ok(None),
-        Some((_, table)) => Ok(Some(table.roll(rng)?.to_string())),
-    }
-}
-
-/// Ruby の `String#to_i`（多倍長）。`i64` に収まらない指定は飽和させる。
-///
-/// ここに来るのは `\d+` にマッチした部分文字列だけ。
-/// 個数が桁外れでも `Randomizer#roll_barabara` が上限で弾く。
+/// Ruby `String#to_i`。`i64` に収まらない指定は `i64::MAX`に飽和。
 fn to_i(digits: &str) -> i64 {
-    digits.parse::<i64>().unwrap_or(i64::MAX)
+    str_helpers::to_i_max(digits)
 }
 
 /// Ruby `#try_roll_alchemia`。

@@ -47,7 +47,7 @@ use crate::arithmetic;
 use crate::dice_table::{ChainTable, D66GridTable, D66Table, RollableTable, Table, TableItem};
 use crate::enums::{D66SortType, RoundType};
 use crate::eval::EvalError;
-use crate::game_system::{GameSystem, SpecificCommandOutput, Target};
+use crate::game_system::{table_helpers, GameSystem, SpecificCommandOutput, Target};
 use crate::normalize::CmpOp;
 use crate::randomizer::Randomizer;
 use crate::result::CheckOutcome;
@@ -615,15 +615,13 @@ fn mk_kingdom_environment_table(num: i64, rng: &mut Randomizer) -> Result<String
 // ---------------------------------------------------------------------------
 
 /// Ruby `Base#roll_tables(command, tables)`。キーの完全一致で引く。
+/// Ruby `Base#roll_tables(command, tables)`。
 fn roll_tables(
     command: &str,
     tables: &'static [(&'static str, &'static dyn RollableTable)],
     rng: &mut Randomizer,
 ) -> Result<Option<String>, EvalError> {
-    let Some((_, table)) = tables.iter().find(|(key, _)| *key == command) else {
-        return Ok(None);
-    };
-    Ok(Some(table.roll(rng)?.to_string()))
+    table_helpers::roll_table(command, tables, rng)
 }
 
 /// Ruby `/^DFT(\d*)$/i`。

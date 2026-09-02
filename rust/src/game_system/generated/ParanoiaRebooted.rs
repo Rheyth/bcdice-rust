@@ -14,7 +14,7 @@ use std::sync::OnceLock;
 use regex::Regex;
 
 use crate::eval::EvalError;
-use crate::game_system::{GameSystem, SpecificCommandOutput};
+use crate::game_system::{str_helpers, GameSystem, SpecificCommandOutput};
 use crate::randomizer::Randomizer;
 
 /// Ruby `BCDice::GameSystem::ParanoiaRebooted`（ID: `ParanoiaRebooted`）。
@@ -88,18 +88,9 @@ fn mutant_power_pattern() -> &'static Regex {
     RE.get_or_init(|| Regex::new(r"(?i)^MP([0-9]+)").expect("valid regex"))
 }
 
-/// Ruby `String#to_i` 相当（桁あふれは飽和させる）。
-///
-/// Ruby は Bignum になるが、そこまで大きい値は `roll_barabara` の本数上限に
-/// 引っかかって `TooManyRandsError` になる。飽和させても同じ経路へ落ちる。
+/// Ruby `String#to_i`。`i64` に収まらない指定は 符号方向に飽和。
 fn to_i_saturating(text: &str) -> i64 {
-    text.parse::<i64>().unwrap_or({
-        if text.starts_with('-') {
-            i64::MIN
-        } else {
-            i64::MAX
-        }
-    })
+    str_helpers::to_i_signed_saturating(text)
 }
 
 /// Ruby `ParanoiaRebooted#get_node_dice_roll`。

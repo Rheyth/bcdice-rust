@@ -16,7 +16,7 @@ use regex::Regex;
 
 use crate::dice_table::{RangeInc, RollResult, RollableTable};
 use crate::eval::EvalError;
-use crate::game_system::{GameSystem, SpecificCommandOutput};
+use crate::game_system::{dice_text, GameSystem, SpecificCommandOutput};
 use crate::randomizer::Randomizer;
 use crate::result::EvalResult;
 
@@ -564,7 +564,7 @@ fn roll_sp(command: &str, rng: &mut Randomizer) -> Result<Option<EvalResult>, Ev
 
     // ダイスロール
     let dice_list = rng.roll_barabara(dice_count, 6)?;
-    let dice_list_text = join_dice(&dice_list);
+    let dice_list_text = dice_text::join_dice(&dice_list);
 
     // 5が出たらヒット数1，6が出たらヒット数2
     let successes = dice_list.iter().filter(|&&x| x == 6).count() as i64 * 2
@@ -599,14 +599,6 @@ fn roll_sp(command: &str, rng: &mut Randomizer) -> Result<Option<EvalResult>, Ev
     result.critical = dice_list.contains(&6);
 
     Ok(Some(result))
-}
-
-/// Ruby `dice_list.join(',')`。
-fn join_dice(dice: &[i64]) -> String {
-    dice.iter()
-        .map(|d| d.to_string())
-        .collect::<Vec<_>>()
-        .join(",")
 }
 
 #[cfg(test)]

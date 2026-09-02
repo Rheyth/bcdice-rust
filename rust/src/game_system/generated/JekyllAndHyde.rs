@@ -16,16 +16,16 @@
 //! （`#check_roll` / `#ddc_table`）はこのファイルへ取り込んである。
 //! 親が移植されたら整理する前提。
 //!
-//! 表は `roll_tables(command, self.class::TABLES)` で `JekyllAndHyde::TABLES` を引くので、
+//! 表は `table_helpers::roll_table(command, self.class::TABLES)` で `JekyllAndHyde::TABLES` を引くので、
 //! 親の `ACT` / `ITEMT` などは対象外（登録済み接頭辞も `RC` / `DDC` / `GOALT` だけ）。
 
 use std::sync::OnceLock;
 
 use crate::command_parser::Parser;
-use crate::dice_table::{RollableTable, Table};
+use crate::dice_table::Table;
 use crate::enums::{D66SortType, RoundType};
 use crate::eval::EvalError;
-use crate::game_system::{GameSystem, SpecificCommandOutput};
+use crate::game_system::{table_helpers, GameSystem, SpecificCommandOutput};
 use crate::randomizer::Randomizer;
 use crate::result::EvalResult;
 use crate::Int as I;
@@ -116,14 +116,6 @@ fn ddc_table(command: &str, rng: &mut Randomizer) -> Result<Option<String>, Eval
     )))
 }
 
-/// Ruby `Base#roll_tables(command, tables)`。
-fn roll_tables(command: &str, rng: &mut Randomizer) -> Result<Option<String>, EvalError> {
-    let Some((_, table)) = TABLES.iter().find(|(key, _)| *key == command) else {
-        return Ok(None);
-    };
-    Ok(Some(table.roll(rng)?.to_string()))
-}
-
 /// Ruby `BCDice::GameSystem::JekyllAndHyde`（ID: `JekyllAndHyde`）。
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct JekyllAndHyde;
@@ -176,7 +168,7 @@ impl GameSystem for JekyllAndHyde {
         if let Some(text) = ddc_table(command, rng)? {
             return Ok(Some(SpecificCommandOutput::text(text)));
         }
-        Ok(roll_tables(command, rng)?.map(SpecificCommandOutput::text))
+        Ok(table_helpers::roll_table(command, TABLES, rng)?.map(SpecificCommandOutput::text))
     }
 }
 

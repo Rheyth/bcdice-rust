@@ -48,7 +48,7 @@ use crate::dice_table::{D66Table, RollableTable, TableItem};
 use crate::enums::{D66SortType, RoundType};
 use crate::eval::EvalError;
 use crate::format::modifier;
-use crate::game_system::{GameSystem, SpecificCommandOutput};
+use crate::game_system::{dice_text, str_helpers, GameSystem, SpecificCommandOutput};
 use crate::normalize::CmpOp;
 use crate::randomizer::Randomizer;
 use crate::result::EvalResult;
@@ -278,7 +278,7 @@ fn check_roll(
         format!("({})", parsed.to_s(SuffixPosition::AfterCommand)),
         format!(
             "{dice_total}[{}]{}",
-            join_dice(&dice_list),
+            dice_text::join_dice(&dice_list),
             modifier(&parsed.modify_number)
         ),
         total.to_string(),
@@ -431,7 +431,7 @@ fn roll_treasure(command: &str, rng: &mut Randomizer) -> Result<Option<String>, 
     Ok(Some(format!(
         "(2D6+{character_rank}*5{}) ＞ {dice_total}[{}]{} ＞ {total}",
         modifier(&crate::Int::from(modify_number)),
-        join_dice(&dice_list),
+        dice_text::join_dice(&dice_list),
         modifier(&crate::Int::from(bonus))
     )))
 }
@@ -551,7 +551,7 @@ fn treasure_table_roll(
     // Ruby: dice_str = "[…]" if @dice_list（＝振らなくても固定値があれば付く）
     let dice_str = dice_list
         .as_ref()
-        .map(|list| format!("[{}]", join_dice(list)))
+        .map(|list| format!("[{}]", dice_text::join_dice(list)))
         .unwrap_or_default();
 
     Ok(format!("{}({index}{dice_str}) ＞ {chosen}", table.name))
@@ -683,7 +683,7 @@ fn roll_random_table(table: &RandomTableData, rng: &mut Randomizer) -> Result<St
     Ok(format!(
         "{}([{}]) ＞ {}",
         table.name,
-        join_dice(&dice_list),
+        dice_text::join_dice(&dice_list),
         result.join(" ")
     ))
 }
@@ -764,7 +764,7 @@ fn roll_eastal_exploration_table(
     let dice_str = if dice_list.is_empty() {
         String::new()
     } else {
-        format!("[{}]", join_dice(&dice_list))
+        format!("[{}]", dice_text::join_dice(&dice_list))
     };
     let dice_total: i64 = dice_list.iter().fold(0i64, |a, b| a.wrapping_add(*b));
     let total = dice_total
@@ -796,16 +796,9 @@ fn roll_tables(
 // 補助
 // ---------------------------------------------------------------------------
 
-/// Ruby `String#to_i`（先頭の十進数だけを読み、無ければ 0）。
-///
-/// ここに来る文字列は `\d+` の一部か `\d+LH` なので符号や空白は現れない。
+/// Ruby `String#to_i`。`i64` に収まらない指定は `i64::MAX`に飽和。
 fn ruby_to_i(s: &str) -> i64 {
-    let digits: String = s.chars().take_while(char::is_ascii_digit).collect();
-    if digits.is_empty() {
-        return 0;
-    }
-    // 桁あふれは Ruby だと Bignum になる。i64 に収まらない場合は飽和させる。
-    digits.parse().unwrap_or(i64::MAX)
+    str_helpers::leading_digits_to_i_max(s)
 }
 
 /// Ruby `ArithmeticEvaluator.eval(expr)`（`nil` と不正な式は 0）。
@@ -817,15 +810,6 @@ fn arith_eval(expr: Option<&str>) -> Result<i64, EvalError> {
             .map(crate::randomizer::sat_i64)
             .unwrap_or(0)),
     }
-}
-
-/// Ruby `dice_list.join(",")`。
-fn join_dice(dice_list: &[i64]) -> String {
-    dice_list
-        .iter()
-        .map(|d| d.to_string())
-        .collect::<Vec<_>>()
-        .join(",")
 }
 
 /// Ruby `items[dice - 1]`（範囲外は `nil` ＝ 空文字列）。

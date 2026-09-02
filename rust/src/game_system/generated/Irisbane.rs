@@ -135,6 +135,7 @@ pub(crate) fn eval_specific_command(
 }
 
 /// Ruby `Base#roll_tables(command, tables)`。
+/// Ruby `Base#roll_tables(command, tables)`。
 fn roll_tables(
     sys: &SystemTables,
     command: &str,

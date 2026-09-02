@@ -16,7 +16,7 @@ use std::sync::OnceLock;
 use crate::command_parser::Parser;
 use crate::enums::RoundType;
 use crate::eval::EvalError;
-use crate::game_system::{GameSystem, SpecificCommandOutput};
+use crate::game_system::{dice_text, GameSystem, SpecificCommandOutput};
 use crate::normalize::CmpOp;
 use crate::randomizer::sat_i64;
 use crate::randomizer::Randomizer;
@@ -166,7 +166,7 @@ fn resolute(
         ),
         format!(
             "{dice_total}[{}]{}",
-            join_dice(&dice),
+            dice_text::join_dice(&dice),
             with_symbol(crate::randomizer::sat_i64(&(skill_level + bonus)))
         ),
         total.to_string(),
@@ -186,14 +186,6 @@ fn with_symbol(number: i64) -> String {
     } else {
         number.to_string()
     }
-}
-
-/// Ruby `dice.join(',')`。
-fn join_dice(dice: &[i64]) -> String {
-    dice.iter()
-        .map(|d| d.to_string())
-        .collect::<Vec<_>>()
-        .join(",")
 }
 
 #[cfg(test)]

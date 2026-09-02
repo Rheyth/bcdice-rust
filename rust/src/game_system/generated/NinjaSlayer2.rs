@@ -29,7 +29,7 @@ use regex::{Captures, Regex};
 
 use crate::dice_table::{RollableTable, Table};
 use crate::eval::EvalError;
-use crate::game_system::{GameSystem, SpecificCommandOutput};
+use crate::game_system::{dice_text, GameSystem, SpecificCommandOutput};
 use crate::normalize::{self, CmpOp};
 use crate::randomizer::Randomizer;
 use crate::result::EvalResult;
@@ -149,13 +149,6 @@ fn ruby_index(items: &[&'static str], index: i64) -> &'static str {
     }
 }
 
-fn join_dice(dice: &[i64]) -> String {
-    dice.iter()
-        .map(|d| d.to_string())
-        .collect::<Vec<_>>()
-        .join(",")
-}
-
 /// Ruby `String#split(sep)`（末尾の空要素を落とす）。
 fn ruby_split<'a>(s: &'a str, sep: &str) -> Vec<&'a str> {
     let mut parts: Vec<&str> = s.split(sep).collect();
@@ -210,7 +203,7 @@ fn descending_bracket(dice: &[i64]) -> String {
     let mut sorted = dice.to_vec();
     sorted.sort_unstable();
     sorted.reverse();
-    format!("[{}]", join_dice(&sorted))
+    format!("[{}]", dice_text::join_dice(&sorted))
 }
 
 /// Ruby `#proc_appendix(roll_result, ap_command)`。
@@ -319,7 +312,7 @@ fn proc_dice_2nd(
 
         output_text += &format!(
             "({roll_command}) ＞ {} ＞ 成功数:{success_num}",
-            join_dice(&dice_list)
+            dice_text::join_dice(&dice_list)
         );
 
         if let Some(appendix) = appendix {
@@ -409,7 +402,7 @@ fn proc_nrs(
         let success_num = dice_list.iter().filter(|d| **d >= dificulty_i).count() as i64;
         output_text += &format!(
             "NRS判定({roll_command}) ＞ {} ＞ 成功数:{success_num}",
-            join_dice(&dice_list)
+            dice_text::join_dice(&dice_list)
         );
         if success_num > 0 {
             output_text += " NRS克服!!";

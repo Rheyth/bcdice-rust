@@ -10,7 +10,7 @@
 use regex::Regex;
 
 use crate::eval::EvalError;
-use crate::game_system::{GameSystem, SpecificCommandOutput};
+use crate::game_system::{dice_text, GameSystem, SpecificCommandOutput};
 use crate::randomizer::Randomizer;
 use crate::result::EvalResult;
 
@@ -240,20 +240,12 @@ fn make_dice_roll(
 ) -> Result<(String, i64, i64, i64), EvalError> {
     let dice_list = rng.roll_barabara(dice_pool, 10)?;
 
-    let dice_text = join_dice(&dice_list);
+    let dice_text = dice_text::join_dice(&dice_list);
     let success_dice = dice_list.iter().filter(|&&x| x >= 6).count() as i64;
     let ten_dice = dice_list.iter().filter(|&&x| x == 10).count() as i64;
     let botch_dice = dice_list.iter().filter(|&&x| x == 1).count() as i64;
 
     Ok((dice_text, success_dice, ten_dice, botch_dice))
-}
-
-/// Ruby `dice_list.join(',')`。
-fn join_dice(dice: &[i64]) -> String {
-    dice.iter()
-        .map(|d| d.to_string())
-        .collect::<Vec<_>>()
-        .join(",")
 }
 
 #[cfg(test)]

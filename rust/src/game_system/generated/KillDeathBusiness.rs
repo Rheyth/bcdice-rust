@@ -30,7 +30,7 @@ use crate::dice_table::{D66Table, RollableTable, SaiFicCategory, SaiFicFormats, 
 use crate::enums::{D66SortType, RoundType};
 use crate::eval::EvalError;
 use crate::format::modifier;
-use crate::game_system::{GameSystem, SpecificCommandOutput, Target};
+use crate::game_system::{dice_text, GameSystem, SpecificCommandOutput, Target};
 use crate::normalize::CmpOp;
 use crate::randomizer::Randomizer;
 use crate::result::{CheckOutcome, EvalResult};
@@ -428,7 +428,7 @@ fn judge_dice(
 
     let dice_list = rng.roll_barabara(2, 6)?;
     let number: i64 = dice_list.iter().sum();
-    let dice_text = join_dice(&dice_list);
+    let dice_text = dice_text::join_dice(&dice_list);
 
     result.push_str(&interpolate(
         sys.jd.options,
@@ -1023,15 +1023,6 @@ fn interpolate(template: &str, pairs: &[(&str, &str)]) -> String {
         out = out.replace(&format!("%{{{key}}}"), value);
     }
     out
-}
-
-/// Ruby `dice_list.join(",")`。
-fn join_dice(dice_list: &[i64]) -> String {
-    dice_list
-        .iter()
-        .map(i64::to_string)
-        .collect::<Vec<_>>()
-        .join(",")
 }
 
 /// Ruby `String#to_i`（先頭の十進数。無ければ 0）。

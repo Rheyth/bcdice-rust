@@ -28,7 +28,7 @@ use regex::Regex;
 use crate::arithmetic;
 use crate::enums::RoundType;
 use crate::eval::EvalError;
-use crate::game_system::{GameSystem, SpecificCommandOutput, Target};
+use crate::game_system::{str_helpers, GameSystem, SpecificCommandOutput, Target};
 use crate::normalize::CmpOp;
 use crate::randomizer::Randomizer;
 use crate::result::EvalResult;
@@ -218,16 +218,9 @@ fn combine_pattern() -> &'static Regex {
     RE.get_or_init(|| Regex::new(r"(?i)\ACBR(B)?\((\d+),(\d+)\)\z").expect("valid regex"))
 }
 
-/// Ruby `String#to_i`。
-///
-/// Ruby の `to_i` は多倍長だが、Rustでは `i64` に飽和させる
-/// （桁あふれする入力は実用上ない）。
+/// Ruby `String#to_i`。`i64` に収まらない指定は 符号方向に飽和。
 fn to_i(digits: &str) -> i64 {
-    digits.parse::<i64>().unwrap_or(if digits.starts_with('-') {
-        i64::MIN
-    } else {
-        i64::MAX
-    })
+    str_helpers::to_i_signed_saturating(digits)
 }
 
 /// Ruby `Cthulhu#getCheckResult`。

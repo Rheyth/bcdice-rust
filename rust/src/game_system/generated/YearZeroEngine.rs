@@ -21,7 +21,7 @@ use std::sync::OnceLock;
 use regex::{Captures, Regex};
 
 use crate::eval::EvalError;
-use crate::game_system::{GameSystem, SpecificCommandOutput};
+use crate::game_system::{dice_text, GameSystem, SpecificCommandOutput};
 use crate::randomizer::Randomizer;
 use crate::result::EvalResult;
 
@@ -241,7 +241,10 @@ impl DiceInfo {
         self.total_success_dice += success_level;
         self.push_dice += count - (success_dice + botch_dice);
 
-        Ok((format!("[{}]", join_dice(&dice_list)), botch_dice))
+        Ok((
+            format!("[{}]", dice_text::join_dice(&dice_list)),
+            botch_dice,
+        ))
     }
 }
 
@@ -590,7 +593,7 @@ fn make_dice_roll(dice_pool: i64, rng: &mut Randomizer) -> Result<(String, i64, 
     let botch_dice = count_matching(&dice_list, |v| v == 1);
 
     Ok((
-        format!("[{}]", join_dice(&dice_list)),
+        format!("[{}]", dice_text::join_dice(&dice_list)),
         success_dice,
         botch_dice,
     ))
@@ -599,15 +602,6 @@ fn make_dice_roll(dice_pool: i64, rng: &mut Randomizer) -> Result<(String, i64, 
 /// Ruby `dice_list.count { ... }`。
 fn count_matching(dice_list: &[i64], pred: impl Fn(i64) -> bool) -> i64 {
     dice_list.iter().filter(|&&d| pred(d)).count() as i64
-}
-
-/// Ruby `dice_list.join(",")`。
-fn join_dice(dice_list: &[i64]) -> String {
-    dice_list
-        .iter()
-        .map(|d| d.to_string())
-        .collect::<Vec<_>>()
-        .join(",")
 }
 
 /// Ruby `m[index].to_i`（グループ未マッチの `nil.to_i` は 0）。

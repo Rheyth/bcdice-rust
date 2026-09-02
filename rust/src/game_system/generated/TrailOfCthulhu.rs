@@ -17,7 +17,7 @@ use regex::Regex;
 use crate::arithmetic;
 use crate::enums::RoundType;
 use crate::eval::EvalError;
-use crate::game_system::{GameSystem, SpecificCommandOutput};
+use crate::game_system::{str_helpers, GameSystem, SpecificCommandOutput};
 use crate::randomizer::Randomizer;
 use crate::result::EvalResult;
 use crate::Int as I;
@@ -199,15 +199,9 @@ fn roll_mythos_madness_table(
     ))))
 }
 
-/// Ruby `String#to_i`。ここに来るのは `\d+` か `[1-8]` なので符号や空白は現れない。
+/// Ruby `String#to_i`。`i64` に収まらない指定は `i64::MAX`に飽和。
 fn ruby_to_i(s: &str) -> i64 {
-    let digits: String = s.chars().take_while(char::is_ascii_digit).collect();
-    if digits.is_empty() {
-        // Ruby: "".to_i == 0
-        return 0;
-    }
-    // 桁あふれは Ruby だと Bignum になる。i64 に収まらない場合は飽和させる。
-    digits.parse().unwrap_or(i64::MAX)
+    str_helpers::leading_digits_to_i_max(s)
 }
 
 #[cfg(test)]

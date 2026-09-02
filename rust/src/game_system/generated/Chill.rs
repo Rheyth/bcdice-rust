@@ -17,7 +17,7 @@ use regex::Regex;
 
 use crate::arithmetic::floor_div;
 use crate::eval::EvalError;
-use crate::game_system::{GameSystem, SpecificCommandOutput, Target};
+use crate::game_system::{dice_text, GameSystem, SpecificCommandOutput, Target};
 use crate::normalize::CmpOp;
 use crate::randomizer::sat_i64;
 use crate::randomizer::Randomizer;
@@ -175,11 +175,11 @@ fn roll_strike_rank_result(
         let wounds_base: i64 = dice_list.iter().sum();
         dice = format!("5d10*3, 4d10+{extra_times}d10");
         let mut dice_add_buf = format!("{}, {wounds_base}", sta.dice_add);
-        let mut dice_str_buf = format!("{}, {}", sta.dice_str, join_dice(&dice_list));
+        let mut dice_str_buf = format!("{}, {}", sta.dice_str, dice_text::join_dice(&dice_list));
 
         let dice_list = rng.roll_barabara(extra_times, 10)?;
         let wounds_wk: i64 = dice_list.iter().sum();
-        dice_str_buf.push_str(&format!("+{}", join_dice(&dice_list)));
+        dice_str_buf.push_str(&format!("+{}", dice_text::join_dice(&dice_list)));
         dice_add_buf.push_str(&format!("+{wounds_wk}"));
 
         wounds = wounds_base + wounds_wk;
@@ -246,7 +246,7 @@ fn check_strike_rank(strike_rank: i64, rng: &mut Randomizer) -> Result<StrikeRan
             damage,
             dice: format!("{times}d10"),
             dice_add: damage.to_string(),
-            dice_str: join_dice(&dice_list),
+            dice_str: dice_text::join_dice(&dice_list),
         });
     }
 
@@ -258,7 +258,7 @@ fn check_strike_rank(strike_rank: i64, rng: &mut Randomizer) -> Result<StrikeRan
             damage: total * 2,
             dice: format!("{times}d10*2"),
             dice_add: format!("{total}*2"),
-            dice_str: format!("({})*2", join_dice(&dice_list)),
+            dice_str: format!("({})*2", dice_text::join_dice(&dice_list)),
         });
     }
 
@@ -268,17 +268,8 @@ fn check_strike_rank(strike_rank: i64, rng: &mut Randomizer) -> Result<StrikeRan
         damage: total * 3,
         dice: "5d10*3".to_owned(),
         dice_add: format!("{total}*3"),
-        dice_str: format!("({})*3", join_dice(&dice_list)),
+        dice_str: format!("({})*3", dice_text::join_dice(&dice_list)),
     })
-}
-
-/// Ruby `dice_list.join(",")`。
-fn join_dice(dice_list: &[i64]) -> String {
-    dice_list
-        .iter()
-        .map(|d| d.to_string())
-        .collect::<Vec<_>>()
-        .join(",")
 }
 
 #[cfg(test)]

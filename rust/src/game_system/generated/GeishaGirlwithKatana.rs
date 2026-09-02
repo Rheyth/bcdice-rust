@@ -12,7 +12,7 @@ use std::sync::OnceLock;
 use regex::Regex;
 
 use crate::eval::EvalError;
-use crate::game_system::{GameSystem, SpecificCommandOutput};
+use crate::game_system::{str_helpers, GameSystem, SpecificCommandOutput};
 use crate::randomizer::Randomizer;
 
 /// Ruby `BCDice::GameSystem::GeishaGirlwithKatana`（ID: `GeishaGirlwithKatana`）。
@@ -105,9 +105,9 @@ fn gk_pattern() -> &'static Regex {
     RE.get_or_init(|| Regex::new(r"^GK(#(\d+))?$").expect("valid regex"))
 }
 
-/// Ruby `String#to_i` 相当（桁あふれは飽和させる）。
+/// Ruby `String#to_i`。`i64` に収まらない指定は `i64::MAX`に飽和。
 fn to_i(text: &str) -> i64 {
-    text.parse::<i64>().unwrap_or(i64::MAX)
+    str_helpers::to_i_max(text)
 }
 
 /// Ruby `GeishaGirlwithKatana#isChomba`。

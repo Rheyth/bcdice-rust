@@ -20,7 +20,7 @@ use regex::Regex;
 use crate::command_parser::{Parsed, Parser};
 use crate::eval::EvalError;
 use crate::format::modifier;
-use crate::game_system::{GameSystem, SpecificCommandOutput};
+use crate::game_system::{str_helpers, GameSystem, SpecificCommandOutput};
 use crate::normalize::CmpOp;
 use crate::randomizer::Randomizer;
 use crate::result::EvalResult;
@@ -245,12 +245,9 @@ fn starts_with_2d6(command: &str) -> bool {
 ///
 /// 桁あふれする入力は Ruby だと Bignum のまま比較に使われる。i64 に収まらない
 /// 場合は同じ向きに飽和させる。
+/// Ruby `String#to_i`。`i64` 範囲外は符号方向に飽和。
 fn to_i(text: &str) -> i64 {
-    text.parse().unwrap_or(if text.starts_with('-') {
-        i64::MIN
-    } else {
-        i64::MAX
-    })
+    str_helpers::to_i_signed_saturating(text)
 }
 
 /// Ruby `SRS#execute_srs_roll`。

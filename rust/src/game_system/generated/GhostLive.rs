@@ -8,9 +8,9 @@
 //! - `GhostLive#eval_game_system_specific_command`（`ALIAS` 経由の表引き）
 //! - `TABLES`（追加目標表・各霊障リスト／霊障効果リスト）
 
-use crate::dice_table::{RollableTable, Table};
+use crate::dice_table::Table;
 use crate::eval::EvalError;
-use crate::game_system::{GameSystem, SpecificCommandOutput};
+use crate::game_system::{table_helpers, GameSystem, SpecificCommandOutput};
 use crate::randomizer::Randomizer;
 
 /// Ruby `HELP_MESSAGE` 定数（スタブ生成時の値をそのまま保つ）。
@@ -91,16 +91,8 @@ impl GameSystem for GhostLive {
             .map(|(_, to)| *to)
             .unwrap_or(command);
 
-        Ok(roll_tables(command, rng)?.map(SpecificCommandOutput::text))
+        Ok(table_helpers::roll_table(command, TABLES, rng)?.map(SpecificCommandOutput::text))
     }
-}
-
-/// Ruby `Base#roll_tables(command, tables)`。
-fn roll_tables(command: &str, rng: &mut Randomizer) -> Result<Option<String>, EvalError> {
-    let Some((_, table)) = TABLES.iter().find(|(key, _)| *key == command) else {
-        return Ok(None);
-    };
-    Ok(Some(table.roll(rng)?.to_string()))
 }
 
 /// Ruby `ALIAS`（値は `transform_values(&:upcase)` 済み）。

@@ -24,7 +24,7 @@ use crate::command_parser::Parser;
 use crate::enums::RoundType;
 use crate::eval::EvalError;
 use crate::format;
-use crate::game_system::{GameSystem, SpecificCommandOutput};
+use crate::game_system::{str_helpers, GameSystem, SpecificCommandOutput};
 use crate::normalize::CmpOp;
 use crate::randomizer::Randomizer;
 use crate::result::EvalResult;
@@ -210,12 +210,9 @@ fn parse_legacy(command: &str, c_f: &str) -> Option<SrsRollNode> {
 }
 
 /// Ruby `String#to_i`。桁あふれは飽和させる（Ruby は Bignum になる）。
+/// Ruby `String#to_i`。`i64` 範囲外は符号方向に飽和。
 fn to_i(text: &str) -> i64 {
-    text.parse().unwrap_or(if text.starts_with('-') {
-        i64::MIN
-    } else {
-        i64::MAX
-    })
+    str_helpers::to_i_signed_saturating(text)
 }
 
 /// Ruby `SRS#execute_srs_roll`。
