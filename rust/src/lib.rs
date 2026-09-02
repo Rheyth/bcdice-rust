@@ -18,8 +18,7 @@
 //!
 //! # 未実装
 //!
-//! [`game_system::registry`] には Ruby本家の全336システム（DiceBot を含む）と
-//! インフラ検証用の [`DummySystem`](game_system::dummy_system::DummySystem) が
+//! [`game_system::registry`] には Ruby本家の全336システム（DiceBot を含む）が
 //! 登録済みで、TOMLハーネス（[`toml_test`]: `test/data/*.toml` 348ファイル・
 //! 19,864ケース）が全パスしている。残作業は docs/rust_port_plan.md および
 //! docs/refactor_candidates_20260901.md を参照。
