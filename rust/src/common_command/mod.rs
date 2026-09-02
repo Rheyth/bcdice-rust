@@ -11,6 +11,7 @@ pub mod d66_dice;
 pub mod lexer;
 pub mod repeat;
 pub mod reroll_dice;
+mod scanner;
 pub mod tally_dice;
 pub mod upper_dice;
 pub mod version;

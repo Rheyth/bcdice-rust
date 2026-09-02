@@ -128,9 +128,13 @@ pub fn parse(source: &str) -> Option<Command> {
 
     let secret = cur.accept_sym("S");
 
-    let mut notations = vec![parse_dice(&mut cur)?];
-    while cur.accept(&Tok::Plus) {
-        notations.push(parse_dice(&mut cur)?);
+    let mut notations = Vec::new();
+    loop {
+        let (times, sides) = parse_dice(&mut cur, "B")?;
+        notations.push(Notation { times, sides });
+        if !cur.accept(&Tok::Plus) {
+            break;
+        }
     }
 
     let (cmp_op, target_number) = parse_target(&mut cur)?;
@@ -143,14 +147,14 @@ pub fn parse(source: &str) -> Option<Command> {
     })
 }
 
-/// `dice: term B term`。
-fn parse_dice(cur: &mut Cursor) -> Option<Notation> {
+/// `dice: term SYM term`（barabara `B` / reroll `R` / upper `U` の共通形）。
+pub(crate) fn parse_dice(cur: &mut Cursor, sym: &str) -> Option<(Node, Node)> {
     let times = arithmetic::parse_term(cur, ParenMode::Drop)?;
-    if !cur.accept_sym("B") {
+    if !cur.accept_sym(sym) {
         return None;
     }
     let sides = arithmetic::parse_term(cur, ParenMode::Drop)?;
-    Some(Notation { times, sides })
+    Some((times, sides))
 }
 
 /// `target: /* none */ | CMP_OP add`。

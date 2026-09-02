@@ -224,8 +224,10 @@ fn roll(
     let mut dice_list_list = Vec::new();
     let mut loop_count = 0usize;
 
-    while !dice_queue.is_empty() && loop_count < REROLL_LIMIT {
-        let (times, sides) = dice_queue.pop_front().expect("queue is not empty");
+    while loop_count < REROLL_LIMIT {
+        let Some((times, sides)) = dice_queue.pop_front() else {
+            break;
+        };
         loop_count += 1;
 
         let mut dice_list = rng.roll_barabara(sat_i64(&times), sat_i64(&sides))?;
@@ -262,9 +264,13 @@ pub fn parse(source: &str) -> Option<Command> {
 
     let secret = cur.accept_sym("S");
 
-    let mut notations = vec![parse_dice(&mut cur)?];
-    while cur.accept(&Tok::Plus) {
-        notations.push(parse_dice(&mut cur)?);
+    let mut notations = Vec::new();
+    loop {
+        let (times, sides) = super::barabara_dice::parse_dice(&mut cur, "R")?;
+        notations.push(Notation { times, sides });
+        if !cur.accept(&Tok::Plus) {
+            break;
+        }
     }
 
     let mut reroll_cmp_op = None;
@@ -316,16 +322,6 @@ pub fn parse(source: &str) -> Option<Command> {
         reroll_threshold,
         source: lexed.source.clone(),
     })
-}
-
-/// `dice: term R term`。
-fn parse_dice(cur: &mut Cursor) -> Option<Notation> {
-    let times = arithmetic::parse_term(cur, ParenMode::Drop)?;
-    if !cur.accept_sym("R") {
-        return None;
-    }
-    let sides = arithmetic::parse_term(cur, ParenMode::Drop)?;
-    Some(Notation { times, sides })
 }
 
 #[cfg(test)]
