@@ -25,10 +25,13 @@
 //! （docs/rust_port_plan.md の P3 節を参照）。
 
 pub mod dice_bot;
+pub mod dice_text;
 pub mod dummy_system;
 pub mod generated;
 pub mod int_helpers;
 pub mod registry;
+pub(crate) mod str_helpers;
+pub(crate) mod table_helpers;
 
 use std::borrow::Cow;
 
