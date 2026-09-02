@@ -66,9 +66,10 @@ impl GameSystem for FutariSousa_Korean {
 
 #[cfg(test)]
 mod tests {
+    /// `test/data/FutariSousa_Korean.toml` の全ケースが通ること（共通ハーネス）。
     #[test]
     fn all_toml_cases_pass() {
-        super::super::TokyoNova::assert_toml_cases(
+        crate::game_system::test_support::assert_toml_cases_strict(
             "FutariSousa:Korean",
             "FutariSousa_Korean.toml",
             144,

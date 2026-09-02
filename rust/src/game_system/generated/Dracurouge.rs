@@ -2309,9 +2309,14 @@ mod tests {
     use crate::randomizer::SeededRandomizer;
 
     /// `test/data/Dracurouge.toml` の全ケースが通ること。
+    /// `test/data/Dracurouge.toml` の全ケースが通ること（共通ハーネス）。
     #[test]
     fn all_toml_cases_pass() {
-        super::super::SwordWorld2_0::assert_toml_cases("Dracurouge", "Dracurouge.toml", 147);
+        crate::game_system::test_support::assert_toml_cases_strict(
+            "Dracurouge",
+            "Dracurouge.toml",
+            147,
+        );
     }
 
     fn eval_with(command: &str, rands: &[(i64, i64)]) -> Option<String> {

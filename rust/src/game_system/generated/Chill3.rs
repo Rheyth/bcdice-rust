@@ -91,9 +91,9 @@ impl GameSystem for Chill3 {
 
 #[cfg(test)]
 mod tests {
-    /// `test/data/Chill3.toml` の全ケースが通ること。
+    /// `test/data/Chill3.toml` の全ケースが通ること（共通ハーネス）。
     #[test]
     fn all_toml_cases_pass() {
-        super::super::SwordWorld2_0::assert_toml_cases("Chill3", "Chill3.toml", 17);
+        crate::game_system::test_support::assert_toml_cases_strict("Chill3", "Chill3.toml", 17);
     }
 }

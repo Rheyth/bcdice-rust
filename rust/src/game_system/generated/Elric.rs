@@ -77,9 +77,9 @@ impl GameSystem for Elric {
 
 #[cfg(test)]
 mod tests {
-    /// `test/data/Elric.toml` の全ケースが通ること。
+    /// `test/data/Elric.toml` の全ケースが通ること（共通ハーネス）。
     #[test]
     fn all_toml_cases_pass() {
-        super::super::SwordWorld2_0::assert_toml_cases("Elric", "Elric.toml", 12);
+        crate::game_system::test_support::assert_toml_cases_strict("Elric", "Elric.toml", 12);
     }
 }
