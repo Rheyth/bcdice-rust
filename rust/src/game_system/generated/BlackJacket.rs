@@ -468,117 +468,17 @@ static JA_SYSTEM: SystemTables = SystemTables {
 
 #[cfg(test)]
 mod tests {
-    use std::path::{Path, PathBuf};
-
-    use crate::eval::eval_command;
-    use crate::game_system::GameSystemId;
-    use crate::randomizer::SeededRandomizer;
-    use crate::toml_test::TestDataFile;
-
-    fn toml_path() -> Option<PathBuf> {
-        let path = Path::new(env!("CARGO_MANIFEST_DIR"))
-            .parent()?
-            .join("test/data/BlackJacket.toml");
-        path.exists().then_some(path)
-    }
-
-    fn check_flag(reasons: &mut Vec<String>, name: &str, expected: bool, actual: bool) {
-        if expected != actual {
-            reasons.push(format!(
-                "{name} flag mismatch: expected {expected}, actual {actual}"
-            ));
-        }
-    }
-
-    /// `test/data/BlackJacket.toml` の全ケースが通ること。
+    /// `test/data/BlackJacket.toml` の全ケースが通ること（共通ハーネス）。
     ///
-    /// 判定項目は `rust/tests/toml_harness.rs::run_case` と同じ
-    /// （出力文字列・5フラグ・注入乱数を使い切ったか）。
+    /// nil を返すケース（2, 41）の `rands` は上流のTOMLに残った書き換え漏れで、
+    /// 出目のオラクルにならない。nil経路ではダイスを消費しないため全量が余る。
     #[test]
     fn all_toml_cases_pass() {
-        let Some(path) = toml_path() else {
-            // worktree外でクレート単体ビルドされた場合
-            eprintln!("skip: test/data/BlackJacket.toml not found");
-            return;
-        };
-
-        let data = TestDataFile::load(&path).expect("BlackJacket.toml must parse");
-        assert_eq!(
-            data.tests.len(),
+        crate::game_system::test_support::assert_toml_cases(
+            "BlackJacket",
+            "BlackJacket.toml",
             89,
-            "case count in test/data/BlackJacket.toml"
-        );
-
-        let mut failures: Vec<String> = Vec::new();
-        for (i, tc) in data.tests.iter().enumerate() {
-            assert_eq!(
-                tc.game_system, "BlackJacket",
-                "unexpected game system in BlackJacket.toml"
-            );
-
-            let mut reasons: Vec<String> = Vec::new();
-            let rands: Vec<(i64, i64)> = tc.rands.iter().map(|r| (r.value, r.sides)).collect();
-            let mut src = SeededRandomizer::new(rands);
-
-            match eval_command(&GameSystemId::new("BlackJacket"), &tc.input, &mut src) {
-                Err(e) => reasons.push(format!("eval error: {e}")),
-                Ok(None) => {
-                    if !tc.expects_nil() {
-                        reasons.push(format!(
-                            "eval returned nil, but output was expected: {:?}",
-                            tc.output
-                        ));
-                    }
-                }
-                Ok(Some(result)) => {
-                    if tc.expects_nil() {
-                        reasons.push(format!("expected nil output, got {:?}", result.text));
-                    } else if result.text != tc.output {
-                        reasons.push(format!(
-                            "output mismatch\n    expected: {:?}\n    actual:   {:?}",
-                            tc.output, result.text
-                        ));
-                    }
-                    check_flag(&mut reasons, "secret", tc.secret, result.secret);
-                    check_flag(&mut reasons, "success", tc.success, result.success);
-                    check_flag(&mut reasons, "failure", tc.failure, result.failure);
-                    check_flag(&mut reasons, "critical", tc.critical, result.critical);
-                    check_flag(&mut reasons, "fumble", tc.fumble, result.fumble);
-                }
-            }
-
-            if tc.expects_nil() {
-                // nil を返すケースの `rands` は上流のTOMLに残った書き換え漏れで、
-                // 出目のオラクルにならない（Ruby側のテストランナーは結果が nil のとき
-                // 出力しか見ないため、余った出目もフラグも検査されない）。
-                // ここでは「nil を返す経路ではダイスを振らない」ことだけ確かめる。
-                if src.remaining() != tc.rands.len() {
-                    reasons.push(format!(
-                        "dice were rolled for a nil result ({} of {} rands consumed)",
-                        tc.rands.len() - src.remaining(),
-                        tc.rands.len()
-                    ));
-                }
-            } else if !src.is_empty() {
-                reasons.push(format!("unconsumed rands remain ({})", src.remaining()));
-            }
-
-            if !reasons.is_empty() {
-                failures.push(format!(
-                    "FAIL BlackJacket:{}:{}\n  - {}",
-                    i + 1,
-                    tc.input,
-                    reasons.join("\n  - ")
-                ));
-            }
-        }
-
-        assert!(
-            failures.is_empty(),
-            "{}/{} BlackJacket cases failed:\n{}",
-            failures.len(),
-            data.tests.len(),
-            failures.join("\n")
+            &[(2, 2), (41, 1)],
         );
     }
 }
