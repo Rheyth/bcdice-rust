@@ -420,7 +420,6 @@ mod tests {
     ///
     /// 逆向き（レジストリ側にあってTOMLに無いシステム）も確認して、
     /// Ruby本家の336システムとテストデータが1対1で対応していることを固定する。
-    /// `DummySystem` は Batch1 のインフラ検証用でTOMLを持たないので除外する。
     #[test]
     fn toml_game_systems_match_registry() {
         use std::collections::BTreeSet;
@@ -455,7 +454,6 @@ mod tests {
         let registered: BTreeSet<String> = bcdice::game_system::game_systems()
             .iter()
             .map(|s| s.id().to_string())
-            .filter(|id| id != "DummySystem")
             .collect();
         assert_eq!(
             registered.len(),

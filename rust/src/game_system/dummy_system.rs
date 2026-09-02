@@ -11,7 +11,10 @@
 //! - [`DiceTable`](crate::dice_table) をゲームシステムから `static` で使う形
 //! - 既定値以外の設定（`sort_barabara_dice`）が共通コマンドまで届くこと
 //!
-//! TODO(P3-Batch2): 全336システムを登録する際にこのシステムを削除する。
+//! 全336システムの登録完了に伴いレジストリからは外れている
+//! （`game_system_class("DummySystem")` は `None` を返す）。
+//! 本ファイルは上記の評価パスを検証するフィクスチャとして残しており、
+//! 単体テストから直接 `eval_raw` 経由で使う。
 
 use crate::dice_table::{RollableTable, Table};
 use crate::eval::EvalError;
@@ -94,8 +97,8 @@ DUM  ：該当なし（Ruby の \"1\" と同じく nil に畳まれる）
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::eval::{eval_command, eval_raw};
-    use crate::game_system::{game_system_class, GameSystemId};
+    use crate::eval::eval_raw;
+    use crate::game_system::game_system_class;
     use crate::randomizer::SeededRandomizer;
 
     fn eval(input: &str, rands: &[(i64, i64)]) -> Option<EvalResult> {
@@ -106,13 +109,6 @@ mod tests {
         };
         assert!(src.is_empty(), "unconsumed rands for {input:?}");
         result
-    }
-
-    #[test]
-    fn is_registered_and_reachable_from_registry() {
-        let system = game_system_class("DummySystem").expect("registered");
-        assert_eq!(system.name(), "ダミーシステム");
-        assert_eq!(system.prefixes(), &["DUM"]);
     }
 
     #[test]
@@ -178,16 +174,5 @@ mod tests {
         assert!(eval_raw(dice_bot, "DUMT", &mut rng)
             .expect("no eval error")
             .is_none());
-    }
-
-    #[test]
-    fn reachable_through_eval_command_entry_point() {
-        // TOMLハーネスと同じ入口（ID文字列 → レジストリ → trait）で評価できること
-        let mut src = SeededRandomizer::new(vec![(2, 6)]);
-        let result = eval_command(&GameSystemId::new("DummySystem"), "DUMT", &mut src)
-            .expect("no eval error")
-            .expect("recognized");
-        assert_eq!(result.text, "ダミー表(2) ＞ ダミー2");
-        assert!(src.is_empty());
     }
 }

@@ -11,7 +11,6 @@ use std::collections::HashMap;
 use std::sync::OnceLock;
 
 use super::dice_bot::DiceBot;
-use super::dummy_system::DummySystem;
 use super::GameSystem;
 
 /// 表駆動のレジストリを定義する。
@@ -43,8 +42,7 @@ macro_rules! register_game_systems {
 }
 
 register_game_systems! {
-    // TODO(P4): インフラ検証用の DummySystem は個別移植が終わったら外す。
-    handwritten: [DiceBot, DummySystem],
+    handwritten: [DiceBot],
     generated: crate::game_system::generated::GENERATED_GAME_SYSTEMS,
 }
 

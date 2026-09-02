@@ -6,47 +6,18 @@
 use std::borrow::Cow;
 
 use bcdice::eval::{eval_command, eval_raw, EvalError, EvalResult};
+use bcdice::game_system::dummy_system::DummySystem;
 use bcdice::game_system::{
     game_system_class, game_systems, GameSystem, GameSystemId, SpecificCommandOutput,
 };
 use bcdice::randomizer::{Randomizer, SeededRandomizer};
 use bcdice::toml_test::{TestCase, TestDataFile};
 
-/// TOMLテストケースをハーネスと同じ手順で実行し、期待出力と一致するか調べる。
-fn run_toml_case(tc: &TestCase) -> Result<(), String> {
-    let rands: Vec<(i64, i64)> = tc.rands.iter().map(|r| (r.value, r.sides)).collect();
-    let mut randomizer = SeededRandomizer::new(rands);
-    let system = GameSystemId::new(tc.game_system.clone());
-
-    let outcome = eval_command(&system, &tc.input, &mut randomizer)
-        .map_err(|e| format!("eval error: {e}"))?;
-
-    match outcome {
-        None if tc.expects_nil() => {}
-        None => return Err(format!("expected {:?}, got nil", tc.output)),
-        Some(result) => {
-            if tc.expects_nil() {
-                return Err(format!("expected nil, got {:?}", result.text));
-            }
-            if result.text != tc.output {
-                return Err(format!("expected {:?}, got {:?}", tc.output, result.text));
-            }
-            if result.secret != tc.secret {
-                return Err(format!("secret flag mismatch on {:?}", tc.input));
-            }
-            if result.success != tc.success {
-                return Err(format!("success flag mismatch on {:?}", tc.input));
-            }
-        }
-    }
-
-    if !randomizer.is_empty() {
-        return Err(format!("unconsumed rands ({})", randomizer.remaining()));
-    }
-    Ok(())
-}
-
 /// ダミーシステムを TOML 形式のテストデータから実行できること。
+///
+/// `DummySystem` はレジストリから外れているため、ここでは
+/// trait実装を直接 `eval_raw` に渡して検証する（構造検証は
+/// `crate::game_system::dummy_system` の単体テストにもある）。
 #[test]
 fn dummy_system_runs_through_toml_harness_path() {
     const DATA: &str = r#"
@@ -90,10 +61,44 @@ rands = [
     let data = TestDataFile::parse_str(std::path::Path::new("<inline>"), DATA).expect("parse");
     assert_eq!(data.tests.len(), 5);
     for (i, tc) in data.tests.iter().enumerate() {
-        if let Err(reason) = run_toml_case(tc) {
+        if let Err(reason) = run_dummy_case(tc) {
             panic!("case {} ({:?}) failed: {reason}", i + 1, tc.input);
         }
     }
+}
+
+/// TOMLテストケースを `DummySystem` の trait 実装に直接渡して実行する。
+fn run_dummy_case(tc: &TestCase) -> Result<(), String> {
+    let rands: Vec<(i64, i64)> = tc.rands.iter().map(|r| (r.value, r.sides)).collect();
+    let mut randomizer = SeededRandomizer::new(rands);
+    let mut rng = Randomizer::new(&mut randomizer);
+
+    let outcome =
+        eval_raw(&DummySystem, &tc.input, &mut rng).map_err(|e| format!("eval error: {e}"))?;
+
+    match outcome {
+        None if tc.expects_nil() => {}
+        None => return Err(format!("expected {:?}, got nil", tc.output)),
+        Some(result) => {
+            if tc.expects_nil() {
+                return Err(format!("expected nil, got {:?}", result.text));
+            }
+            if result.text != tc.output {
+                return Err(format!("expected {:?}, got {:?}", tc.output, result.text));
+            }
+            if result.secret != tc.secret {
+                return Err(format!("secret flag mismatch on {:?}", tc.input));
+            }
+            if result.success != tc.success {
+                return Err(format!("success flag mismatch on {:?}", tc.input));
+            }
+        }
+    }
+
+    if !randomizer.is_empty() {
+        return Err(format!("unconsumed rands ({})", randomizer.remaining()));
+    }
+    Ok(())
 }
 
 /// レジストリに無いIDは `SystemNotImplemented`（ハーネスがfail理由に使う）。
@@ -123,11 +128,10 @@ fn generated_system_specific_command_reports_not_implemented() {
 /// レジストリの内容。
 ///
 /// 336 = Ruby `BCDice.all_game_systems.size`（DiceBot を含む実測値）。
-/// これに Batch1 のインフラ検証用 `DummySystem` を足した337件になる。
 #[test]
 fn registry_contains_expected_systems() {
     let systems = game_systems();
-    assert_eq!(systems.len(), 337, "336 Ruby systems + DummySystem");
+    assert_eq!(systems.len(), 336, "336 Ruby systems");
 
     let ids: Vec<&str> = systems.iter().map(|s| s.id()).collect();
 
@@ -138,7 +142,8 @@ fn registry_contains_expected_systems() {
     assert_eq!(sorted, unique, "game system ids must be unique");
 
     assert!(ids.contains(&"DiceBot"));
-    assert!(ids.contains(&"DummySystem"));
+    // インフラ検証用の DummySystem は全システム登録完了時にレジストリから外れた
+    assert!(!ids.contains(&"DummySystem"));
     // 生成物側の代表。IDとクラス名が食い違うもの（Rust型名は SwordWorld2_5）も引ける
     assert!(ids.contains(&"SwordWorld2.5"));
     assert!(ids.contains(&"Arianrhod:Korean"));
@@ -196,12 +201,11 @@ fn every_system_prefixes_pattern_compiles() {
             ),
         }
     }
-    // 実測値: Ruby 336システムのうち313が接頭辞を持つ。DummySystem を足して314。
+    // 実測値: Ruby 336システムのうち313が接頭辞を持つ。
     // (P4移植の進行に伴い 312 から 2 増加)
-    assert_eq!(with_prefixes, 314, "systems with prefixes");
+    assert_eq!(with_prefixes, 313, "systems with prefixes");
     // Ruby側の接頭辞は3865件（うち1件は Arianrhod:Korean の nil 由来の空文字列）。
-    // DummySystem の "DUM" を足して3866。
-    assert_eq!(prefix_count, 3866, "total prefixes (incl. DummySystem)");
+    assert_eq!(prefix_count, 3865, "total prefixes");
 }
 
 // ---- prefixes_pattern のキャッシュがシステムごとに独立していることの検証 ----

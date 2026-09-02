@@ -516,7 +516,7 @@ pub mod ZombiLine_Korean;
 
 /// 生成された全ゲームシステム（クラス名の昇順、335件）。
 ///
-/// 手書き実装（`DiceBot` / `DummySystem`）は含まない。
+/// 手書き実装（`DiceBot`）は含まない。
 /// レジストリ（`crate::game_system::registry`）がこのスライスと手書き分を連結する。
 pub static GENERATED_GAME_SYSTEMS: &[&'static dyn crate::game_system::GameSystem] = &[
     &AFF2e::AFF2e,
