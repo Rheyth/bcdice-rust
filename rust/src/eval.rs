@@ -94,13 +94,24 @@ pub fn eval_raw(
     let command = preprocessor::process(raw_input, game_system)?;
 
     // Ruby: dice_command(command) || eval_common_command(@raw_input)
-    if let Some(result) = dice_command(game_system, &command, rng)? {
-        return Ok(Some(result));
+    let mut result = dice_command(game_system, &command, rng)?;
+
+    if result.is_none() {
+        result = common_command::eval_common_command(game_system, raw_input, rng)?;
     }
 
-    // Ruby側は result.rands / result.detailed_rands をここで詰めるが、
-    // ハーネスは注入乱数の消費で検証するため省略している（result.rs のdoc参照）。
-    common_command::eval_common_command(game_system, raw_input, rng)
+    let Some(mut result) = result else {
+        return Ok(None);
+    };
+
+    // Ruby base.rb:173-174:
+    //   result.rands = @randomizer.rand_results
+    //   result.detailed_rands = @randomizer.detailed_rand_results
+    // ランダマイザに蓄積済みの記録を結果へ詰める（乱数の再ロールはしない）。
+    result.rands = rng.rand_results().to_vec();
+    result.detailed_rands = rng.detailed_rand_results().to_vec();
+
+    Ok(Some(result))
 }
 
 /// Ruby `Base#dice_command`。ゲームシステム固有コマンドを試す。
@@ -181,5 +192,36 @@ mod tests {
     fn unrecognized_command_is_still_none() {
         assert_eq!(eval_dice_bot("foo"), Ok(None));
         assert_eq!(eval_dice_bot("　"), Ok(None));
+    }
+
+    /// Ruby base.rb:173-174 相当: eval の戻り値に乱数記録が詰められること。
+    /// 参照コピーなので乱数が再ロールされない（消費列はそのまま）。
+    #[test]
+    fn eval_result_carries_rands() {
+        use crate::randomizer::RandKind;
+
+        let system = game_system_class("DiceBot").expect("DiceBot is implemented");
+        let mut src = SeededRandomizer::new([(3, 6), (5, 6)]);
+        let mut rng = Randomizer::new(&mut src);
+        let result = eval_raw(system, "2d6", &mut rng)
+            .expect("must not error")
+            .expect("2d6 must produce output");
+
+        assert_eq!(result.rands, vec![(3, 6), (5, 6)]);
+        assert_eq!(
+            result.detailed_rands,
+            vec![
+                crate::randomizer::DetailedRandResult {
+                    kind: RandKind::Normal,
+                    sides: 6,
+                    value: 3
+                },
+                crate::randomizer::DetailedRandResult {
+                    kind: RandKind::Normal,
+                    sides: 6,
+                    value: 5
+                },
+            ]
+        );
     }
 }
