@@ -73,11 +73,13 @@ impl GameSystem for SwordWorld_SimplifiedChinese {
 
 #[cfg(test)]
 mod tests {
+    /// `test/data/SwordWorld_SimplifiedChinese.toml` の全ケースが通ること（共通ハーネス）。
     #[test]
     fn all_toml_cases_pass() {
-        super::super::SwordWorld::assert_toml_cases(
+        crate::game_system::test_support::assert_toml_cases_strict(
             "SwordWorld:SimplifiedChinese",
             "SwordWorld_SimplifiedChinese.toml",
+            230,
         );
     }
 }

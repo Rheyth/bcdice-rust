@@ -244,61 +244,12 @@ static SUCCESS: [[i64; 7]; 39] = [
 
 #[cfg(test)]
 mod tests {
-    use crate::{
-        eval::eval_command, game_system::GameSystemId, randomizer::SeededRandomizer,
-        toml_test::TestDataFile,
-    };
-    use std::path::Path;
-
-    fn check_flag(reasons: &mut Vec<String>, name: &str, expected: bool, actual: bool) {
-        if expected != actual {
-            reasons.push(format!(
-                "{name} flag mismatch: expected {expected}, actual {actual}"
-            ));
-        }
-    }
-
     #[test]
     fn all_toml_cases_pass() {
-        let path = Path::new(env!("CARGO_MANIFEST_DIR"))
-            .parent()
-            .unwrap()
-            .join("test/data/EarthDawn3.toml");
-        if !path.exists() {
-            return;
-        }
-        let data = TestDataFile::load(&path).expect("EarthDawn3.toml must parse");
-        assert_eq!(data.tests.len(), 35);
-        let mut failures = Vec::new();
-        for (i, tc) in data.tests.iter().enumerate() {
-            let mut rng = SeededRandomizer::new(tc.rands.iter().map(|r| (r.value, r.sides)));
-            let mut reasons = Vec::new();
-            match eval_command(&GameSystemId::new("EarthDawn3"), &tc.input, &mut rng) {
-                Err(e) => reasons.push(format!("eval error: {e}")),
-                Ok(None) => reasons.push("eval returned nil".to_string()),
-                Ok(Some(result)) => {
-                    if result.text != tc.output {
-                        reasons.push(format!("expected {:?}, got {:?}", tc.output, result.text));
-                    }
-                    check_flag(&mut reasons, "secret", tc.secret, result.secret);
-                    check_flag(&mut reasons, "success", tc.success, result.success);
-                    check_flag(&mut reasons, "failure", tc.failure, result.failure);
-                    check_flag(&mut reasons, "critical", tc.critical, result.critical);
-                    check_flag(&mut reasons, "fumble", tc.fumble, result.fumble);
-                }
-            }
-            if !rng.is_empty() {
-                reasons.push(format!("unconsumed rands ({})", rng.remaining()));
-            }
-            if !reasons.is_empty() {
-                failures.push(format!(
-                    "case {} {:?}: {}",
-                    i + 1,
-                    tc.input,
-                    reasons.join(", ")
-                ));
-            }
-        }
-        assert!(failures.is_empty(), "{}", failures.join("\n"));
+        crate::game_system::test_support::assert_toml_cases_strict(
+            "EarthDawn3",
+            "EarthDawn3.toml",
+            35,
+        );
     }
 }

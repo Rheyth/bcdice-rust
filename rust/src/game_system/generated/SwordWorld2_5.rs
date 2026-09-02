@@ -1027,9 +1027,18 @@ impl GameSystem for SwordWorld2_5 {
 mod tests {
     use super::*;
 
+    /// `test/data/SwordWorld2_5.toml` の全ケースが通ること（共通ハーネス）。
+    ///
+    /// ケース 107（無効コマンド `green` の暴発確認fixture）は出目が消費されない
+    /// 既知のTOML不整合。
     #[test]
     fn all_toml_cases_pass() {
-        SwordWorld2_0::assert_toml_cases("SwordWorld2.5", "SwordWorld2_5.toml", 144);
+        crate::game_system::test_support::assert_toml_cases(
+            "SwordWorld2.5",
+            "SwordWorld2_5.toml",
+            144,
+            &[(107, 2)],
+        );
     }
 
     #[test]

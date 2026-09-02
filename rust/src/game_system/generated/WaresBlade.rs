@@ -51,8 +51,13 @@ impl GameSystem for WaresBlade {
 
 #[cfg(test)]
 mod tests {
+    /// `test/data/WaresBlade.toml` の全ケースが通ること（共通ハーネス）。
     #[test]
     fn all_toml_cases_pass() {
-        super::super::TokyoNova::assert_toml_cases("WaresBlade", "WaresBlade.toml", 13);
+        crate::game_system::test_support::assert_toml_cases_strict(
+            "WaresBlade",
+            "WaresBlade.toml",
+            13,
+        );
     }
 }

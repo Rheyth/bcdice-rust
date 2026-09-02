@@ -341,147 +341,30 @@ fn make_dice_roll(dice_pool: i64, rng: &mut Randomizer) -> Result<DiceRoll, Eval
 
 #[cfg(test)]
 mod tests {
-    use std::path::{Path, PathBuf};
-
-    use crate::eval::eval_command;
-    use crate::game_system::GameSystemId;
-    use crate::randomizer::SeededRandomizer;
-    use crate::toml_test::TestDataFile;
-
-    /// 注入乱数が余るケース（1始まりのケース番号 → 余る本数）。
-    ///
-    /// upstream の TOML は「最低保証ダイスプールへの切り上げ」
-    /// 「ハンガーダイスが5を超えた場合の早期return」「コマンドが正規表現に非マッチ」により、
-    /// 実際に振る本数より多い `rands` を持つ。Ruby の `RandomizerMock` は余りを許す
-    /// （枯渇したときだけ raise する）ので、原典どおりに移植するとこれらのケースは
-    /// 乱数を使い切らない。ここだけ余りを許容するが、本数まで厳密に一致させる
-    /// （ダイスを振る本数がずれれば必ず失敗する）。それ以外の全ケースでは
-    /// `rust/tests/toml_harness.rs::run_case` と同じく余り0本を要求する。
-    const SURPLUS_RANDS_ALLOWED: &[(usize, usize)] = &[
-        (1, 2),
-        (19, 2),
-        (22, 1),
-        (34, 2),
-        (43, 2),
-        (59, 2),
-        (83, 2),
-        (100, 2),
-        (103, 1),
-        (115, 2),
-        (124, 2),
-        (140, 2),
-        (164, 6),
-        (165, 5),
-        (168, 6),
-        (170, 6),
-    ];
-
-    fn toml_path() -> Option<PathBuf> {
-        let path = Path::new(env!("CARGO_MANIFEST_DIR"))
-            .parent()?
-            .join("test/data/VampireTheMasquerade5th.toml");
-        path.exists().then_some(path)
-    }
-
-    fn check_flag(reasons: &mut Vec<String>, name: &str, expected: bool, actual: bool) {
-        if expected != actual {
-            reasons.push(format!(
-                "{name} flag mismatch: expected {expected}, actual {actual}"
-            ));
-        }
-    }
-
-    /// `test/data/VampireTheMasquerade5th.toml` の全ケースが通ること。
-    ///
-    /// 判定項目は `rust/tests/toml_harness.rs::run_case` と同じ
-    /// （出力文字列・5フラグ・注入乱数の消費本数）。乱数は既定で余り0本を要求し、
-    /// `SURPLUS_RANDS_ALLOWED` のケースだけ余る本数を厳密一致で固定する。本体のハーネスは
-    /// まだ DiceBot しか assert していないので、移植したシステムの回帰は
-    /// ここで押さえる。
     #[test]
     fn all_toml_cases_pass() {
-        let Some(path) = toml_path() else {
-            // worktree外でクレート単体ビルドされた場合
-            eprintln!("skip: test/data/VampireTheMasquerade5th.toml not found");
-            return;
-        };
-
-        let data = TestDataFile::load(&path).expect("VampireTheMasquerade5th.toml must parse");
-        assert_eq!(
-            data.tests.len(),
+        crate::game_system::test_support::assert_toml_cases(
+            "VampireTheMasquerade5th",
+            "VampireTheMasquerade5th.toml",
             183,
-            "case count in test/data/VampireTheMasquerade5th.toml"
-        );
-
-        let mut failures: Vec<String> = Vec::new();
-        for (i, tc) in data.tests.iter().enumerate() {
-            assert_eq!(
-                tc.game_system, "VampireTheMasquerade5th",
-                "unexpected game system in VampireTheMasquerade5th.toml"
-            );
-
-            let mut reasons: Vec<String> = Vec::new();
-            let rands: Vec<(i64, i64)> = tc.rands.iter().map(|r| (r.value, r.sides)).collect();
-            let mut src = SeededRandomizer::new(rands);
-
-            match eval_command(
-                &GameSystemId::new("VampireTheMasquerade5th"),
-                &tc.input,
-                &mut src,
-            ) {
-                Err(e) => reasons.push(format!("eval error: {e}")),
-                Ok(None) => {
-                    if !tc.expects_nil() {
-                        reasons.push(format!(
-                            "eval returned nil, but output was expected: {:?}",
-                            tc.output
-                        ));
-                    }
-                }
-                Ok(Some(result)) => {
-                    if tc.expects_nil() {
-                        reasons.push(format!("expected nil output, got {:?}", result.text));
-                    } else if result.text != tc.output {
-                        reasons.push(format!(
-                            "output mismatch\n    expected: {:?}\n    actual:   {:?}",
-                            tc.output, result.text
-                        ));
-                    }
-                    check_flag(&mut reasons, "secret", tc.secret, result.secret);
-                    check_flag(&mut reasons, "success", tc.success, result.success);
-                    check_flag(&mut reasons, "failure", tc.failure, result.failure);
-                    check_flag(&mut reasons, "critical", tc.critical, result.critical);
-                    check_flag(&mut reasons, "fumble", tc.fumble, result.fumble);
-                }
-            }
-
-            let allowed_surplus = SURPLUS_RANDS_ALLOWED
-                .iter()
-                .find(|(case, _)| *case == i + 1)
-                .map_or(0, |(_, remaining)| *remaining);
-            if src.remaining() != allowed_surplus {
-                reasons.push(format!(
-                    "unconsumed rands remain ({}, allowed {allowed_surplus})",
-                    src.remaining()
-                ));
-            }
-
-            if !reasons.is_empty() {
-                failures.push(format!(
-                    "FAIL VampireTheMasquerade5th:{}:{}\n  - {}",
-                    i + 1,
-                    tc.input,
-                    reasons.join("\n  - ")
-                ));
-            }
-        }
-
-        assert!(
-            failures.is_empty(),
-            "{}/{} VampireTheMasquerade5th cases failed:\n{}",
-            failures.len(),
-            data.tests.len(),
-            failures.join("\n")
+            &[
+                (1, 2),
+                (19, 2),
+                (22, 1),
+                (34, 2),
+                (43, 2),
+                (59, 2),
+                (83, 2),
+                (100, 2),
+                (103, 1),
+                (115, 2),
+                (124, 2),
+                (140, 2),
+                (164, 6),
+                (165, 5),
+                (168, 6),
+                (170, 6),
+            ],
         );
     }
 }

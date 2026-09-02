@@ -989,83 +989,12 @@ static MANIAS_TABLE: [&str; 100] = [
 
 #[cfg(test)]
 mod tests {
-    use std::path::{Path, PathBuf};
-
-    use crate::eval::eval_command;
-    use crate::game_system::GameSystemId;
-    use crate::randomizer::SeededRandomizer;
-    use crate::toml_test::TestDataFile;
-
-    fn toml_path() -> Option<PathBuf> {
-        let path = Path::new(env!("CARGO_MANIFEST_DIR"))
-            .parent()?
-            .join("test/data/Cthulhu7th.toml");
-        path.exists().then_some(path)
-    }
-
-    fn check_flag(reasons: &mut Vec<String>, name: &str, expected: bool, actual: bool) {
-        if expected != actual {
-            reasons.push(format!(
-                "{name} flag mismatch: expected {expected}, actual {actual}"
-            ));
-        }
-    }
-
     #[test]
     fn all_toml_cases_pass() {
-        let Some(path) = toml_path() else {
-            eprintln!("skip: test/data/Cthulhu7th.toml not found");
-            return;
-        };
-
-        let data = TestDataFile::load(&path).expect("Cthulhu7th.toml must parse");
-        assert_eq!(data.tests.len(), 151);
-
-        let mut failures = Vec::new();
-        for (i, tc) in data.tests.iter().enumerate() {
-            assert_eq!(tc.game_system, "Cthulhu7th");
-
-            let rands = tc.rands.iter().map(|r| (r.value, r.sides));
-            let mut source = SeededRandomizer::new(rands);
-
-            match eval_command(&GameSystemId::new("Cthulhu7th"), &tc.input, &mut source) {
-                Err(error) => failures.push(format!("{i}: {}: {error}", tc.input)),
-                Ok(None) if !tc.expects_nil() => {
-                    failures.push(format!("{i}: {}: expected output", tc.input))
-                }
-                Ok(None) => {}
-                Ok(Some(result)) => {
-                    if tc.expects_nil() {
-                        failures.push(format!("{i}: {}: expected nil", tc.input));
-                    }
-                    if result.text != tc.output {
-                        failures.push(format!(
-                            "{i}: {}: output mismatch\nexpected: {:?}\nactual: {:?}",
-                            tc.input, tc.output, result.text
-                        ));
-                    }
-                    check_flag(&mut failures, "secret", tc.secret, result.secret);
-                    check_flag(&mut failures, "success", tc.success, result.success);
-                    check_flag(&mut failures, "failure", tc.failure, result.failure);
-                    check_flag(&mut failures, "critical", tc.critical, result.critical);
-                    check_flag(&mut failures, "fumble", tc.fumble, result.fumble);
-                }
-            }
-
-            if !source.is_empty() {
-                failures.push(format!(
-                    "{i}: {}: unconsumed rands ({})",
-                    tc.input,
-                    source.remaining()
-                ));
-            }
-        }
-
-        assert!(
-            failures.is_empty(),
-            "{} cases failed:\n{}",
-            failures.len(),
-            failures.join("\n")
+        crate::game_system::test_support::assert_toml_cases_strict(
+            "Cthulhu7th",
+            "Cthulhu7th.toml",
+            151,
         );
     }
 }

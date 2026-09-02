@@ -548,64 +548,12 @@ impl GameSystem for MeikyuDays {
 
 #[cfg(test)]
 mod tests {
-    use std::path::Path;
-
-    use crate::eval::eval_command;
-    use crate::game_system::GameSystemId;
-    use crate::randomizer::SeededRandomizer;
-    use crate::toml_test::TestDataFile;
-
     #[test]
     fn all_toml_cases_pass() {
-        let path = Path::new(env!("CARGO_MANIFEST_DIR"))
-            .parent()
-            .expect("rust crate has a parent")
-            .join("test/data/MeikyuDays.toml");
-        if !path.exists() {
-            return;
-        }
-
-        let data = TestDataFile::load(&path).expect("MeikyuDays.toml must parse");
-        assert_eq!(data.tests.len(), 229);
-
-        for (index, case) in data.tests.iter().enumerate() {
-            let rands = case.rands.iter().map(|rand| (rand.value, rand.sides));
-            let mut source = SeededRandomizer::new(rands);
-            let actual = eval_command(&GameSystemId::new("MeikyuDays"), &case.input, &mut source)
-                .unwrap_or_else(|error| panic!("case {}: {error}", index + 1));
-
-            if case.expects_nil() {
-                assert!(actual.is_none(), "case {}: {}", index + 1, case.input);
-            } else {
-                let actual = actual.unwrap_or_else(|| panic!("case {} returned nil", index + 1));
-                assert_eq!(
-                    (
-                        actual.text.as_str(),
-                        actual.secret,
-                        actual.success,
-                        actual.failure,
-                        actual.critical,
-                        actual.fumble,
-                    ),
-                    (
-                        case.output.as_str(),
-                        case.secret,
-                        case.success,
-                        case.failure,
-                        case.critical,
-                        case.fumble,
-                    ),
-                    "case {}: {}",
-                    index + 1,
-                    case.input
-                );
-            }
-            assert!(
-                source.is_empty(),
-                "case {} left {} rands",
-                index + 1,
-                source.remaining()
-            );
-        }
+        crate::game_system::test_support::assert_toml_cases_strict(
+            "MeikyuDays",
+            "MeikyuDays.toml",
+            229,
+        );
     }
 }

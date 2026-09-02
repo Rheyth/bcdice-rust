@@ -57,8 +57,9 @@ impl GameSystem for WARPS {
 
 #[cfg(test)]
 mod tests {
+    /// `test/data/WARPS.toml` の全ケースが通ること（共通ハーネス）。
     #[test]
     fn all_toml_cases_pass() {
-        super::super::TokyoNova::assert_toml_cases("WARPS", "WARPS.toml", 31);
+        crate::game_system::test_support::assert_toml_cases_strict("WARPS", "WARPS.toml", 31);
     }
 }

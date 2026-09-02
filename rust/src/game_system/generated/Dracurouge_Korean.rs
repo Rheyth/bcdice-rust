@@ -1695,10 +1695,10 @@ pub(crate) static KO_SYSTEM: SystemTables = SystemTables {
 
 #[cfg(test)]
 mod tests {
-    /// `test/data/Dracurouge_Korean.toml` の全ケースが通ること。
+    /// `test/data/Dracurouge_Korean.toml` の全ケースが通ること（共通ハーネス）。
     #[test]
     fn all_toml_cases_pass() {
-        super::super::SwordWorld2_0::assert_toml_cases(
+        crate::game_system::test_support::assert_toml_cases_strict(
             "Dracurouge:Korean",
             "Dracurouge_Korean.toml",
             147,

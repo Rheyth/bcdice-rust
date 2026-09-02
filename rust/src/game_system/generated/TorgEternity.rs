@@ -485,86 +485,12 @@ static BONUS_TABLE: &[(i64, i64)] = &[
 
 #[cfg(test)]
 mod tests {
-    use crate::eval::eval_command;
-    use crate::game_system::GameSystemId;
-    use crate::randomizer::SeededRandomizer;
-    use crate::toml_test::TestDataFile;
-    use std::path::{Path, PathBuf};
-
-    fn toml_path() -> Option<PathBuf> {
-        let path = Path::new(env!("CARGO_MANIFEST_DIR"))
-            .parent()?
-            .join("test/data/TorgEternity.toml");
-        path.exists().then_some(path)
-    }
-
-    fn check_flag(reasons: &mut Vec<String>, name: &str, expected: bool, actual: bool) {
-        if expected != actual {
-            reasons.push(format!(
-                "{name} flag mismatch: expected {expected}, actual {actual}"
-            ));
-        }
-    }
-
     #[test]
     fn all_toml_cases_pass() {
-        let Some(path) = toml_path() else {
-            eprintln!("skip: test/data/TorgEternity.toml not found");
-            return;
-        };
-        let data = TestDataFile::load(&path).expect("TorgEternity.toml must parse");
-        assert_eq!(
-            data.tests.len(),
+        crate::game_system::test_support::assert_toml_cases_strict(
+            "TorgEternity",
+            "TorgEternity.toml",
             105,
-            "case count in test/data/TorgEternity.toml"
-        );
-        let mut failures = Vec::new();
-        for (i, tc) in data.tests.iter().enumerate() {
-            assert_eq!(tc.game_system, "TorgEternity");
-            let mut reasons = Vec::new();
-            let rands: Vec<(i64, i64)> = tc.rands.iter().map(|r| (r.value, r.sides)).collect();
-            let mut src = SeededRandomizer::new(rands);
-            match eval_command(&GameSystemId::new("TorgEternity"), &tc.input, &mut src) {
-                Err(e) => reasons.push(format!("eval error: {e}")),
-                Ok(None) => {
-                    if !tc.expects_nil() {
-                        reasons.push(format!("eval returned nil, expected {:?}", tc.output));
-                    }
-                }
-                Ok(Some(result)) => {
-                    if tc.expects_nil() {
-                        reasons.push(format!("expected nil output, got {:?}", result.text));
-                    } else if result.text != tc.output {
-                        reasons.push(format!(
-                            "output mismatch\n    expected: {:?}\n    actual:   {:?}",
-                            tc.output, result.text
-                        ));
-                    }
-                    check_flag(&mut reasons, "secret", tc.secret, result.secret);
-                    check_flag(&mut reasons, "success", tc.success, result.success);
-                    check_flag(&mut reasons, "failure", tc.failure, result.failure);
-                    check_flag(&mut reasons, "critical", tc.critical, result.critical);
-                    check_flag(&mut reasons, "fumble", tc.fumble, result.fumble);
-                }
-            }
-            if !src.is_empty() {
-                reasons.push(format!("unconsumed rands remain ({})", src.remaining()));
-            }
-            if !reasons.is_empty() {
-                failures.push(format!(
-                    "FAIL TorgEternity:{}:{}\n  - {}",
-                    i + 1,
-                    tc.input,
-                    reasons.join("\n  - ")
-                ));
-            }
-        }
-        assert!(
-            failures.is_empty(),
-            "{}/{} TorgEternity cases failed:\n{}",
-            failures.len(),
-            data.tests.len(),
-            failures.join("\n")
         );
     }
 }

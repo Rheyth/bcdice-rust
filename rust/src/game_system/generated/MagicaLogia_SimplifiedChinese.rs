@@ -105,9 +105,10 @@ static HELP_MESSAGE: &str = r"・判定
 
 #[cfg(test)]
 mod tests {
+    /// `test/data/MagicaLogia_SimplifiedChinese.toml` の全ケースが通ること（共通ハーネス）。
     #[test]
     fn all_toml_cases_pass() {
-        super::super::TokyoNova::assert_toml_cases(
+        crate::game_system::test_support::assert_toml_cases_strict(
             "MagicaLogia:SimplifiedChinese",
             "MagicaLogia_SimplifiedChinese.toml",
             155,

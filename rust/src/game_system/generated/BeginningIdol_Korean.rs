@@ -2664,143 +2664,37 @@ impl GameSystem for BeginningIdol_Korean {
 
 #[cfg(test)]
 mod tests {
-    use std::path::Path;
-
-    use crate::eval::eval_command;
-    use crate::game_system::GameSystemId;
-    use crate::randomizer::SeededRandomizer;
-    use crate::toml_test::TestDataFile;
-
-    /// 余った注入乱数を許すケース（`(1始まりのケース番号, 残り個数)`）。
-    ///
-    /// Ruby本家の `RandomizerMock` は余りを検査しないので、TOMLには
-    /// 「Ruby側もダイスを振る前に nil を返すコマンド」にもダイスが書かれている。
-    /// 下の23件はいずれも `output = ""`（nil期待）で、Ruby も1個も振らない:
-    /// パフォーマンス判定の書式違反・`counts <= 0`、`LO` の範囲外、未知の特技表コマンド、
-    /// `BT0`/`IT0` の個数0、`44C`/`56C` の温度範囲外、表に無いコマンド。
-    const SURPLUS_RANDS_ALLOWED: &[(usize, usize)] = &[
-        (144, 16), // PD
-        (145, 16), // PD0
-        (146, 16), // 1PD
-        (147, 16), // PD3+
-        (148, 16), // PD4-
-        (149, 16), // 1PD1+
-        (150, 16), // 12PD2-
-        (151, 16), // 8PD6
-        (152, 16), // 8PD6+1
-        (153, 16), // 8PD6-1
-        (154, 16), // PD6+-
-        (155, 16), // 34PD5+-
-        (156, 16), // LO100
-        (157, 16), // AT0
-        (158, 16), // AT7
-        (159, 16), // BT0
-        (160, 16), // IT0
-        (161, 16), // 44C
-        (162, 16), // 56C
-        (163, 16), // SPA1
-        (164, 16), // 9GG
-        (165, 16), // WURR
-        (166, 16), // TRS
-    ];
-
-    fn check_flag(reasons: &mut Vec<String>, name: &str, expected: bool, actual: bool) {
-        if expected != actual {
-            reasons.push(format!(
-                "{name} flag mismatch: expected {expected}, actual {actual}"
-            ));
-        }
-    }
-
-    /// `test/data/BeginningIdol_Korean.toml` の全ケースがパスすること。
     #[test]
     fn all_toml_cases_pass() {
-        let path = Path::new(env!("CARGO_MANIFEST_DIR"))
-            .parent()
-            .unwrap()
-            .join("test/data/BeginningIdol_Korean.toml");
-        if !path.exists() {
-            // worktree外でクレート単体ビルドされた場合
-            eprintln!("skip: test/data/BeginningIdol_Korean.toml not found");
-            return;
-        }
-
-        let data = TestDataFile::load(&path).expect("BeginningIdol_Korean.toml must parse");
-        assert_eq!(
-            data.tests.len(),
+        crate::game_system::test_support::assert_toml_cases(
+            "BeginningIdol:Korean",
+            "BeginningIdol_Korean.toml",
             196,
-            "case count in test/data/BeginningIdol_Korean.toml"
-        );
-
-        let mut failures: Vec<String> = Vec::new();
-        for (i, tc) in data.tests.iter().enumerate() {
-            assert_eq!(
-                tc.game_system, "BeginningIdol:Korean",
-                "unexpected game system in BeginningIdol_Korean.toml"
-            );
-
-            let mut reasons: Vec<String> = Vec::new();
-            let rands: Vec<(i64, i64)> = tc.rands.iter().map(|r| (r.value, r.sides)).collect();
-            let mut src = SeededRandomizer::new(rands);
-
-            match eval_command(
-                &GameSystemId::new("BeginningIdol:Korean"),
-                &tc.input,
-                &mut src,
-            ) {
-                Err(e) => reasons.push(format!("eval error: {e}")),
-                Ok(None) => {
-                    if !tc.expects_nil() {
-                        reasons.push(format!(
-                            "eval returned nil, but output was expected: {:?}",
-                            tc.output
-                        ));
-                    }
-                }
-                Ok(Some(result)) => {
-                    if tc.expects_nil() {
-                        reasons.push(format!("expected nil output, got {:?}", result.text));
-                    } else if result.text != tc.output {
-                        reasons.push(format!(
-                            "output mismatch\n    expected: {:?}\n    actual:   {:?}",
-                            tc.output, result.text
-                        ));
-                    }
-                    check_flag(&mut reasons, "secret", tc.secret, result.secret);
-                    check_flag(&mut reasons, "success", tc.success, result.success);
-                    check_flag(&mut reasons, "failure", tc.failure, result.failure);
-                    check_flag(&mut reasons, "critical", tc.critical, result.critical);
-                    check_flag(&mut reasons, "fumble", tc.fumble, result.fumble);
-                }
-            }
-
-            let allowed_surplus = SURPLUS_RANDS_ALLOWED
-                .iter()
-                .find(|(case, _)| *case == i + 1)
-                .map_or(0, |(_, remaining)| *remaining);
-            if src.remaining() != allowed_surplus {
-                reasons.push(format!(
-                    "unconsumed rands remain ({}, allowed {allowed_surplus})",
-                    src.remaining()
-                ));
-            }
-
-            if !reasons.is_empty() {
-                failures.push(format!(
-                    "FAIL BeginningIdol:Korean:{}:{}\n  - {}",
-                    i + 1,
-                    tc.input,
-                    reasons.join("\n  - ")
-                ));
-            }
-        }
-
-        assert!(
-            failures.is_empty(),
-            "{}/{} BeginningIdol:Korean cases failed:\n{}",
-            failures.len(),
-            data.tests.len(),
-            failures.join("\n")
+            &[
+                (144, 16),
+                (145, 16),
+                (146, 16),
+                (147, 16),
+                (148, 16),
+                (149, 16),
+                (150, 16),
+                (151, 16),
+                (152, 16),
+                (153, 16),
+                (154, 16),
+                (155, 16),
+                (156, 16),
+                (157, 16),
+                (158, 16),
+                (159, 16),
+                (160, 16),
+                (161, 16),
+                (162, 16),
+                (163, 16),
+                (164, 16),
+                (165, 16),
+                (166, 16),
+            ],
         );
     }
 }

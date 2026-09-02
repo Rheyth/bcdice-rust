@@ -277,50 +277,27 @@ static AKST: &[&str] = &[
 
 #[cfg(test)]
 mod tests {
-    use crate::{
-        eval::eval_command, game_system::GameSystemId, randomizer::SeededRandomizer,
-        toml_test::TestDataFile,
-    };
-    use std::path::Path;
+    /// `test/data/BladeOfArcana.toml` の全ケースが通ること（共通ハーネス）。
+    /// ケース末尾のnil 11件は無効コマンドで、注入済み出目1つが余る。
     #[test]
     fn all_toml_cases_pass() {
-        let path = Path::new(env!("CARGO_MANIFEST_DIR"))
-            .parent()
-            .unwrap()
-            .join("test/data/BladeOfArcana.toml");
-        if !path.exists() {
-            return;
-        }
-        let data = TestDataFile::load(&path).expect("BladeOfArcana.toml must parse");
-        assert_eq!(data.tests.len(), 34);
-        let mut failures = Vec::new();
-        for (i, tc) in data.tests.iter().enumerate() {
-            let mut rng = SeededRandomizer::new(tc.rands.iter().map(|r| (r.value, r.sides)));
-            let result = eval_command(&GameSystemId::new("BladeOfArcana"), &tc.input, &mut rng);
-            let matches = match &result {
-                Ok(None) => tc.expects_nil(),
-                Ok(Some(r)) => {
-                    !tc.expects_nil()
-                        && r.text == tc.output
-                        && r.secret == tc.secret
-                        && r.success == tc.success
-                        && r.failure == tc.failure
-                        && r.critical == tc.critical
-                        && r.fumble == tc.fumble
-                }
-                Err(_) => false,
-            };
-            if !matches || (!tc.expects_nil() && !rng.is_empty()) {
-                failures.push(format!(
-                    "case {} {:?}: expected {:?}, got {:?}, remaining={}",
-                    i + 1,
-                    tc.input,
-                    tc.output,
-                    result,
-                    rng.remaining()
-                ));
-            }
-        }
-        assert!(failures.is_empty(), "{}", failures.join("\n"));
+        crate::game_system::test_support::assert_toml_cases(
+            "BladeOfArcana",
+            "BladeOfArcana.toml",
+            34,
+            &[
+                (24, 1),
+                (25, 1),
+                (26, 1),
+                (27, 1),
+                (28, 1),
+                (29, 1),
+                (30, 1),
+                (31, 1),
+                (32, 1),
+                (33, 1),
+                (34, 1),
+            ],
+        );
     }
 }

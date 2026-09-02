@@ -565,8 +565,13 @@ pub(crate) static PREFIXES: &[&str] = &[
 
 #[cfg(test)]
 mod tests {
+    /// `test/data/MagicaLogia.toml` の全ケースが通ること（共通ハーネス）。
     #[test]
     fn all_toml_cases_pass() {
-        super::super::TokyoNova::assert_toml_cases("MagicaLogia", "MagicaLogia.toml", 155);
+        crate::game_system::test_support::assert_toml_cases_strict(
+            "MagicaLogia",
+            "MagicaLogia.toml",
+            155,
+        );
     }
 }

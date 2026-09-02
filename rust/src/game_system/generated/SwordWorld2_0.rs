@@ -926,95 +926,18 @@ impl GameSystem for SwordWorld2_0 {
 }
 
 #[cfg(test)]
-pub(crate) fn assert_toml_cases(system: &str, file: &str, expected_count: usize) {
-    use crate::eval::eval_command;
-    use crate::game_system::GameSystemId;
-    use crate::randomizer::SeededRandomizer;
-    use crate::toml_test::TestDataFile;
-    use std::path::Path;
-
-    let path = Path::new(env!("CARGO_MANIFEST_DIR"))
-        .parent()
-        .unwrap()
-        .join("test/data")
-        .join(file);
-    if !path.exists() {
-        eprintln!("skip: {} not found", path.display());
-        return;
-    }
-    let data = TestDataFile::load(&path).unwrap_or_else(|e| panic!("{file} must parse: {e}"));
-    assert_eq!(data.tests.len(), expected_count, "case count in {file}");
-    let mut failures = Vec::new();
-    for (index, tc) in data.tests.iter().enumerate() {
-        assert_eq!(tc.game_system, system, "unexpected game system in {file}");
-        // SwordWorld2.0 / 2.5 の TOML には、無効コマンド `green` に出目が添えられた
-        // fixture がある（Ruby 側でも消費されない）。乱数の消費漏れだけは既知として扱う。
-        let known_unused_fixture = matches!(system, "SwordWorld2.0" | "SwordWorld2.5")
-            && tc.input == "green #grで始まる単語による暴発の確認";
-        let mut reasons = Vec::new();
-        let mut src = SeededRandomizer::new(tc.rands.iter().map(|r| (r.value, r.sides)));
-        match eval_command(&GameSystemId::new(system), &tc.input, &mut src) {
-            Err(error) => reasons.push(format!("eval error: {error}")),
-            Ok(None) if !tc.expects_nil() => reasons.push("eval returned nil".to_string()),
-            Ok(None) => {}
-            Ok(Some(result)) => {
-                if tc.expects_nil() {
-                    reasons.push(format!("expected nil, got {:?}", result.text));
-                } else if result.text != tc.output {
-                    reasons.push(format!(
-                        "output mismatch\n    expected: {:?}\n    actual:   {:?}",
-                        tc.output, result.text
-                    ));
-                }
-                for (name, expected, actual) in [
-                    ("secret", tc.secret, result.secret),
-                    ("success", tc.success, result.success),
-                    ("failure", tc.failure, result.failure),
-                    ("critical", tc.critical, result.critical),
-                    ("fumble", tc.fumble, result.fumble),
-                ] {
-                    if expected != actual {
-                        reasons.push(format!(
-                            "{name} flag mismatch: expected {expected}, actual {actual}"
-                        ));
-                    }
-                }
-            }
-        }
-        if !src.is_empty() {
-            if known_unused_fixture {
-                eprintln!(
-                    "known TOML fixture discrepancy: {}:{} leaves {} unused random value(s)",
-                    file,
-                    index + 1,
-                    src.remaining()
-                );
-            } else {
-                reasons.push(format!("unconsumed rands remain ({})", src.remaining()));
-            }
-        }
-        if !reasons.is_empty() {
-            failures.push(format!(
-                "FAIL {system}:{}:{}\n  - {}",
-                index + 1,
-                tc.input,
-                reasons.join("\n  - ")
-            ));
-        }
-    }
-    assert!(
-        failures.is_empty(),
-        "{}/{} {system} cases failed:\n{}",
-        failures.len(),
-        data.tests.len(),
-        failures.join("\n")
-    );
-}
-
-#[cfg(test)]
 mod tests {
+    /// `test/data/SwordWorld2_0.toml` の全ケースが通ること（共通ハーネス）。
+    ///
+    /// ケース 60（無効コマンド `green` の暴発確認fixture）は出目が消費されない
+    /// 既知のTOML不整合。
     #[test]
     fn all_toml_cases_pass() {
-        super::assert_toml_cases("SwordWorld2.0", "SwordWorld2_0.toml", 75);
+        crate::game_system::test_support::assert_toml_cases(
+            "SwordWorld2.0",
+            "SwordWorld2_0.toml",
+            75,
+            &[(60, 2)],
+        );
     }
 }

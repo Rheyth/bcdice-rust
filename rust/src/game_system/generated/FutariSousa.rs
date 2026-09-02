@@ -512,8 +512,13 @@ pub(crate) static PREFIXES: &[&str] = &[
 
 #[cfg(test)]
 mod tests {
+    /// `test/data/FutariSousa.toml` の全ケースが通ること（共通ハーネス）。
     #[test]
     fn all_toml_cases_pass() {
-        super::super::TokyoNova::assert_toml_cases("FutariSousa", "FutariSousa.toml", 172);
+        crate::game_system::test_support::assert_toml_cases_strict(
+            "FutariSousa",
+            "FutariSousa.toml",
+            172,
+        );
     }
 }
