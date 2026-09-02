@@ -23,7 +23,7 @@ use regex::Regex;
 use crate::arithmetic;
 use crate::enums::RoundType;
 use crate::eval::EvalError;
-use crate::game_system::{GameSystem, SpecificCommandOutput};
+use crate::game_system::{str_helpers, GameSystem, SpecificCommandOutput};
 use crate::randomizer::Randomizer;
 use crate::result::EvalResult;
 use crate::Int as I;
@@ -94,26 +94,9 @@ fn has_operator(s: &str) -> bool {
     s.contains(['-', '+', '*', '/'])
 }
 
-/// Ruby の `String#to_i`。先頭の符号付き数字だけを読み、無ければ0。
-///
-/// `"B".to_i == 0` / `"+5".to_i == 5` / `nil.to_i == 0` に対応する。
-/// 桁あふれは Ruby だと Bignum になるので、`i64` に収まらない場合は飽和させ、
-/// ダイス個数なら `roll_barabara` の上限（TooManyRandsError）へ落ちるようにする。
+/// Ruby `String#to_i`（符号＋先頭の数字列。空なら 0）。`i64` 範囲外は `i64::MAX` に飽和。
 fn ruby_to_i(s: &str) -> i64 {
-    let (negative, body) = match s.strip_prefix('-') {
-        Some(rest) => (true, rest),
-        None => (false, s.strip_prefix('+').unwrap_or(s)),
-    };
-    let digits: String = body.chars().take_while(char::is_ascii_digit).collect();
-    if digits.is_empty() {
-        return 0;
-    }
-    let value: i64 = digits.parse().unwrap_or(i64::MAX);
-    if negative {
-        -value
-    } else {
-        value
-    }
+    str_helpers::ruby_to_i(s)
 }
 
 /// i18n の `%{count}` 置換。

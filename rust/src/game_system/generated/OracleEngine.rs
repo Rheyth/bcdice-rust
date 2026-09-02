@@ -22,7 +22,7 @@ use crate::command_parser::{Parsed, Parser};
 use crate::enums::RoundType;
 use crate::eval::EvalError;
 use crate::format;
-use crate::game_system::{dice_text, GameSystem, SpecificCommandOutput};
+use crate::game_system::{dice_text, str_helpers, GameSystem, SpecificCommandOutput};
 use crate::normalize::CmpOp;
 use crate::randomizer::Randomizer;
 
@@ -123,13 +123,9 @@ fn r_dispatch_pattern() -> &'static Regex {
 // 共通の部品
 // ---------------------------------------------------------------------------
 
-/// Ruby `String#to_i`。先頭の数字列を読み、無ければ 0。`i64` に収まらない値は飽和させる。
+/// Ruby `String#to_i`（先頭の数字列。空なら 0）。`i64` 範囲外は `i64::MAX` に飽和。
 fn to_i(s: &str) -> i64 {
-    let digits = s.len() - s.trim_start_matches(|c: char| c.is_ascii_digit()).len();
-    if digits == 0 {
-        return 0;
-    }
-    s[..digits].parse::<i64>().unwrap_or(i64::MAX)
+    str_helpers::leading_digits_to_i_max(s)
 }
 
 /// Ruby `OracleEngine#clamp`。
