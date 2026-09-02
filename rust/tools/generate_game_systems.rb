@@ -14,6 +14,13 @@
 #   - DiceBot（手書き実装 rust/src/game_system/dice_bot.rs があるので除外）
 #   - `eval_game_system_specific_command` の本体・ダイス表（P4で個別移植）
 #
+# 手書き移植済みファイルの保護（R2・docs/refactor_candidates_20260901.md）:
+#   - P4以降、生成ファイルの大半は手書きフル実装へ置き換えられている。
+#     先頭行が生成テンプレートの `//! 自動生成:` で始まらない既存ファイルは
+#     手書きとみなし、削除も上書きもしない（スキップしてログを出す）。
+#     これによりメタデータ更新のために再実行しても移植成果が失われない。
+#   - 手書きを意図的にスタブへ戻す場合のみ `--force` を付けて実行する。
+#
 # Rustの構文規則に関わる注意:
 #   - 文字列は `"` `\` 改行を含むなら raw string で出す。終端 `"###` と衝突しない
 #     `#` の個数を内容から計算する（ヘルプ文に `"#` が現れても壊れないように）。
@@ -176,8 +183,25 @@ def render_mod_tail(entries)
   RUST
 end
 
-json_path = ARGV[0] or abort("usage: generate_game_systems.rb <metadata.json> [--limit N]")
+json_path = ARGV[0] or abort("usage: generate_game_systems.rb <metadata.json> [--limit N] [--force]")
 limit = (ARGV[ARGV.index("--limit") + 1].to_i if ARGV.include?("--limit"))
+force = ARGV.include?("--force")
+
+# 生成テンプレートの先頭バナー。これで始まるファイルだけが「このスクリプトの
+# 生成物」。それ以外の既存ファイルは手書き移植済みとみなして保護する。
+GENERATED_BANNER = "//! 自動生成: ".freeze
+
+# 既存ファイルが手書き移植済みか（削除・上書きの両方をスキップする対象か）。
+def handwritten?(path, force:)
+  return false unless File.exist?(path)
+  return false if force
+
+  # 空ファイルは生成物がない扱いにして上書き対象とする。
+  first = File.foreach(path, encoding: "UTF-8").first
+  return false if first.nil?
+
+  !first.start_with?(GENERATED_BANNER)
+end
 
 entries = JSON.parse(File.read(json_path))
 entries.reject! { |e| HANDWRITTEN_IDS.include?(e["id"]) }
@@ -186,18 +210,37 @@ entries = entries.first(limit) if limit
 
 FileUtils.mkdir_p(GENERATED_DIR)
 
-# 前回の生成物のうち、今回の一覧に無いものを消す（システムが減った場合に残らないように）
+# 前回の生成物のうち、今回の一覧に無いものを消す（システムが減った場合に残らないように）。
+# 手書き移植済みのファイルは keep に無くても削除・上書きしない。
+skipped_handwritten = []
 keep = entries.map { |e| "#{e.fetch('class_name')}.rs" } << "mod.rs"
 Dir.glob(File.join(GENERATED_DIR, "*.rs")).each do |path|
-  File.delete(path) unless keep.include?(File.basename(path))
+  base = File.basename(path)
+  if handwritten?(path, force: force)
+    # mod.rs の末尾（GENERATED_GAME_SYSTEMS スライス）はメタデータ追従のために
+    # 常に再生成するので、スキップ対象に数えない。
+    skipped_handwritten << base unless base == "mod.rs"
+    next
+  end
+
+  File.delete(path) unless keep.include?(base)
 end
 
 entries.each do |entry|
-  File.write(File.join(GENERATED_DIR, "#{entry.fetch('class_name')}.rs"), render_system(entry))
+  filename = "#{entry.fetch('class_name')}.rs"
+  path = File.join(GENERATED_DIR, filename)
+  if skipped_handwritten.include?(filename)
+    next
+  end
+  File.write(path, render_system(entry))
 end
+
+unless skipped_handwritten.empty?
+  warn "#{skipped_handwritten.size} files skipped (hand-written)"
+end
+
+warn "generated #{entries.size} game systems into #{GENERATED_DIR}"
 
 head = File.read(MOD_RS).split(MARKER).first
 abort("marker not found in #{MOD_RS}") if head.nil? || head == File.read(MOD_RS)
 File.write(MOD_RS, head + MARKER + "\n" + render_mod_tail(entries))
-
-warn "generated #{entries.size} game systems into #{GENERATED_DIR}"
