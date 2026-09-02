@@ -22,7 +22,8 @@
 //!   （`fetch` は Ruby の `find` と同じく最初に一致した項目を返すので、
 //!   項目に重なりがなければ並び順によらず結果は一致する）。
 //! - **`D66HalfGridTable` / `D66OneThirdTable`**: Ruby は 3行/2行の表を6行へ複製して
-//!   `D66GridTable` に渡す。本移植は複製せず、左ダイスから行を選ぶ実装にした（同値）。
+//!   `D66GridTable` に渡す。本移植は複製せず、行選択関数（`fn(i64) -> usize`）で
+//!   左ダイスから行を選ぶ単一構造体 [`d66_grid_table::D66RowSplitTable`] に統一した（同値）。
 
 pub mod chain_table;
 pub mod d66_grid_table;
@@ -36,7 +37,7 @@ pub mod sai_fic_skill_table;
 pub mod table;
 
 pub use chain_table::ChainTable;
-pub use d66_grid_table::{D66GridTable, D66HalfGridTable, D66OneThirdTable};
+pub use d66_grid_table::{D66GridTable, D66RowSplitTable};
 pub use d66_left_range_table::D66LeftRangeTable;
 pub use d66_parity_table::D66ParityTable;
 pub use d66_range_table::D66RangeTable;
@@ -46,6 +47,7 @@ pub use roll_result::{RollBody, RollResult};
 pub use sai_fic_skill_table::{SaiFicCategory, SaiFicFormats, SaiFicSkill, SaiFicSkillTable};
 pub use table::Table;
 
+use crate::enums::D66SortType;
 use crate::eval::EvalError;
 use crate::randomizer::Randomizer;
 
@@ -208,9 +210,23 @@ fn roll_barabara_2d6(rng: &mut Randomizer) -> Result<(i64, i64), EvalError> {
     ))
 }
 
+/// D66系の共通roll前半部: 2D66を振り、必要なら入れ替えてkey（`11`〜`66`）に合成する。
+///
+/// `roll_barabara(2, 6)` と `roll_once(6)`×2 は同一経路（乱数消費順序・
+/// 記録形式とも完全一致）なので、D66系5種のテーブルでこの1本に統一する。
+pub(crate) fn roll_d66_key(rng: &mut Randomizer, sort_type: D66SortType) -> Result<i64, EvalError> {
+    let (a, b) = roll_barabara_2d6(rng)?;
+    let (a, b) = apply_d66_sort(sort_type, a, b);
+    Ok(a * 10 + b)
+}
+
+/// 入れ替えなし版（`D66RangeTable` / `D66ParityTable` / グリッド系用）。
+pub(crate) fn roll_d66_key_no_sort(rng: &mut Randomizer) -> Result<i64, EvalError> {
+    roll_d66_key(rng, D66SortType::NoSort)
+}
+
 /// Ruby `D66SortType` に従って2つの出目を入れ替える。
-fn apply_d66_sort(sort_type: crate::enums::D66SortType, a: i64, b: i64) -> (i64, i64) {
-    use crate::enums::D66SortType;
+pub(crate) fn apply_d66_sort(sort_type: D66SortType, a: i64, b: i64) -> (i64, i64) {
     match sort_type {
         D66SortType::Asc => (a.min(b), a.max(b)),
         D66SortType::Desc => (a.max(b), a.min(b)),

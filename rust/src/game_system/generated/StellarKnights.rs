@@ -22,7 +22,7 @@ use std::sync::OnceLock;
 use regex::Regex;
 
 use crate::arithmetic;
-use crate::dice_table::{D66GridTable, D66HalfGridTable, D66OneThirdTable, RollableTable, Table};
+use crate::dice_table::{D66GridTable, D66RowSplitTable, RollableTable, Table};
 use crate::enums::RoundType;
 use crate::eval::EvalError;
 use crate::game_system::{GameSystem, SpecificCommandOutput};
@@ -448,7 +448,7 @@ static JA_TABLE_STA: Table = Table::from_dice(
 );
 
 /// i18n `StellarKnights.tables.STB`（ja_jp）。
-static JA_TABLE_STB: D66OneThirdTable = D66OneThirdTable::new(
+static JA_TABLE_STB: D66RowSplitTable = D66RowSplitTable::one_third(
     "シチュエーション表B：場所",
     &[
         "教室 　小道具：窓、机、筆記用具、チョークと黒板、窓の外から聞こえる部活動の声",
@@ -567,7 +567,7 @@ static JA_TABLE_STB26: Table = Table::from_dice(
 );
 
 /// i18n `StellarKnights.tables.STC`（ja_jp）。
-static JA_TABLE_STC: D66HalfGridTable = D66HalfGridTable::new(
+static JA_TABLE_STC: D66RowSplitTable = D66RowSplitTable::half_grid(
     "シチュエーション表C：話題",
     &[
         "未来の話：決闘を勝ち抜いたら、あるいは負けてしまったら……未来のふたりはどうなるのだろう。",
@@ -603,7 +603,7 @@ static JA_TABLE_GAT: Table = Table::from_dice(
 );
 
 /// i18n `StellarKnights.tables.HOT`（ja_jp）。
-static JA_TABLE_HOT: D66HalfGridTable = D66HalfGridTable::new(
+static JA_TABLE_HOT: D66RowSplitTable = D66RowSplitTable::half_grid(
     "希望表",
     &[
         "より良き世界：世界はもっとステキになる。きっと、ずっと、もっと。",
@@ -624,7 +624,7 @@ static JA_TABLE_HOT: D66HalfGridTable = D66HalfGridTable::new(
 );
 
 /// i18n `StellarKnights.tables.DET`（ja_jp）。
-static JA_TABLE_DET: D66HalfGridTable = D66HalfGridTable::new(
+static JA_TABLE_DET: D66RowSplitTable = D66RowSplitTable::half_grid(
     "絶望表",
     &[
         "理不尽なる世界：あなたは世界が如何に理不尽であるか思い知った。",
@@ -645,7 +645,7 @@ static JA_TABLE_DET: D66HalfGridTable = D66HalfGridTable::new(
 );
 
 /// i18n `StellarKnights.tables.WIT`（ja_jp）。
-static JA_TABLE_WIT: D66OneThirdTable = D66OneThirdTable::new(
+static JA_TABLE_WIT: D66RowSplitTable = D66RowSplitTable::one_third(
     "願い事表",
     &[
         "未知の開拓者：誰も知らない世界、誰も知らない宇宙、誰も知らない星に旅立つんだ!【願いの階梯：4】",
@@ -674,7 +674,7 @@ static JA_TABLE_WIT: D66OneThirdTable = D66OneThirdTable::new(
 );
 
 /// i18n `StellarKnights.tables.YST`（ja_jp）。
-static JA_TABLE_YST: D66OneThirdTable = D66OneThirdTable::new(
+static JA_TABLE_YST: D66RowSplitTable = D66RowSplitTable::one_third(
     "あなたの物語表",
     &[
         "熟練ステラナイト：あなたは既に何度もステラバトルを征してきた熟練者で ある。【勲章：3~7の間の好きな値】【歪みの共鳴：1】",
@@ -703,7 +703,7 @@ static JA_TABLE_YST: D66OneThirdTable = D66OneThirdTable::new(
 );
 
 /// i18n `StellarKnights.tables.YSTA`（ja_jp）。
-static JA_TABLE_YSTA: D66OneThirdTable = D66OneThirdTable::new(
+static JA_TABLE_YSTA: D66RowSplitTable = D66RowSplitTable::one_third(
     "あなたの物語表：異世界",
     &[
         "終わりなき戦場：あなたは果ての見えない戦場の世界からここへ流れ着いた。",
@@ -732,7 +732,7 @@ static JA_TABLE_YSTA: D66OneThirdTable = D66OneThirdTable::new(
 );
 
 /// i18n `StellarKnights.tables.YSTM`（ja_jp）。
-static JA_TABLE_YSTM: D66OneThirdTable = D66OneThirdTable::new(
+static JA_TABLE_YSTM: D66RowSplitTable = D66RowSplitTable::one_third(
     "あなたの物語表：マルジナリア世界",
     &[
         "パブ/カフェー店員：あなたは霧の帝都に無数に存在するパブ、あるいは桜の帝都で増え始めたカフェーの店員です。",
@@ -761,7 +761,7 @@ static JA_TABLE_YSTM: D66OneThirdTable = D66OneThirdTable::new(
 );
 
 /// i18n `StellarKnights.tables.STM`（ja_jp）。
-static JA_TABLE_STM: D66HalfGridTable = D66HalfGridTable::new(
+static JA_TABLE_STM: D66RowSplitTable = D66RowSplitTable::half_grid(
     "シチュエーション表：マルジナリア世界",
     &[
         "表のお仕事：生きていくにはお金がかかる。霧の女王様や総帥に頼ってばかりじゃいられない! さぁ今日も元気に出勤だ! パートナーと一緒に、どんなお仕事をしているか描写してみよう!",
@@ -782,7 +782,7 @@ static JA_TABLE_STM: D66HalfGridTable = D66HalfGridTable::new(
 );
 
 /// i18n `StellarKnights.tables.YSTL`（ja_jp）。
-static JA_TABLE_YSTL: D66HalfGridTable = D66HalfGridTable::new(
+static JA_TABLE_YSTL: D66RowSplitTable = D66RowSplitTable::half_grid(
     "あなたの物語表：手紙世界",
     &[
         "旅に出ていた：あなたが旅先にいる時に、世界の滅びはおとずれた。旅にでなければ、あの人と離れ離れにはならなかったのに。",
@@ -803,7 +803,7 @@ static JA_TABLE_YSTL: D66HalfGridTable = D66HalfGridTable::new(
 );
 
 /// i18n `StellarKnights.tables.YSTR`（ja_jp）。
-static JA_TABLE_YSTR: D66HalfGridTable = D66HalfGridTable::new(
+static JA_TABLE_YSTR: D66RowSplitTable = D66RowSplitTable::half_grid(
     "あなたの物語表：リコレクト・ドール",
     &[
         "大好き：本当は、世界のことなんてどうでもいい。パートナーの方が大切。ずっとずっと大切なんだから。",
@@ -824,7 +824,7 @@ static JA_TABLE_YSTR: D66HalfGridTable = D66HalfGridTable::new(
 );
 
 /// i18n `StellarKnights.tables.STBR`（ja_jp）。
-static JA_TABLE_STBR: D66HalfGridTable = D66HalfGridTable::new(
+static JA_TABLE_STBR: D66RowSplitTable = D66RowSplitTable::half_grid(
     "シチュエーション表B：場所（リコレクト・ドール）",
     &[
         "教室：かつて学校の教室だった場所。椅子と机が散乱している。",
@@ -845,7 +845,7 @@ static JA_TABLE_STBR: D66HalfGridTable = D66HalfGridTable::new(
 );
 
 /// i18n `StellarKnights.tables.STCR`（ja_jp）。
-static JA_TABLE_STCR: D66HalfGridTable = D66HalfGridTable::new(
+static JA_TABLE_STCR: D66RowSplitTable = D66RowSplitTable::half_grid(
     "シチュエーション表C：リコレクト",
     &[
         "仲良し：友達なのか、家族なのか。楽しそうによりそう2人の姿。",
@@ -866,7 +866,7 @@ static JA_TABLE_STCR: D66HalfGridTable = D66HalfGridTable::new(
 );
 
 /// i18n `StellarKnights.tables.STBS`（ja_jp）。
-static JA_TABLE_STBS: D66HalfGridTable = D66HalfGridTable::new(
+static JA_TABLE_STBS: D66RowSplitTable = D66RowSplitTable::half_grid(
     "シチュエーション表B：シトラセッティング",
     &[
         "長い廊下：お喋りをしながら歩いていると、いつまで経っても目的地につかないながーい廊下。時々遭難者がでるの。",
@@ -887,7 +887,7 @@ static JA_TABLE_STBS: D66HalfGridTable = D66HalfGridTable::new(
 );
 
 /// i18n `StellarKnights.tables.STE`（ja_jp）。
-static JA_TABLE_STE: D66HalfGridTable = D66HalfGridTable::new(
+static JA_TABLE_STE: D66RowSplitTable = D66RowSplitTable::half_grid(
     "シチュエーション表：エクリプス専用",
     &[
         "道行く人々、その全ての視線が、まるで俺達を値踏みしているようだ……。",
@@ -908,7 +908,7 @@ static JA_TABLE_STE: D66HalfGridTable = D66HalfGridTable::new(
 );
 
 /// i18n `StellarKnights.tables.YSTB`（ja_jp）。
-static JA_TABLE_YSTB: D66HalfGridTable = D66HalfGridTable::new(
+static JA_TABLE_YSTB: D66RowSplitTable = D66RowSplitTable::half_grid(
     "あなたの物語表：ブリンガー",
     &[
         "肉親を失った：ブライトによる事件であなたは肉親を失った。",
@@ -929,7 +929,7 @@ static JA_TABLE_YSTB: D66HalfGridTable = D66HalfGridTable::new(
 );
 
 /// i18n `StellarKnights.tables.YSTF`（ja_jp）。
-static JA_TABLE_YSTF: D66HalfGridTable = D66HalfGridTable::new(
+static JA_TABLE_YSTF: D66RowSplitTable = D66RowSplitTable::half_grid(
     "あなたの物語表：フォージ",
     &[
         "信頼：あなたはパートナーを信頼している。あなたとなら大丈夫。",
@@ -950,7 +950,7 @@ static JA_TABLE_YSTF: D66HalfGridTable = D66HalfGridTable::new(
 );
 
 /// i18n `StellarKnights.tables.STAL`（ja_jp）。
-static JA_TABLE_STAL: D66HalfGridTable = D66HalfGridTable::new(
+static JA_TABLE_STAL: D66RowSplitTable = D66RowSplitTable::half_grid(
     "シチュエーション表：オルトリヴート",
     &[
         "張り込み中：パートナーがあんぱんとコーヒーを買ってきた。ひとまず腹ごしらえだ!",

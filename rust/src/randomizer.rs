@@ -11,6 +11,7 @@
 
 use num_traits::ToPrimitive;
 
+use crate::dice_table::apply_d66_sort;
 use crate::enums::D66SortType;
 use crate::eval::EvalError;
 
@@ -219,19 +220,13 @@ impl<'a> Randomizer<'a> {
     }
 
     /// D66のダイスロールを行う。Ruby `#roll_d66`。
+    ///
+    /// 入れ替え処理は `dice_table::apply_d66_sort` と共用（C-9の二重化解消）。
+    /// `roll_once(6)`×2 の乱数消費順序・記録形式は不変。
     pub fn roll_d66(&mut self, sort_type: D66SortType) -> Result<i64, EvalError> {
-        let mut dice_list = [self.roll_once(6)?, self.roll_once(6)?];
-
-        match sort_type {
-            D66SortType::Asc => dice_list.sort_unstable(),
-            D66SortType::Desc => {
-                dice_list.sort_unstable();
-                dice_list.reverse();
-            }
-            D66SortType::NoSort => {}
-        }
-
-        Ok(dice_list[0] * 10 + dice_list[1])
+        let (d1, d2) = (self.roll_once(6)?, self.roll_once(6)?);
+        let (d1, d2) = apply_d66_sort(sort_type, d1, d2);
+        Ok(d1 * 10 + d2)
     }
 
     /// Ruby private `#rand_inner`。

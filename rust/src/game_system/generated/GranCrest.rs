@@ -13,7 +13,7 @@
 //! Ruby側は `GranCrest.rb` に表をハードコードしている。Rust側は同じ値を
 //! `static` として持つ（値は1文字も変えていない）。
 
-use crate::dice_table::{D66HalfGridTable, D66OneThirdTable, RollableTable, Table};
+use crate::dice_table::{D66RowSplitTable, RollableTable, Table};
 use crate::eval::EvalError;
 use crate::game_system::{GameSystem, SpecificCommandOutput, Target};
 use crate::normalize::CmpOp;
@@ -52,7 +52,8 @@ static MT_ITEMS_3: &[&str] = &[
     "仇敵\n彼（彼女）はあなたの仇敵だ。いつかヤツを殺し、雪辱を果たさなければ気が済まない。",
 ];
 /// Ruby `TABLES["MT"]`（`D66OneThirdTable`）。
-static MT: D66OneThirdTable = D66OneThirdTable::new("邂逅表", MT_ITEMS_1, MT_ITEMS_2, MT_ITEMS_3);
+static MT: D66RowSplitTable =
+    D66RowSplitTable::one_third("邂逅表", MT_ITEMS_1, MT_ITEMS_2, MT_ITEMS_3);
 
 /// Ruby `TABLES["PFT"]` の項目。
 static PFT_ITEMS_1: &[&str] = &[
@@ -82,8 +83,8 @@ static PFT_ITEMS_3: &[&str] = &[
     "誠意\nあなたは彼（彼女）に誠意を感じている。他がどうであろうとも、彼（彼女）はあなたにとってみれば誠実だ。",
 ];
 /// Ruby `TABLES["PFT"]`（`D66OneThirdTable`）。
-static PFT: D66OneThirdTable =
-    D66OneThirdTable::new("ポジティブ感情表", PFT_ITEMS_1, PFT_ITEMS_2, PFT_ITEMS_3);
+static PFT: D66RowSplitTable =
+    D66RowSplitTable::one_third("ポジティブ感情表", PFT_ITEMS_1, PFT_ITEMS_2, PFT_ITEMS_3);
 
 /// Ruby `TABLES["NFT"]` の項目。
 static NFT_ITEMS_1: &[&str] = &[
@@ -113,8 +114,8 @@ static NFT_ITEMS_3: &[&str] = &[
     "侮蔑\nあなたは彼（彼女）を侮り、蔑んでいる。彼（彼女）は自分より下の存在であると思っている。",
 ];
 /// Ruby `TABLES["NFT"]`（`D66OneThirdTable`）。
-static NFT: D66OneThirdTable =
-    D66OneThirdTable::new("ネガティブ感情表", NFT_ITEMS_1, NFT_ITEMS_2, NFT_ITEMS_3);
+static NFT: D66RowSplitTable =
+    D66RowSplitTable::one_third("ネガティブ感情表", NFT_ITEMS_1, NFT_ITEMS_2, NFT_ITEMS_3);
 
 /// Ruby `TABLES["CT"]` の項目。
 static CT_ITEMS: &[&str] = &[
@@ -147,7 +148,8 @@ static TCT_ITEMS_2: &[&str] = &[
     "秘境\nあなたの国は、混沌の影響によってこの世ならぬ光景を持っている。空を飛ぶ島や形を取った虹などだ。商才はＧＭと相談せよ。\n国資源ひとつを＋３",
 ];
 /// Ruby `TABLES["TCT"]`（`D66HalfGridTable`）。
-static TCT: D66HalfGridTable = D66HalfGridTable::new("国特徴・地形表", TCT_ITEMS_1, TCT_ITEMS_2);
+static TCT: D66RowSplitTable =
+    D66RowSplitTable::half_grid("国特徴・地形表", TCT_ITEMS_1, TCT_ITEMS_2);
 
 /// Ruby `TABLES["ICT"]` の項目。
 static ICT_ITEMS_1: &[&str] = &[
@@ -168,7 +170,8 @@ static ICT_ITEMS_2: &[&str] = &[
     "サービス業\nあなたの国は演劇や酒場、レストランといった文化的な産業で名を馳せている。\n技術＋１、資金＋２",
 ];
 /// Ruby `TABLES["ICT"]`（`D66HalfGridTable`）。
-static ICT: D66HalfGridTable = D66HalfGridTable::new("国特徴・産業表", ICT_ITEMS_1, ICT_ITEMS_2);
+static ICT: D66RowSplitTable =
+    D66RowSplitTable::half_grid("国特徴・産業表", ICT_ITEMS_1, ICT_ITEMS_2);
 
 /// Ruby `TABLES["PCT"]` の項目。
 static PCT_ITEMS_1: &[&str] = &[
@@ -189,7 +192,8 @@ static PCT_ITEMS_2: &[&str] = &[
     "かつての英雄\nあなたの国土の一部は、かつての英雄たるアーティストと融合している。彼は時折あなたに力を貸してくれる。\n食料に＋１、森林＋２",
 ];
 /// Ruby `TABLES["PCT"]`（`D66HalfGridTable`）。
-static PCT: D66HalfGridTable = D66HalfGridTable::new("国特徴・人物表", PCT_ITEMS_1, PCT_ITEMS_2);
+static PCT: D66RowSplitTable =
+    D66RowSplitTable::half_grid("国特徴・人物表", PCT_ITEMS_1, PCT_ITEMS_2);
 
 /// Ruby `TABLES["OCT"]` の項目。
 static OCT_ITEMS_1: &[&str] = &[
@@ -210,7 +214,8 @@ static OCT_ITEMS_2: &[&str] = &[
     "犯罪結社\nあなたの国は豊かで、それゆえに犯罪結社が跳梁している。\n資金＋３",
 ];
 /// Ruby `TABLES["OCT"]`（`D66HalfGridTable`）。
-static OCT: D66HalfGridTable = D66HalfGridTable::new("国特徴・組織表", OCT_ITEMS_1, OCT_ITEMS_2);
+static OCT: D66RowSplitTable =
+    D66RowSplitTable::half_grid("国特徴・組織表", OCT_ITEMS_1, OCT_ITEMS_2);
 
 /// Ruby `TABLES["BCT"]` の項目。
 static BCT_ITEMS_1: &[&str] = &[
@@ -231,7 +236,8 @@ static BCT_ITEMS_2: &[&str] = &[
     "歓楽街\nあなたの国は楽しく過ごせる酒場や劇場といったもので評判だ。人々の笑顔がさらなる富をもたらすのだ。\n食料＋１、資金＋２",
 ];
 /// Ruby `TABLES["BCT"]`（`D66HalfGridTable`）。
-static BCT: D66HalfGridTable = D66HalfGridTable::new("国特徴・拠点表", BCT_ITEMS_1, BCT_ITEMS_2);
+static BCT: D66RowSplitTable =
+    D66RowSplitTable::half_grid("国特徴・拠点表", BCT_ITEMS_1, BCT_ITEMS_2);
 
 /// Ruby `TABLES["CCT"]` の項目。
 static CCT_ITEMS_1: &[&str] = &[
@@ -252,7 +258,8 @@ static CCT_ITEMS_2: &[&str] = &[
     "呑気\nあなたの国は豊かだ。人々は思い煩うことなく、日々をのんびりと楽しく生きている。\n技術－１、食料＋４",
 ];
 /// Ruby `TABLES["CCT"]`（`D66HalfGridTable`）。
-static CCT: D66HalfGridTable = D66HalfGridTable::new("国特徴・文化表", CCT_ITEMS_1, CCT_ITEMS_2);
+static CCT: D66RowSplitTable =
+    D66RowSplitTable::half_grid("国特徴・文化表", CCT_ITEMS_1, CCT_ITEMS_2);
 
 /// Ruby `TABLES`。`roll_tables` が引く表の一覧。
 static TABLES: &[(&str, &'static dyn RollableTable)] = &[

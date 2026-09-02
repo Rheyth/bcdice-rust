@@ -1,6 +1,6 @@
 //! Ruby `BCDice::DiceTable::D66RangeTable`（lib/bcdice/dice_table/d66_range_table.rb）の移植。
 
-use super::{RangeInc, RollResult, RollableTable};
+use super::{roll_d66_key_no_sort, RangeInc, RollResult, RollableTable};
 use crate::eval::EvalError;
 use crate::randomizer::Randomizer;
 
@@ -17,11 +17,6 @@ impl D66RangeTable {
         Self { name, items }
     }
 
-    /// 表の名前。
-    pub fn name(&self) -> &'static str {
-        self.name
-    }
-
     /// キーに対応する項目を返す。Ruby `@items.find { |row| row[0].include?(key) }`。
     ///
     /// Ruby は該当なしの場合 `nil[1]` で NoMethodError になるが、
@@ -36,11 +31,9 @@ impl D66RangeTable {
 }
 
 impl RollableTable for D66RangeTable {
-    /// Ruby `#roll(randomizer)`: `roll_once(6)` を2回振り、`d1*10+d2` を引く。
+    /// Ruby `#roll(randomizer)`: 2D66を振り `d1*10+d2` を引く（入れ替えなし）。
     fn roll(&self, rng: &mut Randomizer) -> Result<RollResult, EvalError> {
-        let dice1 = rng.roll_once(6)?;
-        let dice2 = rng.roll_once(6)?;
-        let key = dice1 * 10 + dice2;
+        let key = roll_d66_key_no_sort(rng)?;
         Ok(RollResult::text(self.name, key, self.fetch(key)))
     }
 }

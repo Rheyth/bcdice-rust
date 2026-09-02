@@ -1,6 +1,6 @@
 //! Ruby `BCDice::DiceTable::D66Table`（lib/bcdice/dice_table/d66_table.rb）の移植。
 
-use super::{apply_d66_sort, roll_barabara_2d6, RollBody, RollResult, RollableTable, TableItem};
+use super::{roll_d66_key, RollBody, RollResult, RollableTable, TableItem};
 use crate::enums::D66SortType;
 use crate::eval::EvalError;
 use crate::randomizer::Randomizer;
@@ -30,16 +30,6 @@ impl D66Table {
         }
     }
 
-    /// 表の名前。
-    pub fn name(&self) -> &'static str {
-        self.name
-    }
-
-    /// 出目の入れ替え方法。
-    pub fn sort_type(&self) -> D66SortType {
-        self.sort_type
-    }
-
     /// キーに対応する項目を返す。Ruby の `Hash#[]` 相当（未登録なら `None`）。
     fn find(&self, key: i64) -> Option<&'static TableItem> {
         self.items.iter().find(|(k, _)| *k == key).map(|(_, v)| v)
@@ -59,11 +49,9 @@ impl D66Table {
 }
 
 impl RollableTable for D66Table {
-    /// Ruby `#roll(randomizer)`: `roll_barabara(2, 6)` → 入れ替え → キー参照。
+    /// Ruby `#roll(randomizer)`: 2D66 → 入れ替え → キー参照。
     fn roll(&self, rng: &mut Randomizer) -> Result<RollResult, EvalError> {
-        let (a, b) = roll_barabara_2d6(rng)?;
-        let (a, b) = apply_d66_sort(self.sort_type, a, b);
-        let key = a * 10 + b;
+        let key = roll_d66_key(rng, self.sort_type)?;
 
         let body = match self.find(key) {
             Some(item) => item.resolve(rng)?,
