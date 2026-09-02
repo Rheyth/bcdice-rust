@@ -28,17 +28,14 @@ use crate::dice_table::range_table::{RangeRollResult, RangeTableItem};
 use crate::dice_table::{RangeInc, RangeTable};
 use crate::enums::RoundType;
 use crate::eval::EvalError;
-use crate::game_system::{GameSystem, SpecificCommandOutput, Target};
+use crate::game_system::{table_helpers, GameSystem, SpecificCommandOutput, Target};
 use crate::normalize::CmpOp;
 use crate::randomizer::Randomizer;
 use crate::result::{CheckOutcome, EvalResult};
 
 /// Ruby `Base#roll_tables(command, TABLES)`。
 fn roll_tables(command: &str, rng: &mut Randomizer) -> Result<Option<String>, EvalError> {
-    let Some((_, table)) = TABLES.iter().find(|(key, _)| *key == command) else {
-        return Ok(None);
-    };
-    Ok(Some(table.roll(rng)?.to_string()))
+    table_helpers::roll_range_table(command, TABLES, rng)
 }
 
 // ---------------------------------------------------------------------------

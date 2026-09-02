@@ -20,7 +20,7 @@ use crate::arithmetic::floor_div;
 use crate::dice_table::range_table::RangeTableItem;
 use crate::dice_table::{RangeInc, RangeTable};
 use crate::eval::EvalError;
-use crate::game_system::{GameSystem, SpecificCommandOutput, Target};
+use crate::game_system::{table_helpers, GameSystem, SpecificCommandOutput, Target};
 use crate::normalize::CmpOp;
 use crate::randomizer::{sat_i64, Randomizer};
 use crate::result::{CheckOutcome, EvalResult};
@@ -325,10 +325,7 @@ fn roll_wrath_of_god_table(
 
 /// Ruby `Base#roll_tables(command, TABLES)`。
 fn roll_tables(command: &str, rng: &mut Randomizer) -> Result<Option<String>, EvalError> {
-    let Some((_, table)) = TABLES.iter().find(|(key, _)| *key == command) else {
-        return Ok(None);
-    };
-    Ok(Some(table.roll(rng)?.to_string()))
+    table_helpers::roll_range_table(command, TABLES, rng)
 }
 
 /// Ruby `BCDice::GameSystem::Warhammer4`（ID: `Warhammer4`）。

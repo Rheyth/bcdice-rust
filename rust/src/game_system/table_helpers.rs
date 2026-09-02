@@ -8,7 +8,7 @@
 //! 具体型（`&Table` / `&D66GridTable` 等のスライス）もトレイトオブジェクト
 //! （`&dyn RollableTable`）と同じ関数で扱えるよう、ジェネリクスで受ける。
 
-use crate::dice_table::RollableTable;
+use crate::dice_table::{RangeTable, RollableTable};
 use crate::eval::EvalError;
 use crate::randomizer::Randomizer;
 
@@ -19,6 +19,21 @@ use crate::randomizer::Randomizer;
 pub(crate) fn roll_table<T: ?Sized + RollableTable>(
     command: &str,
     tables: &[(&str, &T)],
+    rng: &mut Randomizer,
+) -> Result<Option<String>, EvalError> {
+    match tables.iter().find(|(key, _)| *key == command) {
+        None => Ok(None),
+        Some((_, table)) => Ok(Some(table.roll(rng)?.to_string())),
+    }
+}
+
+/// Ruby `Base#roll_tables(command, tables)` の [`RangeTable`] 版。
+///
+/// `RangeTable` は `RollableTable` を実装しない（結果型が `RangeRollResult`）ため
+/// 切り分けている。既定の整形は `{name}({sum}) ＞ {content}`。
+pub(crate) fn roll_range_table(
+    command: &str,
+    tables: &[(&str, &RangeTable)],
     rng: &mut Randomizer,
 ) -> Result<Option<String>, EvalError> {
     match tables.iter().find(|(key, _)| *key == command) {
