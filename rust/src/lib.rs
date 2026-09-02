@@ -18,13 +18,11 @@
 //!
 //! # 未実装
 //!
-//! レジストリに登録済みなのは [`DiceBot`](game_system::dice_bot::DiceBot) と、
-//! インフラ検証用の [`DummySystem`](game_system::dummy_system::DummySystem) だけ。
-//! 残り335システムは後続バッチで `game_system/generated/` へコード生成する
-//! （docs/rust_port_plan.md の P3 節を参照）。
-//! 未登録のIDは [`eval::eval_command`] が
-//! [`EvalError::SystemNotImplemented`](eval::EvalError::SystemNotImplemented) を返し、
-//! ハーネスがfail理由として表示する。
+//! [`game_system::registry`] には Ruby本家の全336システム（DiceBot を含む）と
+//! インフラ検証用の [`DummySystem`](game_system::dummy_system::DummySystem) が
+//! 登録済みで、TOMLハーネス（[`toml_test`]: `test/data/*.toml` 348ファイル・
+//! 19,864ケース）が全パスしている。残作業は docs/rust_port_plan.md および
+//! docs/refactor_candidates_20260901.md を参照。
 
 pub type Int = num_bigint::BigInt;
 

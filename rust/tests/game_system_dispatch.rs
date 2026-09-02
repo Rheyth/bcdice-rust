@@ -7,7 +7,7 @@ use std::borrow::Cow;
 
 use bcdice::eval::{eval_command, eval_raw, EvalError, EvalResult};
 use bcdice::game_system::{
-    all_game_systems, game_system_class, GameSystem, GameSystemId, SpecificCommandOutput,
+    game_system_class, game_systems, GameSystem, GameSystemId, SpecificCommandOutput,
 };
 use bcdice::randomizer::{Randomizer, SeededRandomizer};
 use bcdice::toml_test::{TestCase, TestDataFile};
@@ -126,7 +126,7 @@ fn generated_system_specific_command_reports_not_implemented() {
 /// これに Batch1 のインフラ検証用 `DummySystem` を足した337件になる。
 #[test]
 fn registry_contains_expected_systems() {
-    let systems = all_game_systems();
+    let systems = game_systems();
     assert_eq!(systems.len(), 337, "336 Ruby systems + DummySystem");
 
     let ids: Vec<&str> = systems.iter().map(|s| s.id()).collect();
@@ -151,7 +151,7 @@ fn registry_contains_expected_systems() {
 /// 全システムの定数が空でないこと（生成漏れ・空文字列の混入検出）。
 #[test]
 fn every_system_has_non_empty_constants() {
-    for system in all_game_systems() {
+    for system in game_systems() {
         assert!(!system.id().is_empty(), "empty id");
         assert!(!system.name().is_empty(), "empty name for {}", system.id());
         assert!(
@@ -176,7 +176,7 @@ fn every_system_has_non_empty_constants() {
 fn every_system_prefixes_pattern_compiles() {
     let mut with_prefixes = 0usize;
     let mut prefix_count = 0usize;
-    for system in all_game_systems() {
+    for system in game_systems() {
         prefix_count += system.prefixes().len();
         match system.prefixes_pattern() {
             Some(re) => {

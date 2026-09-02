@@ -17,12 +17,12 @@
 //! 「既定値以外の設定を通る分岐」をゲームシステム移植を待たずに検証するために使う
 //! （rust/tests/config_variants.rs）。
 //!
-//! # 実装済みのシステム
+//! # 登録済みのシステム
 //!
-//! P3-Batch1 では [`dice_bot::DiceBot`] と、trait経由の評価インフラを検証するための
-//! [`dummy_system::DummySystem`] のみを [`registry`] に登録している。
-//! 残り335システムは後続バッチで `generated/` 配下へコード生成する
-//! （docs/rust_port_plan.md の P3 節を参照）。
+//! [`registry`] には Ruby本家の全336システムが登録されており、
+//! TOMLハーネス（`test/data/*.toml` 348ファイル・19,864ケース）が全パスしている。
+//! 各システムの実装状況と残課題は docs/rust_port_plan.md および
+//! docs/refactor_candidates_20260901.md を参照。
 
 pub mod dice_bot;
 pub mod dummy_system;
@@ -40,7 +40,7 @@ use crate::result::{CheckOutcome, EvalResult};
 
 /// マクロ [`impl_prefixes_pattern!`](crate::impl_prefixes_pattern) から参照するための再エクスポート。
 pub use regex::Regex;
-pub use registry::{all_game_systems, game_system_class, game_systems};
+pub use registry::{game_system_class, game_systems};
 
 /// ゲームシステムID（TOML `game_system`、例: "AFF2e"）。
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
@@ -222,19 +222,6 @@ pub trait GameSystem: Sync {
         None
     }
 
-    /// Ruby `Deprecated::Checker#check_result_legacy`。
-    ///
-    /// `check_1D100` などの旧フック群。`Base` では全て空メソッド（`nil`）。
-    fn check_result_legacy(
-        &self,
-        _total: crate::Int,
-        _rand_results: &[(i64, i64)],
-        _cmp_op: CmpOp,
-        _target: Target,
-    ) -> Option<EvalResult> {
-        None
-    }
-
     /// Ruby `Base#result_1d100`。既定は空メソッド（`nil`）。
     fn result_1d100(
         &self,
@@ -347,12 +334,6 @@ pub trait GameSystem: Sync {
         target: Target,
         rng: &mut Randomizer,
     ) -> Result<Option<EvalResult>, EvalError> {
-        if let Some(ret) =
-            self.check_result_legacy(total.clone(), rand_results, cmp_op, target.clone())
-        {
-            return Ok(Some(ret));
-        }
-
         let sides_list: Vec<i64> = rand_results.iter().map(|r| r.0).collect();
         let value_list: Vec<i64> = rand_results.iter().map(|r| r.1).collect();
         let dice_total: i64 = value_list.iter().fold(0i64, |a, b| a.wrapping_add(*b));

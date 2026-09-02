@@ -55,15 +55,9 @@ pub fn game_systems() -> &'static [&'static dyn GameSystem] {
     registered()
 }
 
-/// Ruby `BCDice.all_game_systems`。
-pub fn all_game_systems() -> Vec<&'static dyn GameSystem> {
-    registered().to_vec()
-}
-
 /// IDからゲームシステムを引く。Ruby `BCDice.game_system_class(id)`。
 ///
-/// Ruby側は `all_game_systems.find { ... }` の線形探索だが、TOMLハーネスが
-/// 2万件のケースごとに引くので索引を1度だけ作る。
+/// TOMLハーネスが2万件のケースごとに引くので索引を1度だけ作る。
 /// ID重複時に先勝ちになる点も `Array#find` と揃えてある
 /// （重複がないことは本モジュールの `ids_are_unique` テストで担保する）。
 pub fn game_system_class(id: &str) -> Option<&'static dyn GameSystem> {
@@ -110,6 +104,6 @@ mod tests {
             );
             seen.push(system.id());
         }
-        assert_eq!(all_game_systems().len(), seen.len());
+        assert_eq!(game_systems().len(), seen.len());
     }
 }
