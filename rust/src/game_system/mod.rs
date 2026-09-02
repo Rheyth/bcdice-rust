@@ -29,6 +29,8 @@ pub mod dummy_system;
 pub mod generated;
 pub mod int_helpers;
 pub mod registry;
+#[cfg(test)]
+pub mod test_support;
 
 use std::borrow::Cow;
 

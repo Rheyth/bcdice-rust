@@ -177,62 +177,12 @@ fn eval_ars_magica(command: &str, rng: &mut Randomizer) -> Result<Option<String>
 
 #[cfg(test)]
 mod tests {
-    use crate::eval::eval_command;
-    use crate::game_system::GameSystemId;
-    use crate::randomizer::SeededRandomizer;
-    use crate::toml_test::TestDataFile;
-    use std::path::{Path, PathBuf};
-
-    fn toml_path() -> Option<PathBuf> {
-        let path = Path::new(env!("CARGO_MANIFEST_DIR"))
-            .parent()?
-            .join("test/data/ArsMagica.toml");
-        path.exists().then_some(path)
-    }
-
     #[test]
     fn all_toml_cases_pass() {
-        let Some(path) = toml_path() else { return };
-        let data = TestDataFile::load(&path).expect("ArsMagica.toml must parse");
-        assert_eq!(
-            data.tests.len(),
+        crate::game_system::test_support::assert_toml_cases_strict(
+            "ArsMagica",
+            "ArsMagica.toml",
             38,
-            "case count in test/data/ArsMagica.toml"
         );
-        let mut failures = Vec::new();
-        for (i, tc) in data.tests.iter().enumerate() {
-            assert_eq!(tc.game_system, "ArsMagica");
-            let mut src = SeededRandomizer::new(tc.rands.iter().map(|r| (r.value, r.sides)));
-            match eval_command(&GameSystemId::new("ArsMagica"), &tc.input, &mut src) {
-                Ok(Some(result)) if !tc.expects_nil() => {
-                    if result.text != tc.output
-                        || result.secret != tc.secret
-                        || result.success != tc.success
-                        || result.failure != tc.failure
-                        || result.critical != tc.critical
-                        || result.fumble != tc.fumble
-                    {
-                        failures.push(format!(
-                            "{}:{}\nexpected: {:?}\nactual: {:?}",
-                            i + 1,
-                            tc.input,
-                            tc.output,
-                            result
-                        ));
-                    }
-                }
-                Ok(None) if tc.expects_nil() => {}
-                other => failures.push(format!("{}:{}: {other:?}", i + 1, tc.input)),
-            }
-            if !src.is_empty() {
-                failures.push(format!(
-                    "{}:{}: {} unconsumed rands",
-                    i + 1,
-                    tc.input,
-                    src.remaining()
-                ));
-            }
-        }
-        assert!(failures.is_empty(), "{}", failures.join("\n"));
     }
 }
