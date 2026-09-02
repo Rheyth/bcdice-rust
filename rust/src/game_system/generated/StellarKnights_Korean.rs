@@ -14,7 +14,7 @@
 //! `ja_jp` にあるキーは全て `ko_kr` にも揃っているので、i18n の fallback は起きない。
 
 use super::StellarKnights::{eval_specific_command, SystemTables};
-use crate::dice_table::{D66GridTable, D66HalfGridTable, D66OneThirdTable, RollableTable, Table};
+use crate::dice_table::{D66GridTable, D66RowSplitTable, RollableTable, Table};
 use crate::eval::EvalError;
 use crate::game_system::{GameSystem, SpecificCommandOutput};
 use crate::randomizer::Randomizer;
@@ -163,7 +163,7 @@ static KO_TABLE_STA: Table = Table::from_dice(
 );
 
 /// i18n `StellarKnights.tables.STB`（ko_kr）。
-static KO_TABLE_STB: D66OneThirdTable = D66OneThirdTable::new(
+static KO_TABLE_STB: D66RowSplitTable = D66RowSplitTable::one_third(
     "상황 표 B-1: 장소",
     &[
         "교실. 소도구: 창문, 책상, 필기도구, 분필과 칠판, 창밖에서 들려오는 동아리 활동 소리",
@@ -282,7 +282,7 @@ static KO_TABLE_STB26: Table = Table::from_dice(
 );
 
 /// i18n `StellarKnights.tables.STC`（ko_kr）。
-static KO_TABLE_STC: D66HalfGridTable = D66HalfGridTable::new(
+static KO_TABLE_STC: D66RowSplitTable = D66RowSplitTable::half_grid(
     "상황 표 C: 화제",
     &[
         "미래 이야기: 결투에서 이기면, 또는 지면... 미래에 두 사람은 어떻게 될까?",
@@ -318,7 +318,7 @@ static KO_TABLE_GAT: Table = Table::from_dice(
 );
 
 /// i18n `StellarKnights.tables.HOT`（ko_kr）。
-static KO_TABLE_HOT: D66HalfGridTable = D66HalfGridTable::new(
+static KO_TABLE_HOT: D66RowSplitTable = D66RowSplitTable::half_grid(
     "희망 표",
     &[
         "보다 나은 세계: 세계는 더 좋은 곳이 된다. 분명, 계속, 더더욱.",
@@ -339,7 +339,7 @@ static KO_TABLE_HOT: D66HalfGridTable = D66HalfGridTable::new(
 );
 
 /// i18n `StellarKnights.tables.DET`（ko_kr）。
-static KO_TABLE_DET: D66HalfGridTable = D66HalfGridTable::new(
+static KO_TABLE_DET: D66RowSplitTable = D66RowSplitTable::half_grid(
     "절망 표",
     &[
         "부조리한 세계: 당신은 세계가 얼마나 부조리한지를 깨달았다.",
@@ -360,7 +360,7 @@ static KO_TABLE_DET: D66HalfGridTable = D66HalfGridTable::new(
 );
 
 /// i18n `StellarKnights.tables.WIT`（ko_kr）。
-static KO_TABLE_WIT: D66OneThirdTable = D66OneThirdTable::new(
+static KO_TABLE_WIT: D66RowSplitTable = D66RowSplitTable::one_third(
     "소원 표",
     &[
         "미지를 개척하는 자: 누구도 모르는 세계, 누구도 모르는 우주, 누구도 모르는 별로 여행을 떠난다! 【소원의 단계: 4】",
@@ -389,7 +389,7 @@ static KO_TABLE_WIT: D66OneThirdTable = D66OneThirdTable::new(
 );
 
 /// i18n `StellarKnights.tables.YST`（ko_kr）。
-static KO_TABLE_YST: D66OneThirdTable = D66OneThirdTable::new(
+static KO_TABLE_YST: D66RowSplitTable = D66RowSplitTable::one_third(
     "당신의 이야기 표",
     &[
         "숙련된 스텔라나이트: 당신은 이미 여러 차례 스텔라배틀에서 승리한 숙련자이다. 【훈장: 3~7 중 원하는 만큼】 【왜곡의 공명: 1】",
@@ -418,7 +418,7 @@ static KO_TABLE_YST: D66OneThirdTable = D66OneThirdTable::new(
 );
 
 /// i18n `StellarKnights.tables.YSTA`（ko_kr）。
-static KO_TABLE_YSTA: D66OneThirdTable = D66OneThirdTable::new(
+static KO_TABLE_YSTA: D66RowSplitTable = D66RowSplitTable::one_third(
     "당신의 이야기 표 (이세계)",
     &[
         "끝없는 전장: 당신은 끝이 보이지 않는 전쟁의 세계에서 이곳에 흘러들어왔다.",
@@ -447,7 +447,7 @@ static KO_TABLE_YSTA: D66OneThirdTable = D66OneThirdTable::new(
 );
 
 /// i18n `StellarKnights.tables.YSTM`（ko_kr）。
-static KO_TABLE_YSTM: D66OneThirdTable = D66OneThirdTable::new(
+static KO_TABLE_YSTM: D66RowSplitTable = D66RowSplitTable::one_third(
     "당신의 이야기 표 (마르지날리아)",
     &[
         "펍/카페 점원: 당신은 안개 제도의 무수히 많은 펍, 혹은 벚꽃 제도에서 늘어나기 시작한 카페의 점원이다.",
@@ -476,7 +476,7 @@ static KO_TABLE_YSTM: D66OneThirdTable = D66OneThirdTable::new(
 );
 
 /// i18n `StellarKnights.tables.STM`（ko_kr）。
-static KO_TABLE_STM: D66HalfGridTable = D66HalfGridTable::new(
+static KO_TABLE_STM: D66RowSplitTable = D66RowSplitTable::half_grid(
     "상황 표: 마르지날리아",
     &[
         "겉으로 하는 일: 살아가는 데는 돈이 든다. 안개 여왕이나 총수에 의지하기만 해서는 안 돼! 자, 오늘도 힘차게 출근이다! 파트너와 함께 어떤 일을 하고 있는지 묘사해보자!",
@@ -497,7 +497,7 @@ static KO_TABLE_STM: D66HalfGridTable = D66HalfGridTable::new(
 );
 
 /// i18n `StellarKnights.tables.YSTL`（ko_kr）。
-static KO_TABLE_YSTL: D66HalfGridTable = D66HalfGridTable::new(
+static KO_TABLE_YSTL: D66RowSplitTable = D66RowSplitTable::half_grid(
     "당신의 이야기 표 (편지)",
     &[
         "여행을 떠났다: 당신이 행선지에 있을 때 세계 멸망이 일어났다. 여행을 가지 않았다면 그 사람과 떨어지지 않았을 텐데.",
@@ -518,7 +518,7 @@ static KO_TABLE_YSTL: D66HalfGridTable = D66HalfGridTable::new(
 );
 
 /// i18n `StellarKnights.tables.YSTR`（ko_kr）。
-static KO_TABLE_YSTR: D66HalfGridTable = D66HalfGridTable::new(
+static KO_TABLE_YSTR: D66RowSplitTable = D66RowSplitTable::half_grid(
     "당신의 이야기 표 (리콜렉트 돌)",
     &[
         "정말 좋아해: 사실은, 세계 같은 거 어찌되어도 괜찮다. 파트너 쪽이 중요하다. 계속 계속 소중히 해왔으니까.",
@@ -539,7 +539,7 @@ static KO_TABLE_YSTR: D66HalfGridTable = D66HalfGridTable::new(
 );
 
 /// i18n `StellarKnights.tables.STBR`（ko_kr）。
-static KO_TABLE_STBR: D66HalfGridTable = D66HalfGridTable::new(
+static KO_TABLE_STBR: D66RowSplitTable = D66RowSplitTable::half_grid(
     "상황 표 B: 장소 (리콜렉트 돌)",
     &[
         "교실: 옛날에 교실이었던 장소. 의자와 책상이 어지럽게 흩어져 있다.",
@@ -560,7 +560,7 @@ static KO_TABLE_STBR: D66HalfGridTable = D66HalfGridTable::new(
 );
 
 /// i18n `StellarKnights.tables.STCR`（ko_kr）。
-static KO_TABLE_STCR: D66HalfGridTable = D66HalfGridTable::new(
+static KO_TABLE_STCR: D66RowSplitTable = D66RowSplitTable::half_grid(
     "상황 표 C: 리콜렉트",
     &[
         "사이 좋음: 친구일까 가족일까. 즐거운 듯 붙어있는 두 사람의 모습.",
@@ -581,7 +581,7 @@ static KO_TABLE_STCR: D66HalfGridTable = D66HalfGridTable::new(
 );
 
 /// i18n `StellarKnights.tables.STBS`（ko_kr）。
-static KO_TABLE_STBS: D66HalfGridTable = D66HalfGridTable::new(
+static KO_TABLE_STBS: D66RowSplitTable = D66RowSplitTable::half_grid(
     "상황 표 B: 시트라 세팅",
     &[
         "긴 복도: 수다떨면서 걷다보면, 아무리 시간이 지나도 목적지에 도착하지 않는 긴ー 복도. 이따금 조난자가 나와.",
@@ -602,7 +602,7 @@ static KO_TABLE_STBS: D66HalfGridTable = D66HalfGridTable::new(
 );
 
 /// i18n `StellarKnights.tables.STE`（ko_kr）。
-static KO_TABLE_STE: D66HalfGridTable = D66HalfGridTable::new(
+static KO_TABLE_STE: D66RowSplitTable = D66RowSplitTable::half_grid(
     "상황 표: 이클립스 전용",
     &[
         "길가는 사람들의 모든 시선이, 전부 우리를 평가하고 있는 것 같아….",
@@ -623,7 +623,7 @@ static KO_TABLE_STE: D66HalfGridTable = D66HalfGridTable::new(
 );
 
 /// i18n `StellarKnights.tables.YSTB`（ko_kr）。
-static KO_TABLE_YSTB: D66HalfGridTable = D66HalfGridTable::new(
+static KO_TABLE_YSTB: D66RowSplitTable = D66RowSplitTable::half_grid(
     "당신의 이야기 표: 브링거",
     &[
         "혈육을 잃었다: 당신은 브라이트가 일으킨 사건으로 혈육을 잃었다.",
@@ -644,7 +644,7 @@ static KO_TABLE_YSTB: D66HalfGridTable = D66HalfGridTable::new(
 );
 
 /// i18n `StellarKnights.tables.YSTF`（ko_kr）。
-static KO_TABLE_YSTF: D66HalfGridTable = D66HalfGridTable::new(
+static KO_TABLE_YSTF: D66RowSplitTable = D66RowSplitTable::half_grid(
     "당신의 이야기 표: 포지",
     &[
         "신뢰: 당신은 파트너를 신뢰하고 있다. 당신과 함께라면 괜찮아.",
@@ -665,7 +665,7 @@ static KO_TABLE_YSTF: D66HalfGridTable = D66HalfGridTable::new(
 );
 
 /// i18n `StellarKnights.tables.STAL`（ko_kr）。
-static KO_TABLE_STAL: D66HalfGridTable = D66HalfGridTable::new(
+static KO_TABLE_STAL: D66RowSplitTable = D66RowSplitTable::half_grid(
     "상황 표: 알트리부트",
     &[
         "잠복중: 파트너가 팥빵과 커피를 사왔다. 일단 배부터 채우자!",

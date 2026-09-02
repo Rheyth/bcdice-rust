@@ -1,6 +1,6 @@
 //! Ruby `BCDice::DiceTable::D66ParityTable`（lib/bcdice/dice_table/d66_parity_table.rb）の移植。
 
-use super::{RollResult, RollableTable};
+use super::{roll_d66_key_no_sort, RollResult, RollableTable};
 use crate::eval::EvalError;
 use crate::randomizer::Randomizer;
 
@@ -21,18 +21,14 @@ impl D66ParityTable {
     ) -> Self {
         Self { name, odd, even }
     }
-
-    /// 表の名前。
-    pub fn name(&self) -> &'static str {
-        self.name
-    }
 }
 
 impl RollableTable for D66ParityTable {
-    /// Ruby `#roll(randomizer)`: `roll_once(6)` を2回振り、左の偶奇で表を選ぶ。
+    /// Ruby `#roll(randomizer)`: 2D66を振り、左の偶奇で表を選ぶ。
     fn roll(&self, rng: &mut Randomizer) -> Result<RollResult, EvalError> {
-        let dice1 = rng.roll_once(6)?;
-        let dice2 = rng.roll_once(6)?;
+        let key = roll_d66_key_no_sort(rng)?;
+        let dice1 = key / 10;
+        let dice2 = key % 10;
 
         // Ruby: dice1.odd? ? @odd : @even
         let second_table = if dice1 % 2 != 0 { self.odd } else { self.even };
@@ -42,7 +38,7 @@ impl RollableTable for D66ParityTable {
             .copied()
             .unwrap_or("");
 
-        Ok(RollResult::text(self.name, dice1 * 10 + dice2, body))
+        Ok(RollResult::text(self.name, key, body))
     }
 }
 

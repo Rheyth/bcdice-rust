@@ -1,7 +1,12 @@
 //! Ruby `BCDice::DiceTable::D66GridTable` / `D66HalfGridTable` / `D66OneThirdTable`
 //! （lib/bcdice/dice_table/d66_{grid,half_grid,one_third}_table.rb）の移植。
+//!
+//! Rubyでは `D66HalfGridTable` / `D66OneThirdTable` は行を複製して
+//! `D66GridTable` に渡す継承関係にあるが、本移植は複製せず
+//! 「行選択関数を持つ単一構造体 [`D66RowSplitTable`]」に統一した（同値）。
+//! 行選択は左ダイス（1〜6）から行番号（0始まり）を選ぶ関数 `fn(i64) -> usize` で行う。
 
-use super::{RollResult, RollableTable};
+use super::{roll_d66_key_no_sort, RollResult, RollableTable};
 use crate::eval::EvalError;
 use crate::randomizer::Randomizer;
 
@@ -17,85 +22,50 @@ impl D66GridTable {
     pub const fn new(name: &'static str, items: &'static [&'static [&'static str]]) -> Self {
         Self { name, items }
     }
-
-    /// 表の名前。
-    pub fn name(&self) -> &'static str {
-        self.name
-    }
 }
 
 impl RollableTable for D66GridTable {
     /// Ruby `#roll(randomizer)`: `roll_once(6)` を2回振り `items[d1-1][d2-1]`。
     fn roll(&self, rng: &mut Randomizer) -> Result<RollResult, EvalError> {
-        let dice1 = rng.roll_once(6)?;
-        let dice2 = rng.roll_once(6)?;
-        let body = grid_cell(self.items, dice1, dice2);
-        Ok(RollResult::text(self.name, dice1 * 10 + dice2, body))
+        let key = roll_d66_key_no_sort(rng)?;
+        let (d1, d2) = (key / 10, key % 10);
+        let body = grid_cell(self.items, d1, d2);
+        Ok(RollResult::text(self.name, key, body))
     }
 }
 
-/// Ruby `D66HalfGridTable`。左ダイス1〜3と4〜6で行を切り替える。
+/// 行を2分割するD66表。Ruby `D66HalfGridTable` / `D66OneThirdTable` の統一形。
 ///
-/// Ruby は `[items_1_2_3] * 3 + [items_4_5_6] * 3` の6行に複製してから
-/// `D66GridTable` として引くが、本移植は複製せず左ダイスで選ぶ（結果は同じ）。
+/// Rubyは `[rows[0]] * n0 + [rows[1]] * n1 + ...` のように6行へ複製してから
+/// `D66GridTable` として引くが、本移植は複製せず左ダイスから行を選ぶ
+/// （左ダイス `d1` に対し `row_index(d1)` 行を引く。結果は同じ）。
 #[derive(Debug, Clone, Copy)]
-pub struct D66HalfGridTable {
+pub struct D66RowSplitTable {
     name: &'static str,
-    items_1_2_3: &'static [&'static str],
-    items_4_5_6: &'static [&'static str],
+    /// 分割後のユニークな行（複製前のもの）。未使用スロットは空行。
+    rows: [&'static [&'static str]; 3],
+    /// 左ダイス（1〜6）から行番号（0始まり）を選ぶ関数。
+    row_index: fn(i64) -> usize,
 }
 
-impl D66HalfGridTable {
-    /// Ruby `D66HalfGridTable.new(name, items_1_2_3, items_4_5_6)`。
-    pub const fn new(
+impl D66RowSplitTable {
+    /// Ruby `D66HalfGridTable.new(name, items_1_2_3, items_4_5_6)` 相当。
+    /// 左ダイス1〜3で `rows[0]`、4〜6で `rows[1]` を引く。
+    pub const fn half_grid(
         name: &'static str,
         items_1_2_3: &'static [&'static str],
         items_4_5_6: &'static [&'static str],
     ) -> Self {
         Self {
             name,
-            items_1_2_3,
-            items_4_5_6,
+            rows: [items_1_2_3, items_4_5_6, &[]],
+            row_index: |d1| if d1 <= 3 { 0 } else { 1 },
         }
     }
 
-    /// 表の名前。
-    pub fn name(&self) -> &'static str {
-        self.name
-    }
-}
-
-impl RollableTable for D66HalfGridTable {
-    fn roll(&self, rng: &mut Randomizer) -> Result<RollResult, EvalError> {
-        let dice1 = rng.roll_once(6)?;
-        let dice2 = rng.roll_once(6)?;
-        let row = if dice1 <= 3 {
-            self.items_1_2_3
-        } else {
-            self.items_4_5_6
-        };
-        Ok(RollResult::text(
-            self.name,
-            dice1 * 10 + dice2,
-            row_cell(row, dice2),
-        ))
-    }
-}
-
-/// Ruby `D66OneThirdTable`。左ダイス1〜2 / 3〜4 / 5〜6 で行を切り替える。
-///
-/// Ruby は3種を2行ずつ複製して6行にするが、本移植は複製せず左ダイスで選ぶ（結果は同じ）。
-#[derive(Debug, Clone, Copy)]
-pub struct D66OneThirdTable {
-    name: &'static str,
-    items_1_2: &'static [&'static str],
-    items_3_4: &'static [&'static str],
-    items_5_6: &'static [&'static str],
-}
-
-impl D66OneThirdTable {
-    /// Ruby `D66OneThirdTable.new(name, items_1_2, items_3_4, items_5_6)`。
-    pub const fn new(
+    /// Ruby `D66OneThirdTable.new(name, items_1_2, items_3_4, items_5_6)` 相当。
+    /// 左ダイス1〜2 / 3〜4 / 5〜6 で行を切り替える。
+    pub const fn one_third(
         name: &'static str,
         items_1_2: &'static [&'static str],
         items_3_4: &'static [&'static str],
@@ -103,32 +73,24 @@ impl D66OneThirdTable {
     ) -> Self {
         Self {
             name,
-            items_1_2,
-            items_3_4,
-            items_5_6,
+            rows: [items_1_2, items_3_4, items_5_6],
+            row_index: |d1| ((d1 - 1) / 2) as usize,
         }
     }
 
-    /// 表の名前。
-    pub fn name(&self) -> &'static str {
-        self.name
+    /// 左ダイスに対応する行を返す（範囲外は空行扱いで空文字列）。
+    fn row(&self, d1: i64) -> &'static [&'static str] {
+        let index = (self.row_index)(d1);
+        self.rows.get(index).copied().unwrap_or(&[])
     }
 }
 
-impl RollableTable for D66OneThirdTable {
+impl RollableTable for D66RowSplitTable {
+    /// Ruby `#roll(randomizer)`: 2D66を振り、左ダイスで行を選んで `row[d2-1]`。
     fn roll(&self, rng: &mut Randomizer) -> Result<RollResult, EvalError> {
-        let dice1 = rng.roll_once(6)?;
-        let dice2 = rng.roll_once(6)?;
-        let row = match dice1 {
-            1 | 2 => self.items_1_2,
-            3 | 4 => self.items_3_4,
-            _ => self.items_5_6,
-        };
-        Ok(RollResult::text(
-            self.name,
-            dice1 * 10 + dice2,
-            row_cell(row, dice2),
-        ))
+        let key = roll_d66_key_no_sort(rng)?;
+        let (d1, d2) = (key / 10, key % 10);
+        Ok(RollResult::text(self.name, key, row_cell(self.row(d1), d2)))
     }
 }
 
@@ -181,8 +143,8 @@ mod tests {
 
     #[test]
     fn half_grid_table_splits_at_three() {
-        // Ruby の [a,a,a,b,b,b] 複製と同値であることを全12通りで確認する
-        let t = D66HalfGridTable::new("表", ROW1, ROW4);
+        // Ruby の [a,a,a,b,b,b] 複製と同値であることを全36通りで確認する
+        let t = D66RowSplitTable::half_grid("表", ROW1, ROW4);
         static EXPANDED: &[&[&str]] = &[ROW1, ROW1, ROW1, ROW4, ROW4, ROW4];
         let expanded = EXPANDED;
         let grid = D66GridTable::new("表", expanded);
@@ -198,7 +160,7 @@ mod tests {
 
     #[test]
     fn one_third_table_splits_in_three() {
-        let t = D66OneThirdTable::new("表", ROW1, ROW3, ROW5);
+        let t = D66RowSplitTable::one_third("表", ROW1, ROW3, ROW5);
         static EXPANDED: &[&[&str]] = &[ROW1, ROW1, ROW3, ROW3, ROW5, ROW5];
         let expanded = EXPANDED;
         let grid = D66GridTable::new("表", expanded);

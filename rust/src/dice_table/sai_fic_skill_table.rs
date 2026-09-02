@@ -100,11 +100,6 @@ impl SaiFicCategory {
         self.name
     }
 
-    /// Ruby `Category#skills`。
-    pub fn skills(&self) -> &'static [&'static str] {
-        self.skills
-    }
-
     /// Ruby `Category#roll(randomizer)`: `skills[roll_sum(2, 6) - 2]`。
     ///
     /// `dice` はこの分野の1始まりの位置（Ruby の `@dice`）。
@@ -167,11 +162,6 @@ impl SaiFicSkillTable {
     pub const fn with_formats(mut self, formats: SaiFicFormats) -> Self {
         self.formats = formats;
         self
-    }
-
-    /// Ruby `#categories`。
-    pub fn categories(&self) -> &'static [SaiFicCategory] {
-        self.categories
     }
 
     /// Ruby `#prefixes`: `(["RTT[1-6]?", "RCT", @rtt, @rct] + @rttn).compact`。

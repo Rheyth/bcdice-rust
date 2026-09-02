@@ -1,7 +1,7 @@
 //! Ruby `BCDice::DiceTable::D66LeftRangeTable`
 //! （lib/bcdice/dice_table/d66_left_range_table.rb）の移植。
 
-use super::{apply_d66_sort, roll_barabara_2d6, RangeInc, RollResult, RollableTable};
+use super::{roll_d66_key, RangeInc, RollResult, RollableTable};
 use crate::enums::D66SortType;
 use crate::eval::EvalError;
 use crate::randomizer::Randomizer;
@@ -31,11 +31,6 @@ impl D66LeftRangeTable {
         }
     }
 
-    /// 表の名前。
-    pub fn name(&self) -> &'static str {
-        self.name
-    }
-
     /// キー（`11`〜`66`）に対応する項目を返す。該当なしは空文字列。
     pub fn fetch(&self, key: i64) -> &'static str {
         let left = key / 10;
@@ -54,11 +49,9 @@ impl D66LeftRangeTable {
 }
 
 impl RollableTable for D66LeftRangeTable {
-    /// Ruby `D66Table#roll` を継承: `roll_barabara(2, 6)` → 入れ替え → キー参照。
+    /// Ruby `D66Table#roll` を継承: 2D66 → 入れ替え → キー参照。
     fn roll(&self, rng: &mut Randomizer) -> Result<RollResult, EvalError> {
-        let (a, b) = roll_barabara_2d6(rng)?;
-        let (a, b) = apply_d66_sort(self.sort_type, a, b);
-        let key = a * 10 + b;
+        let key = roll_d66_key(rng, self.sort_type)?;
         Ok(RollResult::text(self.name, key, self.fetch(key)))
     }
 }
