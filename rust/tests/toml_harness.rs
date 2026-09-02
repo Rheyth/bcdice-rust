@@ -452,7 +452,7 @@ mod tests {
         assert_eq!(cases, 19_864, "total test cases");
         assert_eq!(in_toml.len(), 336, "distinct game systems in test data");
 
-        let registered: BTreeSet<String> = bcdice::game_system::all_game_systems()
+        let registered: BTreeSet<String> = bcdice::game_system::game_systems()
             .iter()
             .map(|s| s.id().to_string())
             .filter(|id| id != "DummySystem")
