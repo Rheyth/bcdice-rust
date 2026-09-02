@@ -20,7 +20,7 @@ use std::sync::OnceLock;
 use regex::Regex;
 
 use crate::eval::EvalError;
-use crate::game_system::{GameSystem, SpecificCommandOutput};
+use crate::game_system::{str_helpers, GameSystem, SpecificCommandOutput};
 use crate::randomizer::Randomizer;
 
 /// Ruby `BCDice::GameSystem::StellarLife`（ID: `StellarLife`）。
@@ -110,31 +110,9 @@ fn judge_pattern() -> &'static Regex {
     })
 }
 
-/// Ruby `String#to_i`（先頭の符号つき数字列を読み、無ければ 0）。
-///
-/// ここに来るのは `[0-9+*-]*[0-9]` にマッチした文字列なので、
-/// 先頭の符号1つと続く数字だけを読む（`"+2*3"` は 2、`"*3"` は 0）。
-/// Ruby は多倍長だが、i64 に収まらない場合は飽和させる。
+/// Ruby `String#to_i`（符号＋先頭の数字列。空なら 0）。`i64` 範囲外は符号方向に飽和。
 fn ruby_to_i(text: &str) -> i64 {
-    let bytes = text.as_bytes();
-    let mut pos = 0;
-    let mut negative = false;
-    if let Some(&sign @ (b'+' | b'-')) = bytes.first() {
-        negative = sign == b'-';
-        pos = 1;
-    }
-    let mut value: i64 = 0;
-    while let Some(&digit @ b'0'..=b'9') = bytes.get(pos) {
-        value = value
-            .saturating_mul(10)
-            .saturating_add(i64::from(digit - b'0'));
-        pos += 1;
-    }
-    if negative {
-        value.saturating_neg()
-    } else {
-        value
-    }
+    str_helpers::ruby_to_i_signed_saturating(text)
 }
 
 /// Ruby `StellarLife#getJudgeResult`。

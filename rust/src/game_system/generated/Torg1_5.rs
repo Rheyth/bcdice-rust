@@ -24,7 +24,7 @@ use regex::Regex;
 use crate::arithmetic::{self};
 use crate::enums::RoundType;
 use crate::eval::EvalError;
-use crate::game_system::{GameSystem, SpecificCommandOutput};
+use crate::game_system::{str_helpers, GameSystem, SpecificCommandOutput};
 use crate::randomizer::Randomizer;
 
 /// Ruby `BCDice::GameSystem::Torg1_5`（ID: `Torg1.5`）。
@@ -407,23 +407,9 @@ fn get_torg_bonus_text(num: &str) -> Result<(String, String), EvalError> {
     Ok((output, format!("{value}+{modifier}")))
 }
 
-/// Ruby `String#to_i`（先頭の整数だけを読み、読めなければ 0）。
+/// Ruby `String#to_i`。`i64` に収まらない指定は `i64::MAX`に飽和。
 fn ruby_to_i(s: &str) -> i64 {
-    let s = s.trim_start();
-    let bytes = s.as_bytes();
-    let mut end = 0;
-    if end < bytes.len() && (bytes[end] == b'+' || bytes[end] == b'-') {
-        end += 1;
-    }
-    let digits_start = end;
-    while end < bytes.len() && bytes[end].is_ascii_digit() {
-        end += 1;
-    }
-    if end == digits_start {
-        return 0;
-    }
-    // Ruby の `to_i` は多倍長。i64 に収まらない入力は飽和させる。
-    s[..end].parse().unwrap_or(i64::MAX)
+    str_helpers::ruby_to_i(s)
 }
 
 // ---------------------------------------------------------------------------

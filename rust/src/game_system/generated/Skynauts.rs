@@ -20,7 +20,7 @@ use std::sync::OnceLock;
 use regex::{Captures, Regex};
 
 use crate::eval::EvalError;
-use crate::game_system::{GameSystem, SpecificCommandOutput};
+use crate::game_system::{dice_text, GameSystem, SpecificCommandOutput};
 use crate::randomizer::Randomizer;
 use crate::result::EvalResult;
 
@@ -148,15 +148,6 @@ fn cap<'a>(caps: &'a Captures<'a>, index: usize) -> &'a str {
     caps.get(index).map(|m| m.as_str()).unwrap_or("")
 }
 
-/// Ruby `dice_list.join(",")`。
-fn join_dice(dice_list: &[i64]) -> String {
-    dice_list
-        .iter()
-        .map(|d| d.to_string())
-        .collect::<Vec<_>>()
-        .join(",")
-}
-
 /// `SN` / `2D6<=` の目標値。空なら 7（Ruby `m[1].empty? ? 7 : m[1].to_i`）。
 fn judge_target(raw: &str) -> i64 {
     if raw.is_empty() {
@@ -187,7 +178,7 @@ fn roll_judge(target: i64, rng: &mut Randomizer) -> Result<EvalResult, EvalError
     let total: i64 = dice_list.iter().copied().sum();
     let text = format!(
         "(2D6<={target}) ＞ {total}[{}] ＞ {total}",
-        join_dice(&dice_list)
+        dice_text::join_dice(&dice_list)
     );
     if total <= 2 {
         Ok(EvalResult::fumble(format!("{text} ＞ ファンブル")))

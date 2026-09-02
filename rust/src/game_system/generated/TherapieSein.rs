@@ -13,7 +13,7 @@ use std::sync::OnceLock;
 use regex::Regex;
 
 use crate::eval::EvalError;
-use crate::game_system::{GameSystem, SpecificCommandOutput};
+use crate::game_system::{str_helpers, GameSystem, SpecificCommandOutput};
 use crate::randomizer::Randomizer;
 
 /// Ruby `BCDice::GameSystem::TherapieSein`（ID: `TherapieSein`）。
@@ -104,12 +104,9 @@ fn modifier_pattern() -> &'static Regex {
     RE.get_or_init(|| Regex::new(r"[+-]\d+").expect("valid regex"))
 }
 
-/// Ruby の `String#to_i`（多倍長）。`i64` に収まらない入力は飽和させる。
-///
-/// 修正値・目標値はいずれも比較と加算にしか使わないので、
-/// 飽和させても現実的な入力では挙動が変わらない。
+/// Ruby `String#to_i`。`i64` に収まらない指定は `i64::MAX`に飽和。
 fn to_i(digits: &str) -> i64 {
-    digits.parse::<i64>().unwrap_or(i64::MAX)
+    str_helpers::to_i_max(digits)
 }
 
 /// Ruby `TherapieSein#checkRoll`。

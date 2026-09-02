@@ -12,7 +12,7 @@ use std::sync::OnceLock;
 use regex::Regex;
 
 use crate::eval::EvalError;
-use crate::game_system::{GameSystem, SpecificCommandOutput};
+use crate::game_system::{str_helpers, GameSystem, SpecificCommandOutput};
 use crate::randomizer::Randomizer;
 
 /// Ruby `/(\d+)?OR(\d{0,6})$/i`。
@@ -76,8 +76,9 @@ fn check_roll(
 }
 
 /// Ruby `String#to_i`。i64に収まらない値は飽和させる（Rubyでは Bignum）。
+/// Ruby `String#to_i`。`i64` に収まらない指定は `i64::MAX` に飽和。
 fn to_i(digits: &str) -> i64 {
-    digits.parse().unwrap_or(i64::MAX)
+    str_helpers::to_i_max(digits)
 }
 
 /// Ruby `Array#join(',')`。

@@ -22,7 +22,7 @@ use crate::enums::RoundType;
 use crate::eval::EvalError;
 use crate::format::modifier;
 use crate::game_system::int_helpers::int_clamp;
-use crate::game_system::{GameSystem, SpecificCommandOutput};
+use crate::game_system::{table_helpers, GameSystem, SpecificCommandOutput};
 use crate::normalize::CmpOp;
 use crate::randomizer::sat_i64;
 use crate::randomizer::Randomizer;
@@ -142,10 +142,7 @@ fn roll_tables(command: &str, rng: &mut Randomizer) -> Result<Option<String>, Ev
     if command == "IDI" {
         return Ok(Some(TABLE_IDI.roll(rng)?.to_string()));
     }
-    let Some((_, table)) = TABLES.iter().find(|(key, _)| *key == command) else {
-        return Ok(None);
-    };
-    Ok(Some(table.roll(rng)?.to_string()))
+    table_helpers::roll_table(command, TABLES, rng)
 }
 
 /// Ruby `Garako#roll_gr`。

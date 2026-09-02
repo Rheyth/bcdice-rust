@@ -21,7 +21,7 @@ use regex::Regex;
 
 use crate::enums::RoundType;
 use crate::eval::EvalError;
-use crate::game_system::{GameSystem, SpecificCommandOutput};
+use crate::game_system::{dice_text, str_helpers, GameSystem, SpecificCommandOutput};
 use crate::randomizer::Randomizer;
 
 /// Ruby `D6`。
@@ -102,18 +102,9 @@ fn patterns() -> &'static Patterns {
     })
 }
 
-/// Ruby の `String#to_i`。`i64` に収まらない入力は飽和させる。
+/// Ruby `String#to_i`。`i64` に収まらない指定は `i64::MAX`に飽和。
 fn to_i(digits: &str) -> i64 {
-    digits.parse::<i64>().unwrap_or(i64::MAX)
-}
-
-/// Ruby `dice_list.join(",")`。
-fn join_dice(dice_list: &[i64]) -> String {
-    dice_list
-        .iter()
-        .map(ToString::to_string)
-        .collect::<Vec<_>>()
-        .join(",")
+    str_helpers::to_i_max(digits)
 }
 
 /// 2次元表の行。範囲外は空行（`get_table_by_1d6` が `["1", 0]` を返す）。
@@ -269,7 +260,7 @@ fn derive_achievement(
     rng: &mut Randomizer,
 ) -> Result<(i64, String), EvalError> {
     let dice_list = rng.roll_barabara(num_dices, D6)?;
-    let dice_str = join_dice(&dice_list);
+    let dice_str = dice_text::join_dice(&dice_list);
     let num_triumph_dices = dice_list.iter().filter(|&&dice| dice == 6).count() as i64;
     let num_successes = dice_list
         .iter()
@@ -322,7 +313,7 @@ fn resolute_difficult_action(
     rng: &mut Randomizer,
 ) -> Result<(String, bool), EvalError> {
     let dice_list = rng.roll_barabara(num_dices, D6)?;
-    let dice_str = join_dice(&dice_list);
+    let dice_str = dice_text::join_dice(&dice_list);
     // Ruby `dice_list.max()`。0個のときは TypeError だが、ここは失敗扱いにする。
     let largest_roll = dice_list.iter().copied().max().unwrap_or(0);
     let is_successful = largest_roll >= least_success_roll;

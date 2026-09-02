@@ -16,9 +16,9 @@
 //!
 //! [`roll_tables`] は同じ形の `Nuekagami_Korean`（`ko_kr` ロケール）からも使う。
 
-use crate::dice_table::{RollableTable, Table};
+use crate::dice_table::Table;
 use crate::eval::EvalError;
-use crate::game_system::{GameSystem, SpecificCommandOutput};
+use crate::game_system::{table_helpers, GameSystem, SpecificCommandOutput};
 use crate::randomizer::Randomizer;
 
 // ---------------------------------------------------------------------------
@@ -284,10 +284,7 @@ pub fn roll_tables(
     tables: &[(&str, &Table)],
     rng: &mut Randomizer,
 ) -> Result<Option<String>, EvalError> {
-    let Some((_, table)) = tables.iter().find(|(key, _)| *key == command) else {
-        return Ok(None);
-    };
-    Ok(Some(table.roll(rng)?.to_string()))
+    table_helpers::roll_table(command, tables, rng)
 }
 
 /// Ruby `BCDice::GameSystem::Nuekagami`（ID: `Nuekagami`）。

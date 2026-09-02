@@ -13,9 +13,9 @@ use std::sync::OnceLock;
 
 use regex::Regex;
 
-use crate::dice_table::{RollableTable, Table};
+use crate::dice_table::Table;
 use crate::eval::EvalError;
-use crate::game_system::{GameSystem, SpecificCommandOutput};
+use crate::game_system::{str_helpers, table_helpers, GameSystem, SpecificCommandOutput};
 use crate::randomizer::Randomizer;
 use crate::result::EvalResult;
 
@@ -79,8 +79,8 @@ OMKJ
             )?)));
         }
 
-        // Ruby: roll_tables(command, TABLES)
-        Ok(roll_tables(command, rng)?.map(SpecificCommandOutput::text))
+        // Ruby: table_helpers::roll_table(command, TABLES, TABLES)
+        Ok(table_helpers::roll_table(command, TABLES, rng)?.map(SpecificCommandOutput::text))
     }
 }
 
@@ -92,9 +92,9 @@ fn infinite_d66_pattern() -> &'static Regex {
     RE.get_or_init(|| Regex::new(r"(?i)^(([0-9]+)\+)?(∞|I)D66$").expect("valid regex"))
 }
 
-/// Ruby `String#to_i` 相当（桁あふれは飽和させる）。
+/// Ruby `String#to_i`。`i64` に収まらない指定は `i64::MAX`に飽和。
 fn to_i_saturating(text: &str) -> i64 {
-    text.parse::<i64>().unwrap_or(i64::MAX)
+    str_helpers::to_i_max(text)
 }
 
 // OMKJ: おみくじ (1D6) 6 items
@@ -110,14 +110,6 @@ static OMKJ_TABLE: Table = Table::from_dice("おみくじ", 1, 6, OMKJ_ITEMS);
 
 /// Ruby `TABLES`（`roll_tables` が引くコマンド名 → 表）。
 static TABLES: &[(&str, &Table)] = &[("OMKJ", &OMKJ_TABLE)];
-
-/// Ruby `Base#roll_tables(command, tables)`。
-fn roll_tables(command: &str, rng: &mut Randomizer) -> Result<Option<String>, EvalError> {
-    let Some((_, table)) = TABLES.iter().find(|(key, _)| *key == command) else {
-        return Ok(None);
-    };
-    Ok(Some(table.roll(rng)?.to_string()))
-}
 
 /// Ruby `Shiranui::InifiniteD66Step`（∞D66の1回分）。
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]

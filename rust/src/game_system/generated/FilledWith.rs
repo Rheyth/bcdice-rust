@@ -27,7 +27,9 @@ use crate::arithmetic;
 use crate::dice_table::{RangeInc, RollableTable, Table};
 use crate::enums::{D66SortType, RoundType};
 use crate::eval::EvalError;
-use crate::game_system::{GameSystem, SpecificCommandOutput};
+use crate::game_system::{
+    dice_text, str_helpers, table_helpers, GameSystem, SpecificCommandOutput,
+};
 use crate::randomizer::{sat_i64, Randomizer};
 use crate::result::EvalResult;
 
@@ -164,33 +166,13 @@ fn eval_specific_command(
         return Ok(roll_random_option_table(command, rng)?.map(SpecificCommandOutput::text));
     }
 
-    Ok(roll_tables(command, rng)?.map(SpecificCommandOutput::text))
-}
-
-/// Ruby `Base#roll_tables(command, TABLES)`。
-fn roll_tables(command: &str, rng: &mut Randomizer) -> Result<Option<String>, EvalError> {
-    match TABLES.iter().find(|(key, _)| *key == command) {
-        None => Ok(None),
-        Some((_, table)) => Ok(Some(table.roll(rng)?.to_string())),
-    }
+    Ok(table_helpers::roll_table(command, TABLES, rng)?.map(SpecificCommandOutput::text))
 }
 
 /// Ruby `String#to_i`（符号付きの数字列）。桁あふれは符号側へ飽和させる。
+/// Ruby `String#to_i`。`i64` 範囲外は符号方向に飽和。
 fn to_i(source: &str) -> i64 {
-    source.parse().unwrap_or(if source.starts_with('-') {
-        i64::MIN
-    } else {
-        i64::MAX
-    })
-}
-
-/// Ruby `dice_list.join(",")`。
-fn join_dice(dice_list: &[i64]) -> String {
-    dice_list
-        .iter()
-        .map(|d| d.to_string())
-        .collect::<Vec<_>>()
-        .join(",")
+    str_helpers::to_i_signed_saturating(source)
 }
 
 // ---------------------------------------------------------------------------
@@ -252,7 +234,7 @@ impl FW {
     fn roll(&self, rng: &mut Randomizer) -> Result<EvalResult, EvalError> {
         let dice_list = rng.roll_barabara(self.dice_count, 6)?;
         let dice: i64 = dice_list.iter().sum();
-        let dice_str = join_dice(&dice_list);
+        let dice_str = dice_text::join_dice(&dice_list);
 
         let mut res = self.result(dice);
 

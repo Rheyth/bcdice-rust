@@ -17,7 +17,7 @@ use crate::dice_table::range_table::RangeTableItem;
 use crate::dice_table::{RangeInc, RangeTable};
 use crate::enums::RoundType;
 use crate::eval::EvalError;
-use crate::game_system::{GameSystem, SpecificCommandOutput};
+use crate::game_system::{table_helpers, GameSystem, SpecificCommandOutput};
 use crate::randomizer::Randomizer;
 use crate::result::EvalResult;
 
@@ -134,12 +134,9 @@ fn make_command_text(modifier: Option<i64>, border: i64) -> String {
     format!("({command})")
 }
 
-/// Ruby `Base#roll_tables(command, tables)`。
+/// Ruby `Base#roll_tables(command, TABLES)`。
 fn roll_tables(command: &str, rng: &mut Randomizer) -> Result<Option<String>, EvalError> {
-    let Some((_, table)) = TABLES.iter().find(|(key, _)| *key == command) else {
-        return Ok(None);
-    };
-    Ok(Some(table.roll(rng)?.to_string()))
+    table_helpers::roll_range_table(command, TABLES, rng)
 }
 
 /// Ruby `ALIAS`（キー・値ともに `upcase` 済み）。

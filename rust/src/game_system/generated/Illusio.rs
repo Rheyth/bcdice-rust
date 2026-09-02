@@ -12,7 +12,7 @@ use std::sync::OnceLock;
 use regex::Regex;
 
 use crate::eval::EvalError;
-use crate::game_system::{GameSystem, SpecificCommandOutput};
+use crate::game_system::{str_helpers, GameSystem, SpecificCommandOutput};
 use crate::randomizer::Randomizer;
 
 /// Ruby `BCDice::GameSystem::Illusio`（ID: `Illusio`）。
@@ -99,12 +99,9 @@ fn eval_check_roll(
     )?)))
 }
 
-/// Ruby の `String#to_i`（多倍長）。`i64` に収まらない入力は飽和させる。
-///
-/// 桁あふれするダイス数は Ruby でも `roll_barabara` の上限（`UPPER_LIMIT_RANDS`）に
-/// 引っかかって `TooManyRandsError` になるので、飽和させても挙動は変わらない。
+/// Ruby `String#to_i`。`i64` に収まらない指定は `i64::MAX`に飽和。
 fn to_i(digits: &str) -> i64 {
-    digits.parse::<i64>().unwrap_or(i64::MAX)
+    str_helpers::to_i_max(digits)
 }
 
 /// Ruby `(m[2] || "").each_char.map(&:to_i).uniq.sort`。

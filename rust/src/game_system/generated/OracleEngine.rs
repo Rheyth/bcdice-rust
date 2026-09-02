@@ -22,7 +22,7 @@ use crate::command_parser::{Parsed, Parser};
 use crate::enums::RoundType;
 use crate::eval::EvalError;
 use crate::format;
-use crate::game_system::{GameSystem, SpecificCommandOutput};
+use crate::game_system::{dice_text, str_helpers, GameSystem, SpecificCommandOutput};
 use crate::normalize::CmpOp;
 use crate::randomizer::Randomizer;
 
@@ -123,13 +123,9 @@ fn r_dispatch_pattern() -> &'static Regex {
 // 共通の部品
 // ---------------------------------------------------------------------------
 
-/// Ruby `String#to_i`。先頭の数字列を読み、無ければ 0。`i64` に収まらない値は飽和させる。
+/// Ruby `String#to_i`（先頭の数字列。空なら 0）。`i64` 範囲外は `i64::MAX` に飽和。
 fn to_i(s: &str) -> i64 {
-    let digits = s.len() - s.trim_start_matches(|c: char| c.is_ascii_digit()).len();
-    if digits == 0 {
-        return 0;
-    }
-    s[..digits].parse::<i64>().unwrap_or(i64::MAX)
+    str_helpers::leading_digits_to_i_max(s)
 }
 
 /// Ruby `OracleEngine#clamp`。
@@ -152,14 +148,6 @@ fn pop_n(list: &mut Vec<i64>, n: u64) -> Vec<i64> {
     list.split_off(keep)
 }
 
-/// Ruby `list.join(', ')`。
-fn join_dice(list: &[i64]) -> String {
-    list.iter()
-        .map(|d| d.to_string())
-        .collect::<Vec<_>>()
-        .join(", ")
-}
-
 /// Ruby `#{@cmd.target_number}`（`nil` なら空文字列）。
 fn target_text(cmd: &Parsed) -> String {
     cmd.target_number
@@ -180,12 +168,15 @@ fn dice_result_text(
     let modify_number_text = format::modifier(modify_number);
 
     if break_list.is_empty() {
-        format!("{dice_total}[{}]{modify_number_text}", join_dice(dice_list))
+        format!(
+            "{dice_total}[{}]{modify_number_text}",
+            dice_text::join_dice_with_comma_space(dice_list)
+        )
     } else {
         format!(
             "{dice_total}[{}]×[{}]{modify_number_text}",
-            join_dice(dice_list),
-            join_dice(break_list)
+            dice_text::join_dice_with_comma_space(dice_list),
+            dice_text::join_dice_with_comma_space(break_list)
         )
     }
 }
@@ -257,7 +248,7 @@ fn clutch_roll(string: &str, rng: &mut Randomizer) -> Result<Option<String>, Eva
 
     let sequence = [
         expr_clutch(&ctx),
-        format!("[{}]", join_dice(&dice_list)),
+        format!("[{}]", dice_text::join_dice_with_comma_space(&dice_list)),
         result,
     ];
 

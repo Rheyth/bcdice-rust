@@ -15,7 +15,7 @@ use regex::Regex;
 use crate::arithmetic;
 use crate::enums::RoundType;
 use crate::eval::EvalError;
-use crate::game_system::{GameSystem, SpecificCommandOutput};
+use crate::game_system::{str_helpers, GameSystem, SpecificCommandOutput};
 use crate::randomizer::Randomizer;
 
 /// Ruby `BCDice::GameSystem::DarkSouls`（ID: `DarkSouls`）。
@@ -85,8 +85,9 @@ impl GameSystem for DarkSouls {
 /// Ruby `String#to_i`（ここに来るのは `\d+` にマッチした文字列だけ）。
 ///
 /// 桁あふれは Ruby だと Bignum になるので、`i64` に収まらない場合は飽和させる。
+/// Ruby `String#to_i`。`i64` に収まらない指定は `i64::MAX` に飽和。
 fn to_i(digits: &str) -> i64 {
-    digits.parse().unwrap_or(i64::MAX)
+    str_helpers::to_i_max(digits)
 }
 
 /// Ruby `#getValue`: `ArithmeticEvaluator.eval(text)`（不正な式・`nil` は `0`）。

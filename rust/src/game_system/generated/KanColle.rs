@@ -15,10 +15,10 @@
 //! 表データは Ruby の定数・メソッド内配列から機械的に書き出したもので、値は1文字も変えていない。
 
 use crate::dice_table::sai_fic_skill_table::DEFAULT_SKILL_FORMAT;
-use crate::dice_table::{RollableTable, SaiFicCategory, SaiFicFormats, SaiFicSkillTable, Table};
+use crate::dice_table::{SaiFicCategory, SaiFicFormats, SaiFicSkillTable, Table};
 use crate::enums::D66SortType;
 use crate::eval::EvalError;
-use crate::game_system::{GameSystem, SpecificCommandOutput, Target};
+use crate::game_system::{table_helpers, GameSystem, SpecificCommandOutput, Target};
 use crate::normalize::CmpOp;
 use crate::randomizer::Randomizer;
 use crate::result::{CheckOutcome, EvalResult};
@@ -841,14 +841,6 @@ fn get_develop_matome_table(rng: &mut Randomizer) -> Result<(String, String), Ev
     Ok((result, number))
 }
 
-/// Ruby `Base#roll_tables(command, TABLES)`。
-fn roll_tables(command: &str, rng: &mut Randomizer) -> Result<Option<String>, EvalError> {
-    match TABLES.iter().find(|(key, _)| *key == command) {
-        None => Ok(None),
-        Some((_, table)) => Ok(Some(table.roll(rng)?.to_string())),
-    }
-}
-
 /// Ruby `KanColle#eval_game_system_specific_command`。
 fn eval_specific_command(command: &str, rng: &mut Randomizer) -> Result<Option<String>, EvalError> {
     // Ruby: type / (output, total_n) を case で決めて "#{type}(#{total_n}) ＞ #{output}"
@@ -878,8 +870,8 @@ fn eval_specific_command(command: &str, rng: &mut Randomizer) -> Result<Option<S
             ("装備４種表", output.to_string(), total_n.to_string())
         }
         _ => {
-            // Ruby: return roll_tables(command, TABLES) || RTT.roll_command(@randomizer, command)
-            return match roll_tables(command, rng)? {
+            // Ruby: return table_helpers::roll_table(command, TABLES, TABLES) || RTT.roll_command(@randomizer, command)
+            return match table_helpers::roll_table(command, TABLES, rng)? {
                 Some(text) => Ok(Some(text)),
                 None => RTT.roll_command(rng, command),
             };

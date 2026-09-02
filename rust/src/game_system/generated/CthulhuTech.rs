@@ -15,7 +15,7 @@ use crate::arithmetic;
 use crate::enums::RoundType;
 use crate::eval::EvalError;
 use crate::format::modifier;
-use crate::game_system::{GameSystem, SpecificCommandOutput};
+use crate::game_system::{dice_text, GameSystem, SpecificCommandOutput};
 use crate::randomizer::Randomizer;
 
 /// Ruby `BCDice::GameSystem::CthulhuTech`（ID: `CthulhuTech`）。
@@ -120,7 +120,7 @@ fn execute(
     );
 
     // Ruby: test_value_expression(sorted_dice_values, roll_result)
-    let dice_str = join_dice(&sorted_dice_values);
+    let dice_str = dice_text::join_dice(&sorted_dice_values);
     let test_value_expression = format!(
         "{roll_result}[{dice_str}]{}",
         modifier(&crate::Int::from(modifier_value))
@@ -240,14 +240,6 @@ fn sum_of_largest_straight(sorted_dice_values: &[i64]) -> i64 {
     }
 
     max_sum
-}
-
-/// Ruby `dice_values.join(',')`。
-fn join_dice(dice: &[i64]) -> String {
-    dice.iter()
-        .map(|d| d.to_string())
-        .collect::<Vec<_>>()
-        .join(",")
 }
 
 #[cfg(test)]

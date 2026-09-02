@@ -15,7 +15,7 @@ use regex::Regex;
 use crate::arithmetic;
 use crate::enums::RoundType;
 use crate::eval::EvalError;
-use crate::game_system::{GameSystem, SpecificCommandOutput};
+use crate::game_system::{str_helpers, GameSystem, SpecificCommandOutput};
 use crate::randomizer::Randomizer;
 
 /// Ruby `BCDice::GameSystem::RokumonSekai2`（ID: `RokumonSekai2`）。
@@ -122,12 +122,9 @@ fn roll_pattern() -> &'static Regex {
     RE.get_or_init(|| Regex::new(r"(?i)3R6([+\-0-9]*)<=([0-9]+)\[([0-9]+)\]").expect("valid regex"))
 }
 
+/// Ruby `String#to_i`。`i64` 範囲外は符号方向に飽和。
 fn to_i(text: &str) -> i64 {
-    text.parse().unwrap_or(if text.starts_with('-') {
-        i64::MIN
-    } else {
-        i64::MAX
-    })
+    str_helpers::to_i_signed_saturating(text)
 }
 
 /// Ruby `RokumonSekai2#rokumon2_roll`。

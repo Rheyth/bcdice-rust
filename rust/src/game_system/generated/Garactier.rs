@@ -19,7 +19,7 @@ use crate::arithmetic;
 use crate::dice_table::{D66Table, RollableTable, Table, TableItem};
 use crate::enums::{D66SortType, RoundType};
 use crate::eval::EvalError;
-use crate::game_system::{GameSystem, SpecificCommandOutput};
+use crate::game_system::{dice_text, GameSystem, SpecificCommandOutput};
 use crate::randomizer::Randomizer;
 use crate::result::EvalResult;
 
@@ -369,7 +369,7 @@ fn roll_search(command: &str, rng: &mut Randomizer) -> Result<Option<EvalResult>
         "({}) ＞ {}[{}]{} ＞ {} ＞ {}",
         &m[0],
         d.dice_sum,
-        join_dice(&d.dice_list),
+        dice_text::join_dice(&d.dice_list),
         m.get(1).map(|x| x.as_str()).unwrap_or(""),
         d.total,
         r.text
@@ -402,7 +402,7 @@ fn roll_target(command: &str, rng: &mut Randomizer) -> Result<Option<EvalResult>
         "({}) ＞ {}[{}]{} ＞ {} ＞ {}",
         &m[0],
         d.dice_sum,
-        join_dice(&d.dice_list),
+        dice_text::join_dice(&d.dice_list),
         m.get(2).map(|x| x.as_str()).unwrap_or(""),
         d.total,
         r.text
@@ -441,7 +441,7 @@ fn roll_gr(command: &str, rng: &mut Randomizer) -> Result<Option<EvalResult>, Ev
         "({}) ＞ {}[{}]{} ＞ {} ＞ {}",
         &m[0],
         d.dice_sum,
-        join_dice(&d.dice_list),
+        dice_text::join_dice(&d.dice_list),
         m.get(1).map(|x| x.as_str()).unwrap_or(""),
         d.total,
         r.text
@@ -475,15 +475,6 @@ fn roll_dice_with_modifier(
         critical,
         fumble,
     })
-}
-
-/// 出目リストをRubyの `Array#join(',')` 形式にする。
-fn join_dice(dice_list: &[i64]) -> String {
-    dice_list
-        .iter()
-        .map(|d| d.to_string())
-        .collect::<Vec<_>>()
-        .join(",")
 }
 
 /// Ruby `Garactier#determine_target_result`（目標値あり）。

@@ -16,7 +16,7 @@ use crate::command_parser::{Parser, SuffixPosition};
 use crate::enums::RoundType;
 use crate::eval::EvalError;
 use crate::game_system::int_helpers::int_saturating_sub;
-use crate::game_system::{GameSystem, SpecificCommandOutput, Target};
+use crate::game_system::{str_helpers, GameSystem, SpecificCommandOutput, Target};
 use crate::normalize::CmpOp;
 use crate::randomizer::Randomizer;
 use crate::result::{CheckOutcome, EvalResult};
@@ -265,13 +265,9 @@ fn difference(total: i64, target_number: i64) -> i64 {
     }
 }
 
-/// Ruby `String#to_i` 相当（先頭の数字列だけを読み、桁あふれは飽和させる）。
+/// Ruby `String#to_i`（先頭の数字列。空なら 0）。`i64` 範囲外は `i64::MAX` に飽和。
 fn to_i(text: &str) -> i64 {
-    let digits: String = text.chars().take_while(|c| c.is_ascii_digit()).collect();
-    if digits.is_empty() {
-        return 0;
-    }
-    digits.parse::<i64>().unwrap_or(i64::MAX)
+    str_helpers::leading_digits_to_i_max(text)
 }
 
 /// Ruby `ChaosFlare::FATE_TABLE`。

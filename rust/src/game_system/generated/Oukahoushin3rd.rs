@@ -19,9 +19,9 @@ use std::sync::OnceLock;
 
 use regex::Regex;
 
-use crate::dice_table::{RollableTable, Table};
+use crate::dice_table::Table;
 use crate::eval::EvalError;
-use crate::game_system::{GameSystem, SpecificCommandOutput};
+use crate::game_system::{str_helpers, table_helpers, GameSystem, SpecificCommandOutput};
 use crate::randomizer::Randomizer;
 
 /// Ruby `BCDice::GameSystem::Oukahoushin3rd`（ID: `Oukahoushin3rd`）。
@@ -65,8 +65,8 @@ impl GameSystem for Oukahoushin3rd {
         command: &str,
         rng: &mut Randomizer,
     ) -> Result<Option<SpecificCommandOutput>, EvalError> {
-        // Ruby: chosen = roll_tables(command, TABLES); replace_dice_notation(chosen)
-        let Some(chosen) = roll_tables(command, rng)? else {
+        // Ruby: chosen = table_helpers::roll_table(command, TABLES, TABLES); replace_dice_notation(chosen)
+        let Some(chosen) = table_helpers::roll_table(command, TABLES, rng)? else {
             // Ruby: nil&.gsub は nil
             return Ok(None);
         };
@@ -195,14 +195,6 @@ static TABLES: &[(&str, &Table)] = &[
     ("UKT", &UKT_TABLE),
 ];
 
-/// Ruby `Base#roll_tables(command, tables)`。
-fn roll_tables(command: &str, rng: &mut Randomizer) -> Result<Option<String>, EvalError> {
-    let Some((_, table)) = TABLES.iter().find(|(key, _)| *key == command) else {
-        return Ok(None);
-    };
-    Ok(Some(table.roll(rng)?.to_string()))
-}
-
 /// Ruby `/(\d+)D(\d+)/`。
 ///
 /// Rubyの `\d` はASCII限定なので `[0-9]` に置き換える（Rustの `regex` は既定でUnicode）。
@@ -240,9 +232,9 @@ fn replace_dice_notation(text: &str, rng: &mut Randomizer) -> Result<String, Eva
     Ok(out)
 }
 
-/// Ruby `String#to_i` 相当（桁あふれは飽和させる）。
+/// Ruby `String#to_i`。`i64` に収まらない指定は `i64::MAX`に飽和。
 fn to_i_saturating(text: &str) -> i64 {
-    text.parse::<i64>().unwrap_or(i64::MAX)
+    str_helpers::to_i_max(text)
 }
 
 #[cfg(test)]

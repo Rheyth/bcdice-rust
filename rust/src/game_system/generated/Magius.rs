@@ -21,7 +21,7 @@ use crate::arithmetic;
 use crate::enums::RoundType;
 use crate::eval::EvalError;
 use crate::format::modifier;
-use crate::game_system::{GameSystem, SpecificCommandOutput};
+use crate::game_system::{dice_text, GameSystem, SpecificCommandOutput};
 use crate::randomizer::Randomizer;
 use crate::result::EvalResult;
 
@@ -105,7 +105,7 @@ fn resolute_ability_action(
 
     let mut dices = rng.roll_barabara(2, 6)?;
     dices.sort_unstable();
-    let dice_text = join_dice(&dices);
+    let dice_text = dice_text::join_dice(&dices);
     let dice_add: i64 = dices.iter().sum();
     let total = dice_add.saturating_add(modify);
 
@@ -130,7 +130,7 @@ fn resolute_skill_action(
 
     let mut dices = rng.roll_barabara(3, 6)?;
     dices.sort_unstable();
-    let dice_text = join_dice(&dices);
+    let dice_text = dice_text::join_dice(&dices);
     // Ruby: dices[1].to_i + dices[2].to_i（昇順ソート後の上位2つ）。
     // ダイスが振れなかった場合の `nil.to_i` は 0 になる。
     let dice_add: i64 = dices.get(1).copied().unwrap_or(0) + dices.get(2).copied().unwrap_or(0);
@@ -176,15 +176,6 @@ fn finish(
         modifier(&crate::Int::from(modify))
     );
     result
-}
-
-/// Ruby `dices.join(",")`。
-fn join_dice(dices: &[i64]) -> String {
-    dices
-        .iter()
-        .map(|d| d.to_string())
-        .collect::<Vec<_>>()
-        .join(",")
 }
 
 /// Ruby `BCDice::GameSystem::Magius`（ID: `Magius`）。

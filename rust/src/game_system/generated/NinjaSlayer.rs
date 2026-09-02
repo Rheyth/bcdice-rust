@@ -7,7 +7,7 @@ use regex::Regex;
 
 use crate::dice_table::{RollableTable, Table};
 use crate::eval::EvalError;
-use crate::game_system::{GameSystem, SpecificCommandOutput};
+use crate::game_system::{str_helpers, GameSystem, SpecificCommandOutput};
 use crate::normalize::CmpOp;
 use crate::randomizer::Randomizer;
 
@@ -131,8 +131,9 @@ fn difficulty(value: Option<&str>) -> i64 {
         Some(n) => to_i(n),
     }
 }
+/// Ruby `String#to_i`。`i64` に収まらない指定は `i64::MAX` に飽和。
 fn to_i(value: &str) -> i64 {
-    value.parse().unwrap_or(i64::MAX)
+    str_helpers::to_i_max(value)
 }
 
 static SB: Table = Table::from_dice("サツバツ表", 1, 6, &[

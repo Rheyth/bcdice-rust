@@ -5,14 +5,14 @@
 //! 生成スクリプトを再実行するとこのファイルはスタブへ戻るので注意。
 //!
 //! 移植したもの:
-//! - `InvisibleLiar#eval_game_system_specific_command` → `roll_tables(command, TABLES)`
+//! - `InvisibleLiar#eval_game_system_specific_command` → `table_helpers::roll_table(command, TABLES, TABLES)`
 //! - `TABLES`（採取表 8地形 × 採取時間 1〜5 の40表。すべて `1D6`）
 //!
 //! 表データは Ruby の定数から機械的に書き出したもので、値は1文字も変えていない。
 
-use crate::dice_table::{RollableTable, Table};
+use crate::dice_table::Table;
 use crate::eval::EvalError;
-use crate::game_system::{GameSystem, SpecificCommandOutput};
+use crate::game_system::{table_helpers, GameSystem, SpecificCommandOutput};
 use crate::randomizer::Randomizer;
 
 /// 採取表を1つ定義する（`Table.new(name, "1D6", items)` 相当）。
@@ -526,14 +526,6 @@ static TABLES: &[(&str, &Table)] = &[
     ("MOUNTAIN5", &MOUNTAIN5),
 ];
 
-/// Ruby `Base#roll_tables(command, tables)`。
-fn roll_tables(command: &str, rng: &mut Randomizer) -> Result<Option<String>, EvalError> {
-    match TABLES.iter().find(|(key, _)| *key == command) {
-        None => Ok(None),
-        Some((_, table)) => Ok(Some(table.roll(rng)?.to_string())),
-    }
-}
-
 /// Ruby `BCDice::GameSystem::InvisibleLiar`（ID: `InvisibleLiar`）。
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct InvisibleLiar;
@@ -618,7 +610,7 @@ MOUNTAINn 山岳
         command: &str,
         rng: &mut Randomizer,
     ) -> Result<Option<SpecificCommandOutput>, EvalError> {
-        Ok(roll_tables(command, rng)?.map(SpecificCommandOutput::text))
+        Ok(table_helpers::roll_table(command, TABLES, rng)?.map(SpecificCommandOutput::text))
     }
 }
 

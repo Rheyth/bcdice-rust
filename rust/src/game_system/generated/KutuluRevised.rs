@@ -17,7 +17,7 @@ use std::sync::OnceLock;
 use regex::Regex;
 
 use crate::eval::EvalError;
-use crate::game_system::{GameSystem, SpecificCommandOutput};
+use crate::game_system::{dice_text, GameSystem, SpecificCommandOutput};
 use crate::randomizer::Randomizer;
 use crate::result::EvalResult;
 
@@ -100,7 +100,7 @@ fn resolute_action(command: &str, rng: &mut Randomizer) -> Result<Option<EvalRes
 
     let mut dices = rng.roll_barabara(num_dices, 6)?;
     dices.sort_unstable();
-    let dice_text = join_dice(&dices);
+    let dice_text = dice_text::join_dice(&dices);
 
     let mut output = format!("({num_dices}KU) ＞ {dice_text}");
 
@@ -131,7 +131,7 @@ fn resolute_competition(
 
     let mut dices = rng.roll_barabara(num_dices, 6)?;
     dices.sort_unstable();
-    let dice_text = join_dice(&dices);
+    let dice_text = dice_text::join_dice(&dices);
 
     let counts_6 = dices.iter().filter(|&&val| val == 6).count();
     let counts_5 = dices.iter().filter(|&&val| val == 5).count();
@@ -146,15 +146,6 @@ fn resolute_competition(
     } else {
         Ok(Some(EvalResult::failure(output)))
     }
-}
-
-/// Ruby `dices.join(",")`。
-fn join_dice(dice_list: &[i64]) -> String {
-    dice_list
-        .iter()
-        .map(|d| d.to_string())
-        .collect::<Vec<_>>()
-        .join(",")
 }
 
 #[cfg(test)]

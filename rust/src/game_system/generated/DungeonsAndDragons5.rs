@@ -19,7 +19,7 @@ use regex::Regex;
 use crate::arithmetic;
 use crate::enums::RoundType;
 use crate::eval::EvalError;
-use crate::game_system::{GameSystem, SpecificCommandOutput};
+use crate::game_system::{dice_text, str_helpers, GameSystem, SpecificCommandOutput};
 use crate::randomizer::Randomizer;
 use crate::result::EvalResult;
 use crate::Int as I;
@@ -115,17 +115,9 @@ fn number_with_sign_from_int(number: i64) -> String {
 ///
 /// Ruby は桁あふれしても Bignum になるが、i64 に収まらない入力は飽和させる
 /// （振れるダイス数の上限や目標値の比較では、どちらでも結果が変わらない）。
+/// Ruby `String#to_i`。`i64` に収まらない指定は `i64::MAX` に飽和。
 fn to_i(text: &str) -> i64 {
-    text.parse().unwrap_or(i64::MAX)
-}
-
-/// Ruby `dice.join(",")`。
-fn join_dice(dice_list: &[i64]) -> String {
-    dice_list
-        .iter()
-        .map(|d| d.to_string())
-        .collect::<Vec<_>>()
-        .join(",")
+    str_helpers::to_i_max(text)
 }
 
 /// Ruby `exec_roll` の正規表現。
@@ -224,7 +216,7 @@ fn exec_roll(command: &str, rng: &mut Randomizer) -> Result<Option<ExecRoll>, Ev
         } else {
             dice.iter().copied().min().expect("2 dice")
         };
-        (usedie, format!("{usedie}[{}]", join_dice(&dice)))
+        (usedie, format!("{usedie}[{}]", dice_text::join_dice(&dice)))
     };
 
     let mut bonus_mod = 0;
@@ -249,7 +241,7 @@ fn exec_roll(command: &str, rng: &mut Randomizer) -> Result<Option<ExecRoll>, Ev
             bonus_str = format!(
                 "{}[{}]",
                 number_with_sign_from_int(bonus_mod),
-                join_dice(&bonus_mod_arr)
+                dice_text::join_dice(&bonus_mod_arr)
             );
         }
     }
@@ -407,7 +399,7 @@ fn twohands_damage_roll(
     let mut output = vec![format!("(2H{dice_count}D{dice_number}{mod_str})")];
 
     let dice = rng.roll_barabara(dice_count, dice_number)?;
-    output.push(format!("[{}]{mod_str}", join_dice(&dice)));
+    output.push(format!("[{}]{mod_str}", dice_text::join_dice(&dice)));
 
     // 出目1,2を振り直す（パラディン／ファイターの両手持ち）
     let mut ex_dice: Vec<i64> = Vec::new();
@@ -426,8 +418,8 @@ fn twohands_damage_roll(
     if !new_dice.is_empty() {
         output.push(format!(
             "[{}][{}]{mod_str}",
-            join_dice(&ex_dice),
-            join_dice(&new_dice)
+            dice_text::join_dice(&ex_dice),
+            dice_text::join_dice(&new_dice)
         ));
     }
     output.push((sum_dice + crate::randomizer::sat_i64(&modify)).to_string());

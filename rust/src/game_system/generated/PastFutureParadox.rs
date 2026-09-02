@@ -25,7 +25,7 @@ use crate::dice_table::{
 use crate::enums::{D66SortType, RoundType};
 use crate::eval::EvalError;
 use crate::format::modifier;
-use crate::game_system::{GameSystem, SpecificCommandOutput};
+use crate::game_system::{dice_text, GameSystem, SpecificCommandOutput};
 use crate::normalize::CmpOp;
 use crate::randomizer::Randomizer;
 use crate::result::EvalResult;
@@ -475,7 +475,7 @@ fn action_roll(
         format!("({})", cmd.to_s(SuffixPosition::AfterModifyNumber)),
         format!(
             "{dice_total}[{}]{}",
-            join_dice(&dice_list),
+            dice_text::join_dice(&dice_list),
             modifier(&cmd.modify_number)
         ),
         total.to_string(),
@@ -641,7 +641,7 @@ fn format_with_dice(
     operator: Option<&str>,
     modify: i64,
 ) -> String {
-    let dice = join_dice(dice_list);
+    let dice = dice_text::join_dice(dice_list);
     if modify != 0 {
         format!(
             "{}:{sum}[{dice}]{}{} ＞ {shown}:{}",
@@ -657,15 +657,6 @@ fn format_with_dice(
             info.body()
         )
     }
-}
-
-/// Ruby `dice_list.join(",")`。
-fn join_dice(dice_list: &[i64]) -> String {
-    dice_list
-        .iter()
-        .map(|d| d.to_string())
-        .collect::<Vec<_>>()
-        .join(",")
 }
 
 // 表データ（以下の `static` 群）は `lib/bcdice/game_system/PastFutureParadox.rb` から

@@ -8,7 +8,7 @@ use crate::command_parser::{Parser, SuffixPosition};
 use crate::enums::RoundType;
 use crate::eval::EvalError;
 use crate::format::modifier;
-use crate::game_system::{GameSystem, SpecificCommandOutput};
+use crate::game_system::{str_helpers, GameSystem, SpecificCommandOutput};
 use crate::normalize::CmpOp;
 use crate::randomizer::Randomizer;
 use crate::Int as I;
@@ -120,8 +120,9 @@ impl GameSystem for NightmareHunterDeep {
     }
 }
 
+/// Ruby `String#to_i`。`i64` に収まらない指定は `i64::MAX` に飽和。
 fn to_i(value: &str) -> i64 {
-    value.parse().unwrap_or(i64::MAX)
+    str_helpers::to_i_max(value)
 }
 
 #[cfg(test)]

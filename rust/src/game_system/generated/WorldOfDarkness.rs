@@ -10,7 +10,7 @@
 use regex::Regex;
 
 use crate::eval::EvalError;
-use crate::game_system::{GameSystem, SpecificCommandOutput};
+use crate::game_system::{dice_text, str_helpers, GameSystem, SpecificCommandOutput};
 use crate::randomizer::Randomizer;
 use crate::result::EvalResult;
 
@@ -92,7 +92,7 @@ impl GameSystem for WorldOfDarkness {
         let mut once_success = false;
 
         let (dice, ten_success, success, botch) = roll_wod(dice_pool, difficulty, rng)?;
-        sequence.push(join_dice(&dice));
+        sequence.push(dice_text::join_dice(&dice));
         total_success += success;
         total_botch += botch;
 
@@ -113,7 +113,7 @@ impl GameSystem for WorldOfDarkness {
                 let mut ten_success = ten_success;
                 while ten_success > 0 {
                     let (dice, next_ten, success, botch) = roll_wod(ten_success, difficulty, rng)?;
-                    sequence.push(join_dice(&dice));
+                    sequence.push(dice_text::join_dice(&dice));
                     total_success += success + next_ten;
                     ten_success = next_ten;
 
@@ -147,15 +147,9 @@ impl GameSystem for WorldOfDarkness {
     }
 }
 
-/// Ruby の `String#to_i`（ここに来るのは `[+-]?\d+` にマッチした文字列だけ）。
+/// Ruby `String#to_i`。`i64` に収まらない指定は 符号方向に飽和。
 fn to_i(digits: &str) -> i64 {
-    digits.parse().unwrap_or_else(|_| {
-        if digits.starts_with('-') {
-            i64::MIN
-        } else {
-            i64::MAX
-        }
-    })
+    str_helpers::to_i_signed_saturating(digits)
 }
 
 /// Ruby `WorldOfDarkness#roll_wod`。
@@ -190,14 +184,6 @@ fn roll_wod(
     }
 
     Ok((dice, ten_success, success, botch))
-}
-
-/// Ruby `dice.join(',')`。
-fn join_dice(dice: &[i64]) -> String {
-    dice.iter()
-        .map(|d| d.to_string())
-        .collect::<Vec<_>>()
-        .join(",")
 }
 
 #[cfg(test)]

@@ -19,9 +19,9 @@ use std::sync::OnceLock;
 use regex::Regex;
 
 use crate::common_command::add_dice;
-use crate::dice_table::{RollableTable, Table};
+use crate::dice_table::Table;
 use crate::eval::EvalError;
-use crate::game_system::{GameSystem, SpecificCommandOutput, Target};
+use crate::game_system::{table_helpers, GameSystem, SpecificCommandOutput, Target};
 use crate::normalize::CmpOp;
 use crate::randomizer::Randomizer;
 use crate::result::EvalResult;
@@ -152,18 +152,6 @@ fn roll_replaced_command_if_match(
     add_dice::eval(&replaced, game_system, rng)
 }
 
-/// Ruby `Base#roll_tables`。
-fn roll_tables(
-    tables: &'static [(&'static str, &'static Table)],
-    command: &str,
-    rng: &mut Randomizer,
-) -> Result<Option<String>, EvalError> {
-    match tables.iter().find(|(key, _)| *key == command) {
-        None => Ok(None),
-        Some((_, table)) => Ok(Some(table.roll(rng)?.to_string())),
-    }
-}
-
 /// Ruby `UnsungDuet#eval_game_system_specific_command`。
 ///
 /// `game_system` は `AddDice.eval(…, self, @randomizer)` の `self` に対応する
@@ -190,7 +178,7 @@ pub(crate) fn eval_specific_command(
     {
         return Ok(Some(SpecificCommandOutput::result(result)));
     }
-    Ok(roll_tables(sys.tables, command, rng)?.map(SpecificCommandOutput::text))
+    Ok(table_helpers::roll_table(command, sys.tables, rng)?.map(SpecificCommandOutput::text))
 }
 
 /// Ruby `Base#result_ndx`（ロケールの定型文で）。

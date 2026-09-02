@@ -5,14 +5,14 @@
 //! 生成スクリプトを再実行するとこのファイルはスタブへ戻るので注意。
 //!
 //! 移植したもの:
-//! - `Yotabana#eval_game_system_specific_command` → `roll_tables(command, TABLES)`
+//! - `Yotabana#eval_game_system_specific_command` → `table_helpers::roll_table(command, TABLES, TABLES)`
 //! - `TABLES`（収束表 `COT` / イベント表 `EVT`）
 //!
 //! 表データは Ruby の定数から機械的に書き出したもので、値は1文字も変えていない。
 
-use crate::dice_table::{RollableTable, Table};
+use crate::dice_table::Table;
 use crate::eval::EvalError;
-use crate::game_system::{GameSystem, SpecificCommandOutput};
+use crate::game_system::{table_helpers, GameSystem, SpecificCommandOutput};
 use crate::randomizer::Randomizer;
 
 static COT_ITEMS: &[&str] = &[
@@ -43,14 +43,6 @@ static EVT: Table = Table::from_dice("イベント表", 1, 12, EVT_ITEMS);
 
 /// Ruby `TABLES`。
 static TABLES: &[(&str, &Table)] = &[("COT", &COT), ("EVT", &EVT)];
-
-/// Ruby `Base#roll_tables(command, tables)`。
-fn roll_tables(command: &str, rng: &mut Randomizer) -> Result<Option<String>, EvalError> {
-    match TABLES.iter().find(|(key, _)| *key == command) {
-        None => Ok(None),
-        Some((_, table)) => Ok(Some(table.roll(rng)?.to_string())),
-    }
-}
 
 /// Ruby `BCDice::GameSystem::Yotabana`（ID: `Yotabana`）。
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -88,7 +80,7 @@ impl GameSystem for Yotabana {
         command: &str,
         rng: &mut Randomizer,
     ) -> Result<Option<SpecificCommandOutput>, EvalError> {
-        Ok(roll_tables(command, rng)?.map(SpecificCommandOutput::text))
+        Ok(table_helpers::roll_table(command, TABLES, rng)?.map(SpecificCommandOutput::text))
     }
 }
 

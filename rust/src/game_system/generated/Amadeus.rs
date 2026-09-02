@@ -23,7 +23,7 @@ use crate::dice_table::{D66Table, RollableTable, Table, TableItem};
 use crate::enums::{D66SortType, RoundType};
 use crate::eval::EvalError;
 use crate::format::modifier;
-use crate::game_system::{GameSystem, SpecificCommandOutput};
+use crate::game_system::{table_helpers, GameSystem, SpecificCommandOutput};
 use crate::normalize::{self, CmpOp};
 use crate::randomizer::Randomizer;
 use crate::result::EvalResult;
@@ -62,19 +62,7 @@ pub(crate) fn eval_specific_command(
     if let Some(result) = roll_amadeus(sys, command, rng)? {
         return Ok(Some(SpecificCommandOutput::result(result)));
     }
-    Ok(roll_tables(sys, command, rng)?.map(SpecificCommandOutput::text))
-}
-
-/// Ruby `Base#roll_tables(command, tables)`。
-fn roll_tables(
-    sys: &SystemTables,
-    command: &str,
-    rng: &mut Randomizer,
-) -> Result<Option<String>, EvalError> {
-    let Some((_, table)) = sys.tables.iter().find(|(key, _)| *key == command) else {
-        return Ok(None);
-    };
-    Ok(Some(table.roll(rng)?.to_string()))
+    Ok(table_helpers::roll_table(command, sys.tables, rng)?.map(SpecificCommandOutput::text))
 }
 
 /// Ruby `roll_amadeus` の判定コマンド。

@@ -25,7 +25,7 @@ use std::sync::OnceLock;
 use regex::Regex;
 
 use crate::eval::EvalError;
-use crate::game_system::{GameSystem, SpecificCommandOutput};
+use crate::game_system::{str_helpers, GameSystem, SpecificCommandOutput};
 use crate::randomizer::Randomizer;
 use crate::result::EvalResult;
 
@@ -193,15 +193,12 @@ pub(crate) fn eval_specific_command(
     Ok(None)
 }
 
-/// Ruby の `String#to_i`（多倍長）。`i64` に収まらない指定は飽和させる。
+/// Ruby `String#to_i`。`i64` に収まらない指定は 符号方向に飽和。
+///
+/// `GardenOrderReEdit` / `ScreamHighSchool` から `super::GardenOrder::to_i`
+/// として借用されるため `pub(crate)` を維持する。
 pub(crate) fn to_i(digits: &str) -> i64 {
-    digits.parse::<i64>().unwrap_or_else(|_| {
-        if digits.starts_with('-') {
-            i64::MIN
-        } else {
-            i64::MAX
-        }
-    })
+    str_helpers::to_i_signed_saturating(digits)
 }
 
 /// Ruby `GardenOrder#get_critical_border`。

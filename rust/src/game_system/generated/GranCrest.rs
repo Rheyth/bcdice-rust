@@ -15,7 +15,7 @@
 
 use crate::dice_table::{D66RowSplitTable, RollableTable, Table};
 use crate::eval::EvalError;
-use crate::game_system::{GameSystem, SpecificCommandOutput, Target};
+use crate::game_system::{table_helpers, GameSystem, SpecificCommandOutput, Target};
 use crate::normalize::CmpOp;
 use crate::randomizer::Randomizer;
 use crate::result::{CheckOutcome, EvalResult};
@@ -282,16 +282,6 @@ static ALIASES: &[(&str, &str)] = &[
     ("CATEGORYCT", "CT"),
 ];
 
-/// Ruby `Base#roll_tables(command, tables)`。
-fn roll_tables(command: &str, rng: &mut Randomizer) -> Result<Option<String>, EvalError> {
-    for (key, table) in TABLES {
-        if *key == command {
-            return Ok(Some(table.roll(rng)?.to_string()));
-        }
-    }
-    Ok(None)
-}
-
 /// Ruby `BCDice::GameSystem::GranCrest`（ID: `GranCrest`）。
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct GranCrest;
@@ -393,7 +383,7 @@ impl GameSystem for GranCrest {
 
     /// Ruby `#eval_game_system_specific_command`。
     ///
-    /// Ruby: `roll_tables(ALIASES[command] || command, TABLES)`
+    /// Ruby: `table_helpers::roll_table(ALIASES[command] || command, TABLES)`
     fn eval_game_system_specific_command(
         &self,
         command: &str,
@@ -404,7 +394,7 @@ impl GameSystem for GranCrest {
             .find(|(alias, _)| *alias == command)
             .map_or(command, |(_, key)| *key);
 
-        Ok(roll_tables(key, rng)?.map(SpecificCommandOutput::text))
+        Ok(table_helpers::roll_table(key, TABLES, rng)?.map(SpecificCommandOutput::text))
     }
 }
 

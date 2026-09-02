@@ -23,7 +23,7 @@ use crate::arithmetic;
 use crate::enums::RoundType;
 use crate::eval::EvalError;
 use crate::format::modifier;
-use crate::game_system::{GameSystem, SpecificCommandOutput};
+use crate::game_system::{str_helpers, GameSystem, SpecificCommandOutput};
 use crate::normalize::{self, CmpOp};
 use crate::randomizer::Randomizer;
 use crate::Int as I;
@@ -404,15 +404,9 @@ fn join_numbers(numbers: &[i64]) -> String {
         .join(",")
 }
 
-/// Ruby の `String#to_i`（多倍長）。`i64` に収まらない指定は飽和させる。
+/// Ruby `String#to_i`。`i64` に収まらない指定は 符号方向に飽和。
 fn to_i(digits: &str) -> i64 {
-    digits.parse::<i64>().unwrap_or_else(|_| {
-        if digits.starts_with('-') {
-            i64::MIN
-        } else {
-            i64::MAX
-        }
-    })
+    str_helpers::to_i_signed_saturating(digits)
 }
 
 /// Ruby `"#{nil}" == ""` / `"#{123}" == "123"`。

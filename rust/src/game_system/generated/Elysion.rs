@@ -18,7 +18,7 @@
 use crate::dice_table::{D66Table, RollableTable, Table, TableItem};
 use crate::enums::D66SortType;
 use crate::eval::EvalError;
-use crate::game_system::{GameSystem, SpecificCommandOutput};
+use crate::game_system::{table_helpers, GameSystem, SpecificCommandOutput};
 use crate::randomizer::Randomizer;
 use crate::result::EvalResult;
 
@@ -100,10 +100,10 @@ fn eval_specific_command(
         return Ok(wrap(command, body));
     }
 
-    // Ruby: else — checkAnyCommand が空なら roll_tables(command, TABLES) をそのまま返す
+    // Ruby: else — checkAnyCommand が空なら table_helpers::roll_table(command, TABLES, TABLES) をそのまま返す
     let result = check_any_command(command, rng)?;
     if result.is_empty() {
-        return match roll_tables(command, rng)? {
+        return match table_helpers::roll_table(command, TABLES, rng)? {
             Some(text) => Ok(Some(SpecificCommandOutput::text(text))),
             None => Ok(None),
         };
@@ -117,14 +117,6 @@ fn wrap(command: &str, body: String) -> Option<SpecificCommandOutput> {
         return None;
     }
     Some(SpecificCommandOutput::text(format!("{command} ＞ {body}")))
-}
-
-/// Ruby `Base#roll_tables(command, TABLES)`。
-fn roll_tables(command: &str, rng: &mut Randomizer) -> Result<Option<String>, EvalError> {
-    match TABLES.iter().find(|(key, _)| *key == command) {
-        None => Ok(None),
-        Some((_, table)) => Ok(Some(table.roll(rng)?.to_string())),
-    }
 }
 
 // ---------------------------------------------------------------------------

@@ -24,7 +24,7 @@ use crate::command_parser::{Parsed, Parser};
 use crate::dice_table::{RollableTable, Table};
 use crate::enums::RoundType;
 use crate::eval::EvalError;
-use crate::game_system::{GameSystem, SpecificCommandOutput};
+use crate::game_system::{str_helpers, GameSystem, SpecificCommandOutput};
 use crate::randomizer::Randomizer;
 use crate::result::EvalResult;
 use crate::Int as I;
@@ -310,12 +310,9 @@ fn at(values: &[i64], index: usize) -> String {
 }
 
 /// Ruby `String#to_i`。桁あふれは Ruby だと Bignum になるので i64 の端へ飽和させる。
+/// Ruby `String#to_i`。`i64` 範囲外は符号方向に飽和。
 fn to_i(text: &str) -> i64 {
-    text.parse().unwrap_or(if text.starts_with('-') {
-        i64::MIN
-    } else {
-        i64::MAX
-    })
+    str_helpers::to_i_signed_saturating(text)
 }
 
 /// Ruby `TABLES["CR"]`（クリティカル表）。

@@ -13,7 +13,7 @@ use std::sync::OnceLock;
 use regex::Regex;
 
 use crate::eval::EvalError;
-use crate::game_system::{GameSystem, SpecificCommandOutput};
+use crate::game_system::{str_helpers, GameSystem, SpecificCommandOutput};
 use crate::randomizer::Randomizer;
 use crate::result::EvalResult;
 
@@ -107,28 +107,9 @@ fn death_chart_pattern() -> &'static Regex {
     RE.get_or_init(|| Regex::new(r"(?i)^DC([LSC])([+-]?\d+)$").expect("valid regex"))
 }
 
-/// Ruby `String#to_i`。
+/// Ruby `String#to_i`。`i64` 範囲外は符号方向に飽和。
 fn ruby_to_i(s: &str) -> i64 {
-    let s = s.trim_start();
-    let bytes = s.as_bytes();
-    let mut end = 0;
-    if end < bytes.len() && (bytes[end] == b'+' || bytes[end] == b'-') {
-        end += 1;
-    }
-    let digits_start = end;
-    while end < bytes.len() && bytes[end].is_ascii_digit() {
-        end += 1;
-    }
-    if end == digits_start {
-        return 0;
-    }
-    s[..end].parse().unwrap_or_else(|_| {
-        if s.starts_with('-') {
-            i64::MIN
-        } else {
-            i64::MAX
-        }
-    })
+    str_helpers::ruby_to_i_signed_saturating(s)
 }
 
 /// Ruby `Array#[]`（負添字は末尾から。範囲外は nil）。

@@ -25,10 +25,10 @@ use std::sync::OnceLock;
 
 use regex::Regex;
 
-use crate::dice_table::{RollableTable, Table};
+use crate::dice_table::Table;
 use crate::enums::D66SortType;
 use crate::eval::EvalError;
-use crate::game_system::{GameSystem, SpecificCommandOutput};
+use crate::game_system::{str_helpers, table_helpers, GameSystem, SpecificCommandOutput};
 use crate::randomizer::Randomizer;
 
 // ---------------------------------------------------------------------------
@@ -116,19 +116,7 @@ pub(crate) fn eval_specific_command(
         .iter()
         .find(|(alias, _)| *alias == command)
         .map_or(command, |(_, name)| *name);
-    Ok(roll_tables(sys, key, rng)?.map(SpecificCommandOutput::text))
-}
-
-/// Ruby `Base#roll_tables(command, tables)`。
-fn roll_tables(
-    sys: &SystemTables,
-    command: &str,
-    rng: &mut Randomizer,
-) -> Result<Option<String>, EvalError> {
-    let Some((_, table)) = sys.tables.iter().find(|(key, _)| *key == command) else {
-        return Ok(None);
-    };
-    Ok(Some(table.roll(rng)?.to_string()))
+    Ok(table_helpers::roll_table(key, sys.tables, rng)?.map(SpecificCommandOutput::text))
 }
 
 /// Ruby `DetatokoSaga#checkRoll`（通常判定 `xDS`）。
@@ -347,8 +335,9 @@ fn total_value(sys: &SystemTables, total: i64) -> String {
 ///
 /// 桁あふれは Ruby だと Bignum になるので、`i64` に収まらない場合は飽和させ、
 /// ダイス個数なら `roll_barabara` の上限（TooManyRandsError）へ落ちるようにする。
+/// Ruby `String#to_i`。`i64` に収まらない指定は `i64::MAX` に飽和。
 fn to_i(digits: &str) -> i64 {
-    digits.parse().unwrap_or(i64::MAX)
+    str_helpers::to_i_max(digits)
 }
 
 // ---------------------------------------------------------------------------

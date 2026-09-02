@@ -25,12 +25,15 @@
 //! docs/refactor_candidates_20260901.md を参照。
 
 pub mod dice_bot;
+pub mod dice_text;
 pub mod dummy_system;
 pub mod generated;
 pub mod int_helpers;
 pub mod registry;
 #[cfg(test)]
 pub mod test_support;
+pub(crate) mod str_helpers;
+pub(crate) mod table_helpers;
 
 use std::borrow::Cow;
 

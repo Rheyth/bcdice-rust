@@ -17,7 +17,7 @@ use std::sync::OnceLock;
 use regex::Regex;
 
 use crate::eval::EvalError;
-use crate::game_system::{GameSystem, SpecificCommandOutput};
+use crate::game_system::{str_helpers, GameSystem, SpecificCommandOutput};
 use crate::randomizer::Randomizer;
 
 // ---------------------------------------------------------------------------
@@ -107,12 +107,9 @@ fn step_pattern() -> &'static Regex {
     RE.get_or_init(|| Regex::new(r"(?i)(\d+)E(\d+)?(\+)?(\d+)?(d\d+)?").expect("valid regex"))
 }
 
-/// Ruby `String#to_i`。
-///
-/// Ruby の `to_i` は多倍長だが、Rustでは `i64` に飽和させる
-/// （ステップも目標値も上でクランプされるので結果は変わらない）。
+/// Ruby `String#to_i`。`i64` に収まらない指定は `i64::MAX`に飽和。
 fn to_i(digits: &str) -> i64 {
-    digits.parse::<i64>().unwrap_or(i64::MAX)
+    str_helpers::to_i_max(digits)
 }
 
 /// Ruby `EarthDawn#rollStep`。

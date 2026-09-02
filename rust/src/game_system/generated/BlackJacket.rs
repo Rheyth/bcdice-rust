@@ -24,10 +24,10 @@ use std::sync::OnceLock;
 use regex::Regex;
 
 use crate::arithmetic;
-use crate::dice_table::{RollableTable, Table};
+use crate::dice_table::Table;
 use crate::enums::RoundType;
 use crate::eval::EvalError;
-use crate::game_system::{GameSystem, SpecificCommandOutput};
+use crate::game_system::{table_helpers, GameSystem, SpecificCommandOutput};
 use crate::randomizer::Randomizer;
 use crate::result::EvalResult;
 
@@ -207,16 +207,13 @@ pub(crate) fn eval_specific_command(
     Ok(roll_tables(tables, command, rng)?.map(SpecificCommandOutput::text))
 }
 
-/// Ruby `Base#roll_tables(command, tables)`。
+/// Ruby `Base#roll_tables(command, sys.tables)`。
 fn roll_tables(
     tables: &SystemTables,
     command: &str,
     rng: &mut Randomizer,
 ) -> Result<Option<String>, EvalError> {
-    let Some((_, table)) = tables.tables.iter().find(|(key, _)| *key == command) else {
-        return Ok(None);
-    };
-    Ok(Some(table.roll(rng)?.to_string()))
+    table_helpers::roll_table(command, tables.tables, rng)
 }
 
 /// Ruby `resolute_action` の正規表現。

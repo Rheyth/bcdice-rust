@@ -23,7 +23,7 @@ use regex::Regex;
 
 use crate::enums::D66SortType;
 use crate::eval::EvalError;
-use crate::game_system::{GameSystem, SpecificCommandOutput};
+use crate::game_system::{str_helpers, GameSystem, SpecificCommandOutput};
 use crate::randomizer::Randomizer;
 
 /// 人物表の項目。Ruby では `String` か `Proc`。
@@ -862,16 +862,9 @@ fn get_table_by_number(index: i64, table: &[(i64, &'static str)]) -> &'static st
         .map_or("1", |(_, text)| *text)
 }
 
-/// Ruby `String#to_i`。ここに来るのは `\d+` なので符号や空白は現れない。
+/// Ruby `String#to_i`。`i64` に収まらない指定は `i64::MAX`に飽和。
 fn ruby_to_i(s: &str) -> i64 {
-    let digits: String = s.chars().take_while(char::is_ascii_digit).collect();
-    if digits.is_empty() {
-        // Ruby: "".to_i == 0
-        return 0;
-    }
-    // 桁あふれは Ruby だと Bignum になる。i64 に収まらない場合は飽和させ、
-    // 振る回数の上限（TooManyRandsError）へ落ちるようにする。
-    digits.parse().unwrap_or(i64::MAX)
+    str_helpers::leading_digits_to_i_max(s)
 }
 
 #[cfg(test)]

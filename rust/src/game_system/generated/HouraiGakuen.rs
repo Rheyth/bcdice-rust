@@ -13,7 +13,7 @@ use std::sync::OnceLock;
 use regex::Regex;
 
 use crate::eval::EvalError;
-use crate::game_system::{GameSystem, SpecificCommandOutput};
+use crate::game_system::{dice_text, str_helpers, GameSystem, SpecificCommandOutput};
 use crate::randomizer::Randomizer;
 
 const CRITICAL: &str = "大成功";
@@ -123,22 +123,9 @@ fn eval_specific_command(
     Ok(None)
 }
 
+/// Ruby `String#to_i`。`i64` に収まらない指定は 符号方向に飽和。
 fn to_i(digits: &str) -> i64 {
-    digits.parse::<i64>().unwrap_or_else(|_| {
-        if digits.starts_with('-') {
-            i64::MIN
-        } else {
-            i64::MAX
-        }
-    })
-}
-
-fn join_dice(dice_list: &[i64]) -> String {
-    dice_list
-        .iter()
-        .map(|d| d.to_string())
-        .collect::<Vec<_>>()
-        .join(",")
+    str_helpers::to_i_signed_saturating(digits)
 }
 
 /// Ruby `HouraiGakuen#getRollResult`。
@@ -149,7 +136,7 @@ fn get_roll_result(command: &str, rng: &mut Randomizer) -> Result<Option<String>
     let target = to_i(&m[1]);
     let dice_list = rng.roll_barabara(3, 6)?;
     let total: i64 = dice_list.iter().sum();
-    let dice_text = join_dice(&dice_list);
+    let dice_text = dice_text::join_dice(&dice_list);
     let result = get_check_result(&dice_list, total, target);
     Ok(Some(format!(
         "(3d6<={target}) ＞ 出目{dice_text}＝合計{total} ＞ {result}"
@@ -190,7 +177,7 @@ fn get_med_result(command: &str, rng: &mut Randomizer) -> Result<Option<String>,
     let target = get_target_from_value(your_value, enemy_value);
     let dice_list = rng.roll_barabara(3, 6)?;
     let total: i64 = dice_list.iter().sum();
-    let dice_text = join_dice(&dice_list);
+    let dice_text = dice_text::join_dice(&dice_list);
     let result = get_check_result(&dice_list, total, target);
     Ok(Some(format!(
         "(あなたの値{your_value}、相手の値{enemy_value}、3d6<={target}) ＞ 出目{dice_text}＝合計{total} ＞ {result}"
@@ -213,10 +200,10 @@ fn get_res_result(command: &str, rng: &mut Randomizer) -> Result<Option<String>,
 
     let your_dice = rng.roll_barabara(3, 6)?;
     let your_total: i64 = your_dice.iter().sum();
-    let your_dice_text = join_dice(&your_dice);
+    let your_dice_text = dice_text::join_dice(&your_dice);
     let enemy_dice = rng.roll_barabara(3, 6)?;
     let enemy_total: i64 = enemy_dice.iter().sum();
-    let enemy_dice_text = join_dice(&enemy_dice);
+    let enemy_dice_text = dice_text::join_dice(&enemy_dice);
 
     let your_result = get_check_result(&your_dice, your_total, your_target);
     let enemy_result = get_check_result(&enemy_dice, enemy_total, enemy_target);

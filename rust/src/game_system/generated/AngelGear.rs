@@ -13,10 +13,10 @@ use std::sync::OnceLock;
 use regex::Regex;
 
 use crate::arithmetic;
-use crate::dice_table::{D66GridTable, RollableTable};
+use crate::dice_table::D66GridTable;
 use crate::enums::RoundType;
 use crate::eval::EvalError;
-use crate::game_system::{GameSystem, SpecificCommandOutput};
+use crate::game_system::{str_helpers, table_helpers, GameSystem, SpecificCommandOutput};
 use crate::randomizer::Randomizer;
 use crate::result::EvalResult;
 
@@ -89,12 +89,9 @@ fn action_pattern() -> &'static Regex {
     RE.get_or_init(|| Regex::new(r"^(\d+)AG(\d+)?(([+-]\d+)*)$").expect("valid regex"))
 }
 
-/// Ruby の `String#to_i`（多倍長）。`i64` に収まらない入力は飽和させる。
-///
-/// 判定値は `roll_barabara` の上限、技能値は出目との比較にしか使わないので、
-/// 飽和させても分岐は変わらない。
+/// Ruby `String#to_i`。`i64` に収まらない指定は `i64::MAX`に飽和。
 fn to_i(digits: &str) -> i64 {
-    digits.parse::<i64>().unwrap_or(i64::MAX)
+    str_helpers::to_i_max(digits)
 }
 
 /// Ruby `AngelGear#resolute_action`。
@@ -145,12 +142,9 @@ fn resolute_action(
     }
 }
 
-/// Ruby `Base#roll_tables(command, tables)`。
+/// Ruby `Base#roll_tables(command, TABLES)`。
 fn roll_tables(command: &str, rng: &mut Randomizer) -> Result<Option<String>, EvalError> {
-    let Some((_, table)) = TABLES.iter().find(|(key, _)| *key == command) else {
-        return Ok(None);
-    };
-    Ok(Some(table.roll(rng)?.to_string()))
+    table_helpers::roll_table(command, TABLES, rng)
 }
 
 /// Ruby `TABLES`（`roll_tables` が引くコマンド名 → 表）。

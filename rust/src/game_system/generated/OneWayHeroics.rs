@@ -36,7 +36,7 @@ use crate::dice_table::range_table::RangeTableItem;
 use crate::dice_table::{RangeInc, RangeTable, RollableTable, Table};
 use crate::enums::D66SortType;
 use crate::eval::EvalError;
-use crate::game_system::{GameSystem, SpecificCommandOutput};
+use crate::game_system::{dice_text, str_helpers, GameSystem, SpecificCommandOutput};
 use crate::randomizer::Randomizer;
 
 // ---------------------------------------------------------------------------
@@ -73,7 +73,7 @@ impl Item {
                 let gold = dice_total * 100;
                 Ok([
                     format!("{times}D6に100を掛け、それだけの【所持金】を{action}"),
-                    format!("{times}D6[{}]*100", join_dice(&dice_list)),
+                    format!("{times}D6[{}]*100", dice_text::join_dice(&dice_list)),
                     format!("【所持金】{gold} を{action}"),
                 ]
                 .join(" ＞ "))
@@ -84,7 +84,7 @@ impl Item {
                 let total: i64 = dice_list.iter().sum();
                 Ok([
                     format!("{status}が{times}D6減少する"),
-                    format!("{times}D6[{}]", join_dice(&dice_list)),
+                    format!("{times}D6[{}]", dice_text::join_dice(&dice_list)),
                     format!("{status}が {total} 減少する"),
                 ]
                 .join(" ＞ "))
@@ -367,14 +367,6 @@ impl RandomEventTable {
     }
 }
 
-/// Ruby `dice_list.join(",")`。
-fn join_dice(dice: &[i64]) -> String {
-    dice.iter()
-        .map(|d| d.to_string())
-        .collect::<Vec<_>>()
-        .join(",")
-}
-
 // ---------------------------------------------------------------------------
 // コマンド評価
 // ---------------------------------------------------------------------------
@@ -512,7 +504,7 @@ fn get_roll_dice_command_result(
 fn roll_judge_dice(dice_count: i64, rng: &mut Randomizer) -> Result<(i64, String), EvalError> {
     let dice_list = rng.roll_barabara(dice_count, 6)?;
     let dice: i64 = dice_list.iter().sum();
-    let dice_text = join_dice(&dice_list);
+    let dice_text = dice_text::join_dice(&dice_list);
 
     if dice_count == 2 {
         return Ok((dice, dice_text));
@@ -553,8 +545,9 @@ fn get_judge_reuslt_text(dice: i64, total: i64, target: Option<i64>) -> &'static
 /// Ruby の `String#to_i`（ここに来るのは `\d+` にマッチした文字列だけ）。
 ///
 /// 桁あふれは Ruby だと Bignum になるので、`i64` に収まらない場合は飽和させる。
+/// Ruby `String#to_i`。`i64` に収まらない指定は `i64::MAX` に飽和。
 fn to_i(digits: &str) -> i64 {
-    digits.parse().unwrap_or(i64::MAX)
+    str_helpers::to_i_max(digits)
 }
 
 /// Ruby の `String#to_i`（先頭の符号付き数字だけを読み、無ければ0）。

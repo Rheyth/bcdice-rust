@@ -13,7 +13,7 @@ use std::sync::OnceLock;
 use regex::Regex;
 
 use crate::eval::EvalError;
-use crate::game_system::{GameSystem, SpecificCommandOutput};
+use crate::game_system::{str_helpers, GameSystem, SpecificCommandOutput};
 use crate::randomizer::Randomizer;
 use crate::result::EvalResult;
 
@@ -172,9 +172,9 @@ fn zoro_bonus(score: i64) -> Option<i64> {
     (tens == ones).then_some(ones)
 }
 
-/// Ruby の `String#to_i`（多倍長）。`i64` に収まらない指定は飽和させる。
+/// Ruby `String#to_i`。`i64` に収まらない指定は `i64::MAX`に飽和。
 fn to_i(digits: &str) -> i64 {
-    digits.parse::<i64>().unwrap_or(i64::MAX)
+    str_helpers::to_i_max(digits)
 }
 
 /// Ruby `BCDice::GameSystem::NanimonaiMura`（ID: `NanimonaiMura`）。

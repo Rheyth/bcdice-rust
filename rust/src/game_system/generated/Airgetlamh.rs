@@ -16,7 +16,7 @@ use std::sync::OnceLock;
 use regex::Regex;
 
 use crate::eval::EvalError;
-use crate::game_system::{GameSystem, SpecificCommandOutput};
+use crate::game_system::{dice_text, GameSystem, SpecificCommandOutput};
 use crate::randomizer::Randomizer;
 
 /// 1ロケール分の定型文。`Airgetlamh` と `Airgetlamh_Korean` はこれだけが違う。
@@ -120,7 +120,7 @@ pub(crate) fn eval_specific_command(
     while roll_count > 0 {
         let mut dice_array = rng.roll_barabara(roll_count, 10)?;
         dice_array.sort_unstable();
-        let dice_text = join_dice(&dice_array);
+        let dice_text = dice_text::join_dice(&dice_array);
 
         let success_count = dice_array.iter().filter(|&&i| i <= parsed.target).count() as i64;
         let critical_count = dice_array
@@ -171,15 +171,6 @@ pub(crate) fn eval_specific_command(
     }
 
     Ok(Some(SpecificCommandOutput::text(result)))
-}
-
-/// Ruby `[#{dice_array.join(',')}]` の中身。
-fn join_dice(dice_list: &[i64]) -> String {
-    dice_list
-        .iter()
-        .map(|d| d.to_string())
-        .collect::<Vec<_>>()
-        .join(",")
 }
 
 /// Ruby `BCDice::GameSystem::Airgetlamh`（ID: `Airgetlamh`）。

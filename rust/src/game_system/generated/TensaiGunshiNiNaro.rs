@@ -25,7 +25,7 @@ use crate::command_parser::Parser;
 use crate::dice_table::{D66Table, RollableTable, Table, TableItem};
 use crate::enums::{D66SortType, RoundType};
 use crate::eval::EvalError;
-use crate::game_system::{GameSystem, SpecificCommandOutput};
+use crate::game_system::{table_helpers, GameSystem, SpecificCommandOutput};
 use crate::normalize::CmpOp;
 use crate::randomizer::Randomizer;
 use crate::result::EvalResult;
@@ -213,14 +213,6 @@ static TABLES: &[(&str, &dyn RollableTable)] = &[
 // ---------------------------------------------------------------------------
 // コマンド評価
 // ---------------------------------------------------------------------------
-
-/// Ruby `Base#roll_tables(command, tables)`。
-fn roll_tables(command: &str, rng: &mut Randomizer) -> Result<Option<String>, EvalError> {
-    let Some((_, table)) = TABLES.iter().find(|(key, _)| *key == command) else {
-        return Ok(None);
-    };
-    Ok(Some(table.roll(rng)?.to_string()))
-}
 
 /// Ruby `TensaiGunshiNiNaro#roll_judge` の `/^(\d*)TN(6|10)([ABCKSTY]*)$/`。
 fn judge_pattern() -> &'static Regex {
@@ -513,7 +505,7 @@ TN10…「有利」を得ている場合、10面ダイスを2つ振って判定�
         if let Some(result) = roll_damage(command, rng)? {
             return Ok(Some(SpecificCommandOutput::result(result)));
         }
-        Ok(roll_tables(command, rng)?.map(SpecificCommandOutput::text))
+        Ok(table_helpers::roll_table(command, TABLES, rng)?.map(SpecificCommandOutput::text))
     }
 }
 

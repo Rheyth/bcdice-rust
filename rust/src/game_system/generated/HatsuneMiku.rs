@@ -21,7 +21,7 @@ use crate::arithmetic;
 use crate::dice_table::{D66Table, RollableTable, Table, TableItem};
 use crate::enums::{D66SortType, RoundType};
 use crate::eval::EvalError;
-use crate::game_system::{GameSystem, SpecificCommandOutput};
+use crate::game_system::{table_helpers, GameSystem, SpecificCommandOutput};
 use crate::normalize::{self, CmpOp};
 use crate::randomizer::Randomizer;
 use crate::Int as I;
@@ -908,18 +908,6 @@ fn judge_roll(
     Ok(Some(message))
 }
 
-/// Ruby `Base#roll_tables(command, TABLES)`。
-fn roll_tables(
-    tables: &'static [(&'static str, &'static dyn RollableTable)],
-    command: &str,
-    rng: &mut Randomizer,
-) -> Result<Option<String>, EvalError> {
-    match tables.iter().find(|(key, _)| *key == command) {
-        None => Ok(None),
-        Some((_, table)) => Ok(Some(table.roll(rng)?.to_string())),
-    }
-}
-
 /// Ruby `HatsuneMiku#eval_game_system_specific_command`。
 pub(crate) fn eval_specific_command(
     sys: &SystemTables,
@@ -929,7 +917,7 @@ pub(crate) fn eval_specific_command(
     if let Some(text) = judge_roll(sys, command, rng)? {
         return Ok(Some(SpecificCommandOutput::text(text)));
     }
-    Ok(roll_tables(sys.tables, command, rng)?.map(SpecificCommandOutput::text))
+    Ok(table_helpers::roll_table(command, sys.tables, rng)?.map(SpecificCommandOutput::text))
 }
 
 /// Ruby `BCDice::GameSystem::HatsuneMiku`（ID: `HatsuneMiku`）。

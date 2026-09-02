@@ -15,7 +15,7 @@
 use crate::common_command;
 use crate::dice_table::{ChainTable, RollableTable, Table, TableItem};
 use crate::eval::EvalError;
-use crate::game_system::{GameSystem, SpecificCommandOutput};
+use crate::game_system::{dice_text, table_helpers, GameSystem, SpecificCommandOutput};
 use crate::randomizer::Randomizer;
 use crate::result::EvalResult;
 
@@ -551,14 +551,6 @@ static TABLES: &[(&str, &dyn RollableTable)] = &[
 // コマンド評価
 // ---------------------------------------------------------------------------
 
-/// Ruby `Base#roll_tables(command, tables)`。
-fn roll_tables(command: &str, rng: &mut Randomizer) -> Result<Option<String>, EvalError> {
-    match TABLES.iter().find(|(key, _)| *key == command) {
-        None => Ok(None),
-        Some((_, table)) => Ok(Some(table.roll(rng)?.to_string())),
-    }
-}
-
 /// Ruby `IfIfIf#check_action`。
 fn check_action(
     game_system: &dyn GameSystem,
@@ -572,7 +564,7 @@ fn check_action(
             let dicearr = rng.roll_barabara(3, 6)?;
             let success_count = dicearr.iter().filter(|&&d| d == 6).count();
             let success = success_count == 3;
-            let dice_str = join_dice(&dicearr);
+            let dice_str = dice_text::join_dice(&dicearr);
             if success {
                 Ok(Some(EvalResult::success(format!(
                     "(3B6=6) ＞ {dice_str} ＞ 6の数:{success_count}"
@@ -589,7 +581,7 @@ fn check_action(
             let success_count = dicearr.iter().filter(|&&d| d == 6).count();
             let text = format!(
                 "(3B6=6) ＞ {} ＞ 6の数:{success_count} 選べるエンド数:{}",
-                join_dice(&dicearr),
+                dice_text::join_dice(&dicearr),
                 success_count + 1
             );
             if success_count == 0 {
@@ -600,15 +592,6 @@ fn check_action(
         }
         _ => Ok(None),
     }
-}
-
-/// Ruby `dicearr.join(',')`。
-fn join_dice(dice_list: &[i64]) -> String {
-    dice_list
-        .iter()
-        .map(|d| d.to_string())
-        .collect::<Vec<_>>()
-        .join(",")
 }
 
 /// Ruby `BCDice::GameSystem::IfIfIf`（ID: `IfIfIf`）。
@@ -659,7 +642,7 @@ impl GameSystem for IfIfIf {
         if let Some(result) = check_action(self, command, rng)? {
             return Ok(Some(SpecificCommandOutput::result(result)));
         }
-        Ok(roll_tables(command, rng)?.map(SpecificCommandOutput::text))
+        Ok(table_helpers::roll_table(command, TABLES, rng)?.map(SpecificCommandOutput::text))
     }
 }
 

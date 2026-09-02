@@ -13,7 +13,7 @@ use std::sync::OnceLock;
 use regex::Regex;
 
 use crate::eval::EvalError;
-use crate::game_system::{GameSystem, SpecificCommandOutput};
+use crate::game_system::{str_helpers, GameSystem, SpecificCommandOutput};
 use crate::randomizer::Randomizer;
 use crate::result::EvalResult;
 
@@ -83,17 +83,9 @@ fn damage_pattern() -> &'static Regex {
     RE.get_or_init(|| Regex::new(r"(?i)^(\d+)PD\+(-?\d+)%(-?\d+)-(\d+)$").expect("valid regex"))
 }
 
-/// Ruby の `String#to_i`（多倍長）。`i64` に収まらない入力は符号側へ飽和させる。
-///
-/// 目標値・クリティカル値は1D100の出目との比較にしか使わないので、飽和させても分岐は変わらない。
-/// ダメージ計算では飽和した値がそのまま出力に出るが、Ruby は多倍長のまま表示するので
-/// 20桁を超える入力でのみ差が出る。
+/// Ruby `String#to_i`。`i64` に収まらない指定は 符号方向に飽和。
 fn to_i(digits: &str) -> i64 {
-    digits.parse::<i64>().unwrap_or(if digits.starts_with('-') {
-        i64::MIN
-    } else {
-        i64::MAX
-    })
+    str_helpers::to_i_signed_saturating(digits)
 }
 
 /// Ruby `PersonaO#roll_attack`（基本判定）。

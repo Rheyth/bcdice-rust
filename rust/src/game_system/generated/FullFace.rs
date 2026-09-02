@@ -16,7 +16,7 @@ use crate::arithmetic;
 use crate::dice_table::{RollableTable, Table};
 use crate::eval::EvalError;
 use crate::format::modifier;
-use crate::game_system::{GameSystem, SpecificCommandOutput};
+use crate::game_system::{dice_text, GameSystem, SpecificCommandOutput};
 use crate::randomizer::sat_i64;
 use crate::randomizer::Randomizer;
 use crate::result::EvalResult;
@@ -129,13 +129,13 @@ fn resolute_action(
     let mut ones = count_of(&dice, 1);
     let sixs = count_of(&dice, 6);
     let mut success_num = dice.iter().filter(|val| **val <= status_no).count() as i64;
-    dice_array.push(join_dice(&dice));
+    dice_array.push(dice_text::join_dice(&dice));
 
     if modify > I::ZERO {
         let dice = roll_sorted(rng, sat_i64(&modify))?;
         ones += count_of(&dice, 1);
         success_num += dice.iter().filter(|val| **val <= status_no).count() as i64;
-        dice_array.push(join_dice(&dice));
+        dice_array.push(dice_text::join_dice(&dice));
     }
     let mut ones_total = ones;
 
@@ -144,7 +144,7 @@ fn resolute_action(
         ones = count_of(&dice, 1);
         ones_total += ones;
         success_num += dice.iter().filter(|val| **val <= status_no).count() as i64;
-        dice_array.push(join_dice(&dice));
+        dice_array.push(dice_text::join_dice(&dice));
     }
 
     // Ruby: Result.new.tap do |result| ... end（フラグの代入順をそのまま再現する）
@@ -202,14 +202,6 @@ fn roll_sorted(rng: &mut Randomizer, times: i64) -> Result<Vec<i64>, EvalError> 
 /// Ruby `Array#count(value)`。
 fn count_of(dice: &[i64], value: i64) -> i64 {
     dice.iter().filter(|d| **d == value).count() as i64
-}
-
-/// Ruby `dice.join(",")`。
-fn join_dice(dice: &[i64]) -> String {
-    dice.iter()
-        .map(|d| d.to_string())
-        .collect::<Vec<_>>()
-        .join(",")
 }
 
 /// Ruby `Base#roll_tables(command, tables)`。

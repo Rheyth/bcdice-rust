@@ -16,9 +16,9 @@ use std::sync::OnceLock;
 
 use regex::Regex;
 
-use crate::dice_table::{RollableTable, Table};
+use crate::dice_table::Table;
 use crate::eval::EvalError;
-use crate::game_system::{GameSystem, SpecificCommandOutput};
+use crate::game_system::{table_helpers, GameSystem, SpecificCommandOutput};
 use crate::randomizer::Randomizer;
 
 /// Ruby `BCDice::GameSystem::CastleInGray`（ID: `CastleInGray`）。
@@ -66,7 +66,7 @@ n は1～12の整数
     crate::impl_prefixes_pattern!();
 
     /// Ruby `#eval_game_system_specific_command`:
-    /// `roll_color(command) || roll_mal(command) || roll_tables(command, TABLES)`。
+    /// `roll_color(command) || roll_mal(command) || table_helpers::roll_table(command, TABLES, TABLES)`。
     fn eval_game_system_specific_command(
         &self,
         command: &str,
@@ -78,7 +78,7 @@ n は1～12の整数
         if let Some(text) = roll_mal(command, rng)? {
             return Ok(Some(SpecificCommandOutput::text(text)));
         }
-        if let Some(text) = roll_tables(command, rng)? {
+        if let Some(text) = table_helpers::roll_table(command, TABLES, rng)? {
             return Ok(Some(SpecificCommandOutput::text(text)));
         }
         Ok(None)
@@ -148,14 +148,6 @@ fn roll_mal(command: &str, rng: &mut Randomizer) -> Result<Option<String>, EvalE
     let value = rng.roll_once(12)?;
     let result = if value <= mal { "黒" } else { "白" };
     Ok(Some(format!("悪意の渦({mal}) ＞ [{value}] ＞ {result}")))
-}
-
-/// Ruby `Base#roll_tables(command, TABLES)`。
-fn roll_tables(command: &str, rng: &mut Randomizer) -> Result<Option<String>, EvalError> {
-    match TABLES.iter().find(|(key, _)| *key == command) {
-        None => Ok(None),
-        Some((_, table)) => Ok(Some(table.roll(rng)?.to_string())),
-    }
 }
 
 // ---------------------------------------------------------------------------

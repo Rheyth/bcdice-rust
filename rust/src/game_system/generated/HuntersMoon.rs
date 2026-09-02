@@ -18,10 +18,10 @@ use regex::Regex;
 use crate::dice_table::sai_fic_skill_table::{
     DEFAULT_RCT_FORMAT, DEFAULT_RTT_FORMAT, DEFAULT_SKILL_FORMAT,
 };
-use crate::dice_table::{RollableTable, SaiFicCategory, SaiFicFormats, SaiFicSkillTable, Table};
+use crate::dice_table::{SaiFicCategory, SaiFicFormats, SaiFicSkillTable, Table};
 use crate::enums::{D66SortType, RoundType};
 use crate::eval::EvalError;
-use crate::game_system::{GameSystem, SpecificCommandOutput, Target};
+use crate::game_system::{table_helpers, GameSystem, SpecificCommandOutput, Target};
 use crate::normalize::CmpOp;
 use crate::randomizer::Randomizer;
 use crate::result::{CheckOutcome, EvalResult};
@@ -42,20 +42,12 @@ fn eval_specific_command(
         return Ok(roll_strange_ability_table(command, rng)?.map(SpecificCommandOutput::text));
     }
 
-    if let Some(text) = roll_tables(command, rng)? {
+    if let Some(text) = table_helpers::roll_table(command, TABLES, rng)? {
         return Ok(Some(SpecificCommandOutput::text(text)));
     }
     Ok(RTT
         .roll_command(rng, command)?
         .map(SpecificCommandOutput::text))
-}
-
-/// Ruby `Base#roll_tables(command, tables)`。
-fn roll_tables(command: &str, rng: &mut Randomizer) -> Result<Option<String>, EvalError> {
-    let Some((_, table)) = TABLES.iter().find(|(key, _)| *key == command) else {
-        return Ok(None);
-    };
-    Ok(Some(table.roll(rng)?.to_string()))
 }
 
 /// Ruby `case command when /^SA/i`。

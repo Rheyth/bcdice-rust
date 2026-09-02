@@ -22,7 +22,7 @@ use regex::Regex;
 use crate::dice_table::{D66Table, RollableTable, Table, TableItem};
 use crate::enums::D66SortType;
 use crate::eval::EvalError;
-use crate::game_system::{GameSystem, SpecificCommandOutput};
+use crate::game_system::{dice_text, table_helpers, GameSystem, SpecificCommandOutput};
 use crate::randomizer::Randomizer;
 use crate::result::EvalResult;
 
@@ -72,7 +72,7 @@ impl GameSystem for DivineCharger {
 
     /// Ruby `DivineCharger#eval_game_system_specific_command`。
     ///
-    /// Ruby: `resolute_action(command) || resolute_reverse(command) || roll_tables(command, TABLES)`
+    /// Ruby: `resolute_action(command) || resolute_reverse(command) || table_helpers::roll_table(command, TABLES, TABLES)`
     fn eval_game_system_specific_command(
         &self,
         command: &str,
@@ -84,7 +84,7 @@ impl GameSystem for DivineCharger {
         if let Some(result) = resolute_reverse(command) {
             return Ok(Some(SpecificCommandOutput::result(result)));
         }
-        Ok(roll_tables(command, rng)?.map(SpecificCommandOutput::Text))
+        Ok(table_helpers::roll_table(command, TABLES, rng)?.map(SpecificCommandOutput::Text))
     }
 
     /// Ruby `initialize`: `@sort_barabara_dice = true`。
@@ -114,7 +114,7 @@ fn resolute_action(command: &str, rng: &mut Randomizer) -> Result<Option<EvalRes
     // Ruby: dice = @randomizer.roll_barabara(num_dice, 6).sort
     let mut dice = rng.roll_barabara(num_dice, 6)?;
     dice.sort_unstable();
-    let dice_text = join_dice(&dice);
+    let dice_text = dice_text::join_dice(&dice);
     let output = format!("({num_dice}DC>={target}) ＞ {dice_text}");
 
     Ok(Some(action_result(output, &dice, target)))
@@ -166,7 +166,7 @@ fn resolute_reverse(command: &str) -> Option<EvalResult> {
     let target = &captures[2];
 
     let dice = reverse_dice(&raw_dice);
-    let dice_text = join_dice(&dice);
+    let dice_text = dice_text::join_dice(&dice);
     let output = format!("(REV[{raw_dice}]>={target}) ＞ {dice_text}");
 
     Some(action_result(output, &dice, target))
@@ -187,28 +187,12 @@ fn reverse_dice(raw_dice: &str) -> Vec<i64> {
     dice
 }
 
-/// Ruby `Base#roll_tables(command, TABLES)`。`RollResult#to_s` を返す。
-fn roll_tables(command: &str, rng: &mut Randomizer) -> Result<Option<String>, EvalError> {
-    let Some((_, table)) = TABLES.iter().find(|(key, _)| *key == command) else {
-        return Ok(None);
-    };
-    Ok(Some(table.roll(rng)?.to_string()))
-}
-
 /// Ruby `String#to_i`（`[0-9]+` にマッチした文字列用）。
 ///
 /// i64 を超える桁数は飽和させる（Ruby は Bignum になり、
 /// `roll_barabara` が `TooManyRandsError` を投げる／目標値比較が失敗になる）。
 fn parse_i64_saturating(text: &str) -> i64 {
     text.parse().unwrap_or(i64::MAX)
-}
-
-/// Ruby `dice.join(",")`。
-fn join_dice(dice: &[i64]) -> String {
-    dice.iter()
-        .map(|d| d.to_string())
-        .collect::<Vec<_>>()
-        .join(",")
 }
 
 // ---------------------------------------------------------------------------

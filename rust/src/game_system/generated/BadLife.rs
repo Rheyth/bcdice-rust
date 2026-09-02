@@ -17,10 +17,10 @@ use std::sync::OnceLock;
 use regex::Regex;
 
 use crate::arithmetic;
-use crate::dice_table::{RollableTable, Table};
+use crate::dice_table::Table;
 use crate::enums::RoundType;
 use crate::eval::EvalError;
-use crate::game_system::{GameSystem, SpecificCommandOutput};
+use crate::game_system::{str_helpers, table_helpers, GameSystem, SpecificCommandOutput};
 use crate::randomizer::Randomizer;
 
 /// Ruby `TABLES["SKL"]`（スキル表 / 1D100）の項目。
@@ -289,14 +289,6 @@ static TABLES: &[(&str, &Table)] = &[
     ("BRN", &BRN),
 ];
 
-/// Ruby `Base#roll_tables(command, tables)`。
-fn roll_tables(command: &str, rng: &mut Randomizer) -> Result<Option<String>, EvalError> {
-    let Some((_, table)) = TABLES.iter().find(|(key, _)| *key == command) else {
-        return Ok(None);
-    };
-    Ok(Some(table.roll(rng)?.to_string()))
-}
-
 /// Ruby `BadLife#judgeDice` の判定コマンド正規表現。
 ///
 /// Ruby:
@@ -341,12 +333,9 @@ fn get_critical_fumble(
     }
 }
 
-/// Ruby `String#to_i`（`(m[1] || 1).to_i`）。
-///
-/// Ruby の `to_i` は多倍長だが、Rustでは `i64` に飽和させる
-/// （桁あふれする個数は `roll_barabara` が上限超過で落ちるので経路は変わらない）。
+/// Ruby `String#to_i`。`i64` に収まらない指定は `i64::MAX`に飽和。
 fn to_i(digits: &str) -> i64 {
-    digits.parse::<i64>().unwrap_or(i64::MAX)
+    str_helpers::to_i_max(digits)
 }
 
 /// Ruby `BadLife#judgeDice`。
@@ -567,7 +556,7 @@ GL6@20!HA → 上記に加えて〈先見の明〉［重撃］の効果。
         if let Some(text) = judge_dice(command, rng)? {
             return Ok(Some(SpecificCommandOutput::text(text)));
         }
-        Ok(roll_tables(command, rng)?.map(SpecificCommandOutput::text))
+        Ok(table_helpers::roll_table(command, TABLES, rng)?.map(SpecificCommandOutput::text))
     }
 }
 

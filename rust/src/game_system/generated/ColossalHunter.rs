@@ -19,7 +19,7 @@ use crate::arithmetic;
 use crate::enums::RoundType;
 use crate::eval::EvalError;
 use crate::format;
-use crate::game_system::{GameSystem, SpecificCommandOutput};
+use crate::game_system::{dice_text, GameSystem, SpecificCommandOutput};
 use crate::randomizer::sat_i64;
 use crate::randomizer::Randomizer;
 use crate::result::EvalResult;
@@ -428,7 +428,7 @@ fn check_roll(command: &str, rng: &mut Randomizer) -> Result<Option<EvalResult>,
     // ダイスロール
     let dice_list = rng.roll_barabara(dice_count, 6)?;
     let dice: i64 = dice_list.iter().sum();
-    let dice_str = join_dice(&dice_list);
+    let dice_str = dice_text::join_dice(&dice_list);
     let total = dice + modify.clone();
 
     // 出力文の生成
@@ -719,14 +719,6 @@ fn get_table_by_d66(
         .unwrap_or("1");
 
     Ok((text, index_text))
-}
-
-/// Ruby `dice_list.join(',')`。
-fn join_dice(dice: &[i64]) -> String {
-    dice.iter()
-        .map(|d| d.to_string())
-        .collect::<Vec<_>>()
-        .join(",")
 }
 
 #[cfg(test)]

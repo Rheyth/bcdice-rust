@@ -12,7 +12,7 @@ use std::sync::OnceLock;
 use regex::Regex;
 
 use crate::eval::EvalError;
-use crate::game_system::{GameSystem, SpecificCommandOutput};
+use crate::game_system::{str_helpers, GameSystem, SpecificCommandOutput};
 use crate::randomizer::Randomizer;
 
 /// Ruby `BCDice::GameSystem::CrashWorld`（ID: `CrashWorld`）。
@@ -69,13 +69,9 @@ fn command_pattern() -> &'static Regex {
     RE.get_or_init(|| Regex::new(r"(?i)CW(\d+)").expect("valid regex"))
 }
 
-/// Ruby の `String#to_i`（多倍長）。`i64` に収まらない入力は飽和させる。
-///
-/// 目標値が12以上の場合、Ruby も本移植も「必ず成功が続く」ため
-/// 乱数を使い切る（テストでは注入乱数の枯渇、本番では無限ループ）まで回る。
-/// 飽和させてもこの分岐は変わらない。
+/// Ruby `String#to_i`。`i64` に収まらない指定は `i64::MAX`に飽和。
 fn to_i(digits: &str) -> i64 {
-    digits.parse::<i64>().unwrap_or(i64::MAX)
+    str_helpers::to_i_max(digits)
 }
 
 /// Ruby `CrashWorld#getCrashWorldRoll`。
