@@ -235,7 +235,12 @@ pub fn parse(source: &str) -> Option<Command> {
 
     let secret = cur.accept_sym("S");
 
-    let mut notations = vec![parse_dice(&mut cur)?];
+    // 最初のダイス（`dice: term U term`）
+    let (first_times, first_sides) = super::barabara_dice::parse_dice(&mut cur, "U")?;
+    let mut notations = vec![Notation {
+        roll_times: first_times,
+        sides: first_sides,
+    }];
 
     // notations の続きと、修正値の先頭 unary の先読み
     let mut modifier: Option<Node> = None;
@@ -284,17 +289,19 @@ pub fn parse(source: &str) -> Option<Command> {
         }
     }
     // modifier_expr PLUS mul | modifier_expr MINUS mul
-    while modifier.is_some() {
+    while let Some(lhs) = modifier.take() {
         let op = if cur.accept(&Tok::Plus) {
             ArithOp::Add
         } else if cur.accept(&Tok::Minus) {
             ArithOp::Sub
         } else {
+            // 演算子がなければ消費せず戻す（元の `while modifier.is_some()` と同じ）
+            modifier = Some(lhs);
             break;
         };
         let rhs = arithmetic::parse_mul(&mut cur, ParenMode::Drop)?;
         modifier = Some(Node::BinaryOp {
-            lhs: Box::new(modifier.take().expect("checked by while condition")),
+            lhs: Box::new(lhs),
             op,
             rhs: Box::new(rhs),
         });
@@ -316,16 +323,6 @@ pub fn parse(source: &str) -> Option<Command> {
         target_number,
         reroll_threshold,
     })
-}
-
-/// `dice: term U term`。
-fn parse_dice(cur: &mut Cursor) -> Option<Notation> {
-    let roll_times = arithmetic::parse_term(cur, ParenMode::Drop)?;
-    if !cur.accept_sym("U") {
-        return None;
-    }
-    let sides = arithmetic::parse_term(cur, ParenMode::Drop)?;
-    Some(Notation { roll_times, sides })
 }
 
 #[cfg(test)]

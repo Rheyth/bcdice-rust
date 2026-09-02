@@ -1,6 +1,7 @@
 use num_traits::ToPrimitive;
 
-use crate::common_command::lexer::RUBY_WHITESPACE;
+use crate::common_command::lexer::digits_to_int;
+use crate::common_command::scanner::Scanner;
 use crate::eval::{self, EvalError, EvalResult};
 use crate::game_system::GameSystem;
 use crate::randomizer::Randomizer;
@@ -113,54 +114,40 @@ fn starts_with_repeat_keyword_case_sensitive(trailer: &str) -> bool {
 /// `StringScanner` を `s?` → キーワード → 回数 → 空白 の順で舐め、
 /// 残り（`post_match`）を `trailer` にする。空白が無い場合は `nil`。
 pub fn parse(command: &str) -> Option<Repeat> {
-    let mut rest = command;
+    let mut scanner = Scanner::new(command);
 
     // scanner.scan(/s/i)
-    let secret = match rest.chars().next() {
-        Some(c) if c.eq_ignore_ascii_case(&'s') => {
-            rest = &rest[c.len_utf8()..];
-            true
-        }
-        _ => false,
-    };
+    let secret = scanner.scan_char_ci('s');
 
     // scanner.scan(/repeat|rep|x/i) : Rubyの選択は左優先なので "repeat" が先
-    let matched = ["repeat", "rep", "x"].iter().find_map(|kw| {
-        (rest.len() >= kw.len()
-            && rest.is_char_boundary(kw.len())
-            && rest[..kw.len()].eq_ignore_ascii_case(kw))
-        .then_some(kw.len())
-    })?;
-    rest = &rest[matched..];
+    if !["repeat", "rep", "x"]
+        .iter()
+        .any(|kw| scanner.scan_literal_ci(kw))
+    {
+        return None;
+    }
 
     // scanner.scan(/\d+/)
-    let digits_end = rest
-        .find(|c: char| !c.is_ascii_digit())
-        .unwrap_or(rest.len());
-    if digits_end == 0 {
-        return None;
-    }
-    let times = rest[..digits_end]
-        .parse::<Int>()
-        .expect("digits should be numeric");
-    rest = &rest[digits_end..];
+    let digits = scanner.scan_digits()?;
+    let times = digits_to_int(digits);
 
     // scanner.scan(/\s+/) : 空白が必須
-    let ws_end = rest.len() - rest.trim_start_matches(RUBY_WHITESPACE).len();
-    if ws_end == 0 {
+    let ws_start = scanner.rest().len();
+    scanner.skip_whitespace();
+    if scanner.rest().len() == ws_start {
         return None;
     }
-    rest = &rest[ws_end..];
 
     // scanner.post_match（直前のマッチ以降＝残り全部）
-    if rest.is_empty() {
+    let trailer = scanner.rest();
+    if trailer.is_empty() {
         return None;
     }
 
     Some(Repeat {
         secret,
         times,
-        trailer: rest.to_string(),
+        trailer: trailer.to_string(),
     })
 }
 

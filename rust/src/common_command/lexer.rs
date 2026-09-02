@@ -63,10 +63,18 @@ pub fn first_word(source: &str) -> &str {
 }
 
 /// 数字列を整数にする。Ruby `String#to_i`（多倍長）相当。
+///
+/// 呼び出し側は [`scan_digits`] の結果（ASCII数字のみの列）を渡す契約なので、
+/// パースは失敗しない。契約違反時は panic ではなく 0 で握り、デバッグビルドでは
+/// assert で検知できるようにする。
+///
+/// [`scan_digits`]: crate::common_command::lexer::scan_digits
 pub(crate) fn digits_to_int(digits: &str) -> crate::Int {
-    digits
-        .parse::<crate::Int>()
-        .expect("digits should be numeric")
+    debug_assert!(
+        !digits.is_empty() && digits.bytes().all(|b| b.is_ascii_digit()),
+        "digits should be numeric: {digits:?}"
+    );
+    digits.parse::<crate::Int>().unwrap_or_default()
 }
 
 /// Ruby `StringScanner#getch` + `String#upcase` 相当。
@@ -114,7 +122,11 @@ pub fn lex(source: &str) -> Lexed {
             rest = &rest[op.len()..];
             continue;
         }
-        let c = rest.chars().next().expect("rest is not empty");
+        // scan_digits/scan_cmp_op のどちらにも当てはまらなければ先頭は非ASCII数字・
+        // 非比較演算子の1文字なので、`Some` が保証される
+        let Some(c) = rest.chars().next() else {
+            break;
+        };
         rest = &rest[c.len_utf8()..];
         let upper = upcase_char(c);
         tokens.push(match upper.as_str() {
