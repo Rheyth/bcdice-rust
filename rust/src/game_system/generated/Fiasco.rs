@@ -198,60 +198,13 @@ impl GameSystem for Fiasco {
 
 #[cfg(test)]
 mod tests {
-    use std::path::Path;
-
-    use crate::eval::eval_command;
-    use crate::game_system::GameSystemId;
-    use crate::randomizer::SeededRandomizer;
-    use crate::toml_test::TestDataFile;
-
     #[test]
     fn all_toml_cases_pass() {
-        let path = Path::new(env!("CARGO_MANIFEST_DIR"))
-            .parent()
-            .unwrap()
-            .join("test/data/Fiasco.toml");
-        if !path.exists() {
-            return;
-        }
-        let data = TestDataFile::load(&path).expect("Fiasco.toml must parse");
-        assert_eq!(data.tests.len(), 20);
-        for (index, case) in data.tests.iter().enumerate() {
-            let mut rng =
-                SeededRandomizer::new(case.rands.iter().map(|rand| (rand.value, rand.sides)));
-            let result = eval_command(&GameSystemId::new("Fiasco"), &case.input, &mut rng)
-                .unwrap_or_else(|error| panic!("case {}: {error}", index + 1))
-                .unwrap_or_else(|| panic!("case {} returned nil", index + 1));
-            assert_eq!(result.text, case.output, "case {}", index + 1);
-            assert_eq!(
-                (
-                    result.secret,
-                    result.success,
-                    result.failure,
-                    result.critical,
-                    result.fumble
-                ),
-                (
-                    case.secret,
-                    case.success,
-                    case.failure,
-                    case.critical,
-                    case.fumble
-                ),
-                "case {} flags",
-                index + 1
-            );
-            let expected_remaining = if [9, 10, 19, 20].contains(&(index + 1)) {
-                6 // Ruby also returns before rolling on duplicate colors.
-            } else {
-                0
-            };
-            assert_eq!(
-                rng.remaining(),
-                expected_remaining,
-                "case {} remaining random values",
-                index + 1
-            );
-        }
+        crate::game_system::test_support::assert_toml_cases(
+            "Fiasco",
+            "Fiasco.toml",
+            20,
+            &[(9, 6), (10, 6), (19, 6), (20, 6)],
+        );
     }
 }

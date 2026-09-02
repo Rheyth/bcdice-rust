@@ -236,50 +236,12 @@ static DA: &[&str] = &["【フードファイト（野菜）】大根ソード�
 
 #[cfg(test)]
 mod tests {
-    use crate::{
-        eval::eval_command, game_system::GameSystemId, randomizer::SeededRandomizer,
-        toml_test::TestDataFile,
-    };
-    use std::path::Path;
     #[test]
     fn all_toml_cases_pass() {
-        let path = Path::new(env!("CARGO_MANIFEST_DIR"))
-            .parent()
-            .unwrap()
-            .join("test/data/RuinBreakers.toml");
-        if !path.exists() {
-            return;
-        }
-        let data = TestDataFile::load(&path).expect("RuinBreakers.toml must parse");
-        assert_eq!(data.tests.len(), 34);
-        let mut failures = Vec::new();
-        for (i, tc) in data.tests.iter().enumerate() {
-            let mut rng = SeededRandomizer::new(tc.rands.iter().map(|r| (r.value, r.sides)));
-            let result = eval_command(&GameSystemId::new("RuinBreakers"), &tc.input, &mut rng);
-            let matches = match &result {
-                Ok(None) => tc.expects_nil(),
-                Ok(Some(r)) => {
-                    !tc.expects_nil()
-                        && r.text == tc.output
-                        && r.secret == tc.secret
-                        && r.success == tc.success
-                        && r.failure == tc.failure
-                        && r.critical == tc.critical
-                        && r.fumble == tc.fumble
-                }
-                Err(_) => false,
-            };
-            if !matches || !rng.is_empty() {
-                failures.push(format!(
-                    "case {} {:?}: expected {:?}, got {:?}, remaining={}",
-                    i + 1,
-                    tc.input,
-                    tc.output,
-                    result,
-                    rng.remaining()
-                ));
-            }
-        }
-        assert!(failures.is_empty(), "{}", failures.join("\n"));
+        crate::game_system::test_support::assert_toml_cases_strict(
+            "RuinBreakers",
+            "RuinBreakers.toml",
+            34,
+        );
     }
 }

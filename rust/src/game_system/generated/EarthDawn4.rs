@@ -165,45 +165,12 @@ fn step_info(step: i64) -> Vec<i64> {
 
 #[cfg(test)]
 mod tests {
-    use crate::{
-        eval::eval_command, game_system::GameSystemId, randomizer::SeededRandomizer,
-        toml_test::TestDataFile,
-    };
-    use std::path::Path;
-
     #[test]
     fn all_toml_cases_pass() {
-        let path = Path::new(env!("CARGO_MANIFEST_DIR"))
-            .parent()
-            .unwrap()
-            .join("test/data/EarthDawn4.toml");
-        if !path.exists() {
-            return;
-        }
-        let data = TestDataFile::load(&path).expect("EarthDawn4.toml must parse");
-        assert_eq!(data.tests.len(), 35);
-        let mut failures = Vec::new();
-        for (i, tc) in data.tests.iter().enumerate() {
-            let mut rng = SeededRandomizer::new(tc.rands.iter().map(|r| (r.value, r.sides)));
-            match eval_command(&GameSystemId::new("EarthDawn4"), &tc.input, &mut rng) {
-                Ok(Some(result))
-                    if result.text == tc.output
-                        && result.success == tc.success
-                        && result.failure == tc.failure
-                        && result.critical == tc.critical
-                        && result.fumble == tc.fumble
-                        && result.secret == tc.secret
-                        && rng.is_empty() => {}
-                other => failures.push(format!(
-                    "case {} {:?}: expected {:?}, got {:?}, remaining={}",
-                    i + 1,
-                    tc.input,
-                    tc.output,
-                    other,
-                    rng.remaining()
-                )),
-            }
-        }
-        assert!(failures.is_empty(), "{}", failures.join("\n"));
+        crate::game_system::test_support::assert_toml_cases_strict(
+            "EarthDawn4",
+            "EarthDawn4.toml",
+            35,
+        );
     }
 }
